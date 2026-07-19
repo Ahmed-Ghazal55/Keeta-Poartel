@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#fff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#d84315;
+      --accent2:#ff7043;
+      --dark:#243447;
+      --green:#16884a;
+      --blue:#0f4c81;
+      --danger:#dc2626;
+      --shadow:0 18px 45px rgba(36,52,71,.14);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:"Segoe UI",Tahoma,Arial,sans-serif;
+      direction:rtl;
+      background:linear-gradient(135deg,#f7f9fc,#edf1f7);
+      color:var(--text);
+      padding:18px;
+    }
+
+    .shell{max-width:840px;margin:0 auto}
+
+    .hero{
+      background:linear-gradient(135deg,#243447,#111827);
+      color:#fff;
+      border-radius:22px;
+      padding:22px 24px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero:after{
+      content:"SWAP";
+      position:absolute;
+      left:20px;
+      bottom:-20px;
+      font-size:78px;
+      font-weight:900;
+      letter-spacing:4px;
+      opacity:.07;
+    }
+
+    .hero h1{margin:0;font-size:23px}
+    .hero p{margin:8px 0 0;color:#d1d5db;font-size:13px}
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:20px;
+      margin-top:16px;
+    }
+
+    .search-row{
+      display:grid;
+      grid-template-columns:1fr 180px;
+      gap:12px;
+      align-items:end;
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      font-weight:800;
+      color:#374151;
+      margin-bottom:7px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      border:1.5px solid #d8dee9;
+      border-radius:12px;
+      padding:12px 13px;
+      font-size:14px;
+      background:#fff;
+      outline:none;
+      transition:.18s;
+    }
+
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--accent2);
+      box-shadow:0 0 0 4px rgba(255,112,67,.10);
+    }
+
+    input[readonly]{
+      background:#f3f4f6;
+      color:#4b5563;
+      font-weight:800;
+    }
+
+    .btn{
+      border:0;
+      border-radius:13px;
+      padding:13px 16px;
+      font-weight:900;
+      cursor:pointer;
+      font-size:14px;
+      transition:.18s;
+    }
+
+    .btn-dark{background:linear-gradient(135deg,var(--dark),#111827);color:#fff}
+    .btn-accent{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;width:100%;font-size:16px;padding:15px}
+    .btn-green{background:linear-gradient(135deg,var(--green),#22a865);color:#fff}
+    .btn-blue{background:linear-gradient(135deg,var(--blue),#1d74b7);color:#fff}
+    .btn-danger{background:linear-gradient(135deg,var(--danger),#f97316);color:#fff}
+
+    .btn:disabled{
+      background:#cbd5e1!important;
+      color:#64748b;
+      cursor:not-allowed;
+    }
+
+    .hidden{display:none!important}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+
+    .full{grid-column:1/-1}
+
+    .info{
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:14px;
+      background:#f8fafc;
+    }
+
+    .info h3{margin:0 0 10px;font-size:15px}
+    .info p{margin:6px 0;color:#374151;font-size:13px}
+    .info b{color:#111827}
+
+    .old{border-right:5px solid #f97316}
+    .new{border-right:5px solid #22c55e;background:#f0fdf4}
+    .create{border-right:5px solid #0f4c81;background:#eff6ff}
+    .edit{border-right:5px solid #7c3aed;background:#f5f3ff}
+    .danger-box{border-right:5px solid #dc2626;background:#fff1f2}
+
+    .warning{
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      border-radius:14px;
+      padding:12px;
+      color:#9a3412;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.7;
+      margin-top:12px;
+    }
+
+    .tools{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:14px;
+      padding:13px;
+    }
+
+    .tool{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:11px;
+      padding:10px;
+      font-size:13px;
+      font-weight:600;
+    }
+
+    .tool input{width:auto;margin:0}
+
+    textarea{
+      resize:vertical;
+      min-height:72px;
+    }
+
+    .muted{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.7;
+      margin-top:8px;
+    }
+
+    .action-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .action-row .btn{
+      flex:1;
+      min-width:180px;
+    }
+
+    @media(max-width:720px){
+      .search-row,.grid,.grid-2,.tools{grid-template-columns:1fr}
+      .hero:after{display:none}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <div class="hero">
+      <h1>🔄 مركز التبديلات والتسكين - جدة</h1>
+      <p>تبديل مندوب، تسكين أولي، أو إيقاف أيدي بدون بديل مع تعديل بيانات المندوب قبل التنفيذ.</p>
+    </div>
+
+    <div class="card">
+      <div class="search-row">
+        <div>
+          <label>🆔 رقم اليوزر Keeta ID</label>
+          <input type="text" id="kid" placeholder="أدخل رقم اليوزر">
+        </div>
+        <button id="searchBtn" class="btn btn-dark" onclick="searchUser()">فحص اليوزر</button>
+      </div>
+    </div>
+
+    <div id="swapUI" class="hidden">
+      <div class="card">
+        <div class="info old">
+          <h3>👤 حالة اليوزر الحالية</h3>
+
+          <div class="grid-2">
+            <p><b>الاسم:</b> <span id="cName">-</span></p>
+            <p><b>الإقامة:</b> <span id="cIqama">-</span></p>
+            <p><b>نوع البديل:</b> <span id="cSubType">-</span></p>
+            <p><b>المركبة:</b> <span id="cVehicle">-</span></p>
+            <p><b>تاريخ الاستلام:</b> <span id="cAssign">-</span></p>
+            <p><b>ورقة التشغيل:</b> <span id="cSheet">-</span></p>
+          </div>
+
+          <div class="action-row">
+            <button id="currentEditBtn" class="btn btn-blue hidden" onclick="openCurrentEditor()">✏️ تعديل بيانات المندوب الحالي</button>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <label>⚙️ نوع العملية</label>
+          <select id="operationType" onchange="updateOperationUI()">
+            <option value="assign_or_swap">تسكين / تبديل مندوب</option>
+            <option value="stop">إيقاف الأيدي بدون بديل</option>
+          </select>
+        </div>
+
+        <div class="grid" style="margin-top:14px">
+          <div>
+            <label>📅 تاريخ التسليم / الإغلاق</label>
+            <input type="date" id="deliveryDate">
+          </div>
+
+          <div>
+            <label>📦 عدد الطلبات</label>
+            <input type="number" id="orders" value="0">
+          </div>
+
+          <div>
+            <label>⚠️ المخالفات</label>
+            <input type="number" id="violations" value="0">
+          </div>
+
+          <div class="full">
+            <label>📝 ملاحظات الإغلاق / العهدة</label>
+            <textarea id="notes" placeholder="سبب التبديل أو الإيقاف، حالة العهدة، أي ملاحظات تخص المندوب السابق..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="riderEditorBox" class="card edit hidden">
+        <h3 id="editorTitle" style="margin-top:0">✏️ تعديل بيانات المندوب</h3>
+
+        <div class="grid-2">
+          <div>
+            <label>رقم الإقامة</label>
+            <input type="text" id="editIqama" readonly>
+          </div>
+
+          <div>
+            <label>نوع العملية</label>
+            <input type="text" id="editTargetText" readonly>
+          </div>
+
+          <div class="full">
+            <label>اسم المندوب</label>
+            <input type="text" id="editName" placeholder="اكتب الاسم الكامل">
+          </div>
+
+          <div>
+            <label>الجنسية</label>
+            <select id="editNationality">
+              <option value="">-- اختر الجنسية --</option>
+              <option value="سعودي">سعودي</option>
+              <option value="بنجلاديش">بنجلاديش</option>
+              <option value="باكستان">باكستان</option>
+              <option value="الهند">الهند</option>
+              <option value="اليمن">اليمن</option>
+              <option value="نيبال">نيبال</option>
+              <option value="أفغانستان">أفغانستان</option>
+              <option value="فلسطين">فلسطين</option>
+              <option value="الفلبين">الفلبين</option>
+              <option value="مصر">مصر</option>
+              <option value="السودان">السودان</option>
+              <option value="إثيوبيا">إثيوبيا</option>
+              <option value="نيجيريا">نيجيريا</option>
+              <option value="الصومال">الصومال</option>
+              <option value="تشاد">تشاد</option>
+              <option value="فلسطيني بوثيقة مصرية">فلسطيني بوثيقة مصرية</option>
+              <option value="سريلانكا">سريلانكا</option>
+              <option value="سوريا">سوريا</option>
+              <option value="الأردن">الأردن</option>
+              <option value="لبنان">لبنان</option>
+              <option value="ليبيا">ليبيا</option>
+              <option value="تونس">تونس</option>
+              <option value="الجزائر">الجزائر</option>
+              <option value="المغرب">المغرب</option>
+              <option value="غير معروف">غير معروف</option>
+              <option value="آخر">آخر</option>
+            </select>
+          </div>
+
+          <div>
+            <label>نوع المركبة</label>
+            <select id="editVehicleType">
+              <option value="سيارة شركة">سيارة شركة</option>
+              <option value="دباب شركة">دباب شركة</option>
+              <option value="مركبة خاصة">مركبة خاصة</option>
+            </select>
+          </div>
+
+          <div>
+            <label>جوال التواصل</label>
+            <input type="text" id="editPhone" placeholder="05xxxxxxxx">
+          </div>
+
+          <div>
+            <label>جوال التطبيق</label>
+            <input type="text" id="editAppPhone" placeholder="05xxxxxxxx">
+          </div>
+
+          <div>
+            <label>حالة كارت البنزين</label>
+            <select id="editGasStatus">
+              <option value="">بدون حالة / حفظ الرقم كما هو</option>
+              <option value="نشط">نشط</option>
+              <option value="مراجعة المركبات">مراجعة المركبات</option>
+              <option value="موقوف">موقوف</option>
+              <option value="لا يوجد">لا يوجد</option>
+            </select>
+          </div>
+
+          <div>
+            <label>رقم كارت البنزين / اللوحة</label>
+            <input type="text" id="editGasNumber" placeholder="مثال: 12345 أو أ ط ب 1848">
+          </div>
+
+          <div class="full">
+            <label>عهدة الأدوات</label>
+            <div class="tools" id="editToolsGroup">
+              <label class="tool"><input type="checkbox" value="تيشرت"> تيشرت</label>
+              <label class="tool"><input type="checkbox" value="شنطة"> شنطة</label>
+              <label class="tool"><input type="checkbox" value="خوذة"> خوذة</label>
+              <label class="tool"><input type="checkbox" value="جاكت"> جاكت</label>
+              <label class="tool"><input type="checkbox" value="طقم كامل"> طقم كامل</label>
+              <label class="tool"><input type="checkbox" value="بدون عهدة"> بدون عهدة</label>
+            </div>
+          </div>
+
+          <div>
+            <label>نوع الآيبان</label>
+            <select id="editIbanOptions" onchange="toggleEditIban()">
+              <option value="manual">إدخال رقم الآيبان</option>
+              <option value="CASH">CASH</option>
+              <option value="جمع الايبان لاحقاً">جمع الايبان لاحقاً</option>
+            </select>
+          </div>
+
+          <div>
+            <label>رقم الآيبان</label>
+            <input type="text" id="editIbanInput" placeholder="SA...">
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button id="editorSaveBtn" class="btn btn-green" onclick="saveEditor()">💾 حفظ التعديل</button>
+          <button class="btn btn-danger" onclick="closeEditor()">إغلاق التعديل</button>
+        </div>
+
+        <div class="muted">التعديل يتم في ورقة بيانات المناديب. لو أعمدة التشغيل مربوطة بمعادلات، البيانات ستتحدث تلقائيًا.</div>
+      </div>
+
+      <div id="newRiderSection" class="card">
+        <div class="search-row">
+          <div>
+            <label>👤 إقامة المندوب البديل / الجديد</label>
+            <input type="text" id="newIqama" placeholder="أدخل رقم إقامة البديل">
+          </div>
+          <button id="previewBtn" class="btn btn-green" onclick="previewRider()">فحص البديل</button>
+        </div>
+
+        <div id="newBox" class="info new hidden" style="margin-top:14px">
+          <h3>✅ بيانات البديل الجديد</h3>
+
+          <div class="grid-2">
+            <p><b>الاسم:</b> <span id="nName">-</span></p>
+            <p><b>الإقامة:</b> <span id="nIqama">-</span></p>
+            <p><b>نوع البديل:</b> <span id="nSubType">-</span></p>
+            <p><b>المركبة:</b> <span id="nVehicle">-</span></p>
+            <p><b>جوال التواصل:</b> <span id="nPhone">-</span></p>
+            <p><b>المعرف الحالي:</b> <span id="nCurrent">-</span></p>
+          </div>
+
+          <div class="action-row">
+            <button id="newEditBtn" class="btn btn-blue" onclick="openNewEditor()">✏️ تعديل بيانات البديل قبل التسكين</button>
+          </div>
+        </div>
+
+        <div id="createRiderBox" class="info create hidden" style="margin-top:14px">
+          <h3>➕ المندوب غير موجود - إضافة مباشرة قبل التسكين</h3>
+
+          <div class="grid-2">
+            <div class="full">
+              <label>اسم المندوب</label>
+              <input type="text" id="newName" placeholder="اكتب الاسم الكامل">
+            </div>
+
+            <div>
+              <label>الجنسية</label>
+              <select id="newNationality">
+                <option value="">-- اختر الجنسية --</option>
+                <option value="سعودي">سعودي</option>
+                <option value="بنجلاديش">بنجلاديش</option>
+                <option value="باكستان">باكستان</option>
+                <option value="الهند">الهند</option>
+                <option value="اليمن">اليمن</option>
+                <option value="نيبال">نيبال</option>
+                <option value="أفغانستان">أفغانستان</option>
+                <option value="فلسطين">فلسطين</option>
+                <option value="الفلبين">الفلبين</option>
+                <option value="مصر">مصر</option>
+                <option value="السودان">السودان</option>
+                <option value="إثيوبيا">إثيوبيا</option>
+                <option value="نيجيريا">نيجيريا</option>
+                <option value="الصومال">الصومال</option>
+                <option value="تشاد">تشاد</option>
+                <option value="فلسطيني بوثيقة مصرية">فلسطيني بوثيقة مصرية</option>
+                <option value="سريلانكا">سريلانكا</option>
+                <option value="سوريا">سوريا</option>
+                <option value="الأردن">الأردن</option>
+                <option value="لبنان">لبنان</option>
+                <option value="ليبيا">ليبيا</option>
+                <option value="تونس">تونس</option>
+                <option value="الجزائر">الجزائر</option>
+                <option value="المغرب">المغرب</option>
+                <option value="غير معروف">غير معروف</option>
+                <option value="آخر">آخر</option>
+              </select>
+            </div>
+
+            <div>
+              <label>نوع المركبة</label>
+              <select id="newVehicleType">
+                <option value="سيارة شركة">سيارة شركة</option>
+                <option value="دباب شركة">دباب شركة</option>
+                <option value="مركبة خاصة">مركبة خاصة</option>
+              </select>
+            </div>
+
+            <div>
+              <label>جوال التواصل</label>
+              <input type="text" id="newPhone" placeholder="05xxxxxxxx">
+            </div>
+
+            <div>
+              <label>جوال التطبيق</label>
+              <input type="text" id="newAppPhone" placeholder="05xxxxxxxx">
+            </div>
+
+            <div>
+              <label>حالة كارت البنزين</label>
+              <select id="newGasStatus">
+                <option value="">بدون حالة / حفظ الرقم كما هو</option>
+                <option value="نشط">نشط</option>
+                <option value="مراجعة المركبات">مراجعة المركبات</option>
+                <option value="موقوف">موقوف</option>
+                <option value="لا يوجد">لا يوجد</option>
+              </select>
+            </div>
+
+            <div>
+              <label>رقم كارت البنزين / اللوحة</label>
+              <input type="text" id="newGasNumber" placeholder="مثال: 12345 أو أ ط ب 1848">
+            </div>
+
+            <div class="full">
+              <label>عهدة الأدوات</label>
+              <div class="tools" id="newToolsGroup">
+                <label class="tool"><input type="checkbox" value="تيشرت"> تيشرت</label>
+                <label class="tool"><input type="checkbox" value="شنطة"> شنطة</label>
+                <label class="tool"><input type="checkbox" value="خوذة"> خوذة</label>
+                <label class="tool"><input type="checkbox" value="جاكت"> جاكت</label>
+                <label class="tool"><input type="checkbox" value="طقم كامل"> طقم كامل</label>
+                <label class="tool"><input type="checkbox" value="بدون عهدة"> بدون عهدة</label>
+              </div>
+            </div>
+
+            <div>
+              <label>نوع الآيبان</label>
+              <select id="newIbanOptions" onchange="toggleNewIban()">
+                <option value="manual">إدخال رقم الآيبان</option>
+                <option value="CASH">CASH</option>
+                <option value="جمع الايبان لاحقاً">جمع الايبان لاحقاً</option>
+              </select>
+            </div>
+
+            <div>
+              <label>رقم الآيبان</label>
+              <input type="text" id="newIbanInput" placeholder="SA...">
+            </div>
+          </div>
+
+          <div class="muted">سيتم حفظ بيانات هذا المندوب أولاً في ورقة بيانات المناديب، ثم تسكينه مباشرة على الأيدي.</div>
+        </div>
+
+        <div style="margin-top:14px">
+          <label>📝 ملاحظات استلام البديل الجديد</label>
+          <textarea id="newRiderNotes" placeholder="مثال: استلم الحساب، ملاحظات العهدة الجديدة، ملاحظات التسكين..."></textarea>
+        </div>
+
+        <div id="colsWarning" class="warning">سيتم تحديث أعمدة التسكين فقط حسب ورقة التشغيل، ولن يتم لمس أعمدة معادلات بيانات البديل.</div>
+      </div>
+
+      <div id="stopOnlyBox" class="card danger-box hidden">
+        <h3 style="margin-top:0">⛔ إيقاف الأيدي بدون بديل</h3>
+        <div class="warning">سيتم أخذ نسخة من بيانات المندوب الحالي في الأرشيف، ثم تفريغ المندوب من الأيدي، وتحويل الحالة في ورقة مراجعة الحالة إلى: لا يعمل حاليا.</div>
+      </div>
+
+      <button id="executeBtn" class="btn btn-accent hidden" onclick="executeSwap()">🚀 تنفيذ العملية</button>
+    </div>
+  </div>
+
+<script>
+  let activeUser = null;
+  let activeRider = null;
+  let createMode = false;
+  let editorTarget = "";
+
+  const gasStatuses = ["نشط", "مراجعة المركبات", "موقوف", "لا يوجد"];
+
+  document.getElementById("deliveryDate").valueAsDate = new Date();
+
+  ["searchBtn", "previewBtn", "executeBtn", "editorSaveBtn"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.dataset.original = el.innerText;
+  });
+
+  function setLoading(id, state, text){
+    const btn = document.getElementById(id);
+    if(!btn) return;
+    btn.disabled = state;
+    btn.innerText = state ? text : btn.dataset.original;
+  }
+
+  function searchUser(){
+    const id = document.getElementById("kid").value.trim();
+
+    if(!id) return alert("برجاء إدخال رقم اليوزر");
+
+    setLoading("searchBtn", true, "جاري البحث...");
+
+    google.script.run
+      .withSuccessHandler(res => {
+        setLoading("searchBtn", false);
+
+        if(!res.found) {
+          return alert(res.msg || "لم يتم العثور على اليوزر");
+        }
+
+        activeUser = res;
+        activeRider = null;
+        createMode = false;
+        editorTarget = "";
+
+        fillCurrent(res);
+        updateOperationUI();
+      })
+      .withFailureHandler(err => {
+        setLoading("searchBtn", false);
+        alert("حدث خطأ: " + err.message);
+      })
+      .searchKeetaForSwap(id);
+  }
+
+  function fillCurrent(res){
+    document.getElementById("swapUI").classList.remove("hidden");
+    document.getElementById("executeBtn").classList.add("hidden");
+    document.getElementById("riderEditorBox").classList.add("hidden");
+
+    const hasCurrent = !!String(res.currentIqama || "").trim();
+
+    document.getElementById("cName").innerText = hasCurrent ? (res.currentName || "-") : "لا يوجد مندوب حالي - تسكين أولي";
+    document.getElementById("cIqama").innerText = hasCurrent ? (res.currentIqama || "-") : "-";
+    document.getElementById("cSubType").innerText = hasCurrent ? (res.currentSubType || "-") : "-";
+    document.getElementById("cVehicle").innerText = hasCurrent ? (res.currentVehicle || "-") : "-";
+    document.getElementById("cAssign").innerText = hasCurrent ? (res.assignDate || "-") : "-";
+    document.getElementById("cSheet").innerText = res.sheetName || "-";
+
+    document.getElementById("currentEditBtn").classList.toggle("hidden", !hasCurrent);
+
+    const op = document.getElementById("operationType");
+    op.value = "assign_or_swap";
+    op.querySelector('option[value="stop"]').disabled = !hasCurrent;
+
+    const hint = res.sheetName === "Per Order Mode"
+      ? "في Per Order Mode سيتم تحديث H رقم إقامة البديل، و R تاريخ الاستلام، و T ملاحظات البديل فقط."
+      : "في ورقة التشغيل سيتم تحديث G رقم إقامة البديل، و Q تاريخ الاستلام، و S ملاحظات البديل فقط.";
+
+    document.getElementById("colsWarning").innerText = hint + " لن يتم لمس أعمدة معادلات بيانات البديل.";
+  }
+
+  function updateOperationUI(){
+    const op = document.getElementById("operationType").value;
+    const hasCurrent = activeUser && !!String(activeUser.currentIqama || "").trim();
+
+    closeEditor();
+
+    if(op === "stop"){
+      if(!hasCurrent){
+        alert("لا يمكن اختيار إيقاف بدون بديل لأن الأيدي ليس عليه مندوب حاليا.");
+        document.getElementById("operationType").value = "assign_or_swap";
+        return updateOperationUI();
+      }
+
+      document.getElementById("newRiderSection").classList.add("hidden");
+      document.getElementById("stopOnlyBox").classList.remove("hidden");
+      document.getElementById("executeBtn").classList.remove("hidden");
+    } else {
+      document.getElementById("newRiderSection").classList.remove("hidden");
+      document.getElementById("stopOnlyBox").classList.add("hidden");
+      document.getElementById("executeBtn").classList.add("hidden");
+      document.getElementById("newBox").classList.add("hidden");
+      document.getElementById("createRiderBox").classList.add("hidden");
+
+      activeRider = null;
+      createMode = false;
+    }
+  }
+
+  function openCurrentEditor(){
+    if(!activeUser || !String(activeUser.currentIqama || "").trim()) {
+      return alert("لا يوجد مندوب حالي لتعديل بياناته");
+    }
+
+    const iqama = String(activeUser.currentIqama || "").trim();
+
+    google.script.run
+      .withSuccessHandler(res => {
+        if(res && res.found){
+          fillEditor(res, "current");
+        } else {
+          fillEditor({
+            found: false,
+            iqama: iqama,
+            name: activeUser.currentName || "",
+            phone: activeUser.currentPhone || "",
+            subType: activeUser.currentSubType || "",
+            vehicleType: activeUser.currentVehicle || "مركبة خاصة",
+            gasCard: activeUser.currentGasCard || "",
+            tools: activeUser.currentTools || "",
+            nationality: activeUser.currentNationality || "",
+            appPhone: activeUser.currentAppPhone || "",
+            iban: activeUser.currentIban || "",
+            currentUser: activeUser.keetaId || ""
+          }, "current");
+
+          alert("المندوب الحالي غير موجود في قاعدة بيانات المناديب. يمكنك إضافته/تحديثه الآن بنفس رقم الإقامة.");
+        }
+      })
+      .withFailureHandler(err => {
+        alert("حدث خطأ أثناء فتح تعديل المندوب الحالي: " + err.message);
+      })
+      .getRiderPreview(iqama);
+  }
+
+  function openNewEditor(){
+    if(!activeRider) {
+      return alert("افحص البديل أولاً");
+    }
+
+    fillEditor(activeRider, "new");
+  }
+
+  function fillEditor(rider, target){
+    editorTarget = target;
+
+    document.getElementById("riderEditorBox").classList.remove("hidden");
+
+    document.getElementById("editorTitle").innerText =
+      target === "current"
+        ? "✏️ تعديل بيانات المندوب الحالي"
+        : "✏️ تعديل بيانات البديل قبل التسكين";
+
+    document.getElementById("editTargetText").value =
+      target === "current"
+        ? "مندوب حالي"
+        : "مندوب بديل / جديد";
+
+    document.getElementById("editIqama").value = rider.iqama || "";
+    document.getElementById("editName").value = rider.name || "";
+    document.getElementById("editPhone").value = rider.phone || "";
+    document.getElementById("editAppPhone").value = rider.appPhone || "";
+
+    setSelectValue("editVehicleType", rider.vehicleType || "مركبة خاصة");
+    setSelectValue("editNationality", rider.nationality || "");
+
+    const gas = rider.gasCard || "";
+    const matched = gasStatuses.find(s => gas.includes(s));
+
+    document.getElementById("editGasStatus").value = matched || "";
+    document.getElementById("editGasNumber").value = matched
+      ? gas.replace(matched, "").replace(/[-–]/g, "").trim()
+      : gas;
+
+    fillTools("editToolsGroup", rider.tools || "");
+
+    const iban = rider.iban || "";
+
+    if(iban === "CASH" || iban === "جمع الايبان لاحقاً"){
+      document.getElementById("editIbanOptions").value = iban;
+      document.getElementById("editIbanInput").value = "";
+    } else {
+      document.getElementById("editIbanOptions").value = "manual";
+      document.getElementById("editIbanInput").value = iban;
+    }
+
+    toggleEditIban();
+
+    document.getElementById("riderEditorBox").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  function saveEditor(){
+    const data = collectEditorData();
+
+    if(!data.iqama) return alert("رقم الإقامة غير واضح");
+    if(!data.name) return alert("اسم المندوب مطلوب");
+
+    setLoading("editorSaveBtn", true, "جاري حفظ التعديل...");
+
+    google.script.run
+      .withSuccessHandler(res => {
+        setLoading("editorSaveBtn", false);
+
+        if(!res || !res.ok){
+          return alert((res && res.msg) ? res.msg : "لم يتم الحفظ");
+        }
+
+        alert(res.msg);
+
+        if(editorTarget === "new"){
+          if(res.rider){
+            activeRider = res.rider;
+            createMode = false;
+            fillNewPreview(res.rider);
+            document.getElementById("executeBtn").classList.remove("hidden");
+          }
+
+          closeEditor();
+          return;
+        }
+
+        if(editorTarget === "current"){
+          closeEditor();
+
+          if(activeUser && activeUser.keetaId){
+            google.script.run
+              .withSuccessHandler(refreshed => {
+                if(refreshed && refreshed.found){
+                  activeUser = refreshed;
+                  fillCurrent(refreshed);
+                  document.getElementById("executeBtn").classList.remove(
+                    document.getElementById("operationType").value === "assign_or_swap"
+                      ? "hidden"
+                      : ""
+                  );
+                  updateOperationUI();
+                }
+              })
+              .searchKeetaForSwap(activeUser.keetaId);
+          }
+        }
+      })
+      .withFailureHandler(err => {
+        setLoading("editorSaveBtn", false);
+        alert("حدث خطأ أثناء حفظ التعديل: " + err.message);
+      })
+      .saveRiderInline(data);
+  }
+
+  function closeEditor(){
+    document.getElementById("riderEditorBox").classList.add("hidden");
+    editorTarget = "";
+  }
+
+  function collectEditorData(){
+    const selectedTools = collectTools("editToolsGroup");
+
+    const ibanOpt = document.getElementById("editIbanOptions").value;
+    const iban = ibanOpt === "manual"
+      ? document.getElementById("editIbanInput").value.trim()
+      : ibanOpt;
+
+    const gasStatus = document.getElementById("editGasStatus").value.trim();
+    const gasNumber = document.getElementById("editGasNumber").value.trim();
+    const gasCard = gasStatus ? `${gasStatus} - ${gasNumber}`.trim() : gasNumber;
+
+    return {
+      iqama: document.getElementById("editIqama").value.trim(),
+      name: document.getElementById("editName").value.trim(),
+      phone: document.getElementById("editPhone").value.trim(),
+      nationality: document.getElementById("editNationality").value,
+      appPhone: document.getElementById("editAppPhone").value.trim(),
+      vehicleType: document.getElementById("editVehicleType").value,
+      gasCard: gasCard,
+      tools: selectedTools,
+      iban: iban
+    };
+  }
+
+  function previewRider(){
+    const iqama = document.getElementById("newIqama").value.trim();
+
+    if(!iqama) return alert("برجاء إدخال إقامة البديل");
+
+    closeEditor();
+
+    setLoading("previewBtn", true, "جاري الفحص...");
+
+    google.script.run
+      .withSuccessHandler(res => {
+        setLoading("previewBtn", false);
+
+        document.getElementById("newBox").classList.add("hidden");
+        document.getElementById("createRiderBox").classList.add("hidden");
+        document.getElementById("executeBtn").classList.add("hidden");
+
+        activeRider = null;
+        createMode = false;
+
+        if(!res.found) {
+          createMode = true;
+          document.getElementById("createRiderBox").classList.remove("hidden");
+          document.getElementById("executeBtn").classList.remove("hidden");
+
+          alert("المندوب غير موجود. املأ بياناته أسفل النموذج وسيتم إضافته ثم تسكينه مباشرة.");
+          return;
+        }
+
+        activeRider = res;
+        fillNewPreview(res);
+        document.getElementById("executeBtn").classList.remove("hidden");
+      })
+      .withFailureHandler(err => {
+        setLoading("previewBtn", false);
+        alert("حدث خطأ: " + err.message);
+      })
+      .getRiderPreview(iqama);
+  }
+
+  function fillNewPreview(res){
+    document.getElementById("newBox").classList.remove("hidden");
+    document.getElementById("createRiderBox").classList.add("hidden");
+
+    document.getElementById("nName").innerText = res.name || "-";
+    document.getElementById("nIqama").innerText = res.iqama || document.getElementById("newIqama").value.trim();
+    document.getElementById("nSubType").innerText = res.subType || "-";
+    document.getElementById("nVehicle").innerText = res.vehicleType || "-";
+    document.getElementById("nPhone").innerText = res.phone || "-";
+    document.getElementById("nCurrent").innerText = res.currentUser || "غير موجود حاليا";
+  }
+
+  function collectNewRiderData(){
+    const selectedTools = collectTools("newToolsGroup");
+
+    const ibanOpt = document.getElementById("newIbanOptions").value;
+    const iban = ibanOpt === "manual"
+      ? document.getElementById("newIbanInput").value.trim()
+      : ibanOpt;
+
+    const gasStatus = document.getElementById("newGasStatus").value.trim();
+    const gasNumber = document.getElementById("newGasNumber").value.trim();
+    const gasCard = gasStatus ? `${gasStatus} - ${gasNumber}`.trim() : gasNumber;
+
+    return {
+      iqama: document.getElementById("newIqama").value.trim(),
+      name: document.getElementById("newName").value.trim(),
+      phone: document.getElementById("newPhone").value.trim(),
+      nationality: document.getElementById("newNationality").value,
+      appPhone: document.getElementById("newAppPhone").value.trim(),
+      vehicleType: document.getElementById("newVehicleType").value,
+      gasCard: gasCard,
+      tools: selectedTools,
+      iban: iban
+    };
+  }
+
+  function executeSwap(){
+    if(!activeUser) return alert("ابحث عن اليوزر أولاً");
+
+    const operationType = document.getElementById("operationType").value;
+
+    const data = {
+      operationType: operationType,
+      keetaId: activeUser.keetaId,
+      newIqama: document.getElementById("newIqama").value.trim(),
+      deliveryDate: document.getElementById("deliveryDate").value,
+      orders: document.getElementById("orders").value,
+      violations: document.getElementById("violations").value,
+      notes: document.getElementById("notes").value.trim(),
+      newRiderNotes: document.getElementById("newRiderNotes").value.trim()
+    };
+
+    if(operationType !== "stop"){
+      if(!data.newIqama) {
+        return alert("برجاء إدخال إقامة البديل");
+      }
+
+      if(createMode){
+        const newRiderData = collectNewRiderData();
+
+        if(!newRiderData.name) return alert("اسم المندوب الجديد مطلوب");
+        if(!newRiderData.iqama) return alert("رقم إقامة المندوب الجديد مطلوب");
+
+        data.autoCreateRider = true;
+        data.newRiderData = newRiderData;
+      } else if(!activeRider){
+        return alert("افحص المندوب البديل أولاً، أو أضف بياناته لو غير موجود.");
+      }
+    }
+
+    const confirmText = operationType === "stop"
+      ? "هل تؤكد إيقاف الأيدي بدون بديل؟ سيتم أرشفة المندوب الحالي وتغيير الحالة إلى لا يعمل حاليا."
+      : "هل تؤكد تنفيذ التسكين / التبديل؟";
+
+    if(!confirm(confirmText)) return;
+
+    setLoading("executeBtn", true, "جاري التنفيذ...");
+
+    google.script.run
+      .withSuccessHandler(msg => {
+        alert(msg);
+        google.script.host.close();
+      })
+      .withFailureHandler(err => {
+        setLoading("executeBtn", false);
+        alert("حدث خطأ: " + err.message);
+      })
+      .processSwapAndArchive(data);
+  }
+
+  function toggleNewIban(){
+    const opt = document.getElementById("newIbanOptions").value;
+    document.getElementById("newIbanInput").style.display = opt === "manual" ? "block" : "none";
+  }
+
+  function toggleEditIban(){
+    const opt = document.getElementById("editIbanOptions").value;
+    document.getElementById("editIbanInput").style.display = opt === "manual" ? "block" : "none";
+  }
+
+  function collectTools(groupId){
+    return Array.from(document.querySelectorAll(`#${groupId} input:checked`))
+      .map(cb => cb.value)
+      .join(", ");
+  }
+
+  function fillTools(groupId, text){
+    const toolsArr = String(text || "")
+      .split(/,\s*/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    document.querySelectorAll(`#${groupId} input`).forEach(cb => {
+      cb.checked = toolsArr.includes(cb.value);
+    });
+  }
+
+  function setSelectValue(id, value){
+    const el = document.getElementById(id);
+    const exists = Array.from(el.options).some(o => o.value === value);
+
+    if(value && !exists) {
+      el.add(new Option(value, value));
+    }
+
+    el.value = value || "";
+  }
+
+  toggleNewIban();
+  toggleEditIban();
+</script>
+</body>
+</html>

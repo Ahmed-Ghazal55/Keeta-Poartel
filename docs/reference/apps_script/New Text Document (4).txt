@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#0f4c81;
+      --primary2:#1d74b7;
+      --success:#18864b;
+      --warning:#fff7ed;
+      --warning-border:#fed7aa;
+      --shadow:0 18px 45px rgba(15,76,129,.12);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;direction:rtl;background:linear-gradient(135deg,#f6f8fc,#eef4fb);color:var(--text);padding:18px}
+    .shell{max-width:820px;margin:0 auto}
+    .hero{background:linear-gradient(135deg,var(--primary),#12315c);color:#fff;border-radius:22px;padding:22px 24px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .hero:after{content:"KEETA RIYADH";position:absolute;left:18px;bottom:-10px;font-weight:800;font-size:48px;letter-spacing:2px;opacity:.08}
+    .hero h1{margin:0;font-size:24px}
+    .hero p{margin:8px 0 0;color:#dbeafe;font-size:13px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-top:16px}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .full{grid-column:1/-1}
+    label{display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:7px}
+    input,select,textarea{width:100%;border:1.5px solid #d8dee9;border-radius:12px;padding:12px 13px;font-size:14px;background:#fff;outline:none;transition:.18s}
+    input:focus,select:focus,textarea:focus{border-color:var(--primary2);box-shadow:0 0 0 4px rgba(29,116,183,.10)}
+    input[readonly]{background:#f3f4f6;color:#4b5563;font-weight:700}
+    .search-row{display:grid;grid-template-columns:1fr 180px;gap:12px;align-items:end}
+    .btn{border:0;border-radius:13px;padding:13px 16px;font-weight:800;cursor:pointer;font-size:14px;transition:.18s}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}
+    .btn-success{background:linear-gradient(135deg,var(--success),#22a865);color:#fff;width:100%;font-size:16px;padding:15px;display:none}
+    .btn:disabled{background:#cbd5e1!important;color:#64748b;cursor:not-allowed;box-shadow:none}
+    .status{background:var(--warning);border:1px solid var(--warning-border);border-radius:14px;padding:12px 14px;margin-bottom:14px;color:#9a3412;font-weight:800;text-align:center}
+    .chips{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+    .chip{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:10px}
+    .chip small{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}
+    .chip b{font-size:13px;color:#0f172a}
+    .tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:13px}
+    .tool{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #e5e7eb;border-radius:11px;padding:10px;font-size:13px;font-weight:600}
+    .tool input{width:auto;margin:0}
+    .hidden{display:none}
+    .note{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.7}
+    @media(max-width:720px){.grid,.grid-3,.search-row,.chips{grid-template-columns:1fr}.hero:after{display:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="hero">
+      <h1>👥 إدارة بيانات المناديب - جدة</h1>
+      <p>بحث، إضافة، وتعديل بيانات المندوب بدون كسر معادلات نوع البديل أو المعرف الحالي في جدة.</p>
+    </div>
+
+    <div class="card">
+      <div class="search-row">
+        <div>
+          <label>🔍 رقم الإقامة</label>
+          <input type="text" id="iqama" inputmode="numeric" placeholder="أدخل رقم الإقامة 10 أرقام">
+        </div>
+        <button id="searchBtn" class="btn btn-primary" onclick="search()">تحقق من السجل</button>
+      </div>
+    </div>
+
+    <div id="mainForm" class="card hidden">
+      <div id="statusBox" class="status">يرجى البحث أولاً</div>
+
+      <div class="chips">
+        <div class="chip"><small>نوع البديل التلقائي</small><b id="subTypeText">-</b></div>
+        <div class="chip"><small>المعرف الحالي</small><b id="currentUserText">-</b></div>
+      </div>
+
+      <input type="hidden" id="row">
+
+      <div class="grid">
+        <div class="full">
+          <label>اسم المندوب</label>
+          <input type="text" id="name" placeholder="اكتب الاسم الكامل">
+        </div>
+
+        <div>
+          <label>الجنسية</label>
+          <select id="nationality">
+            <option value="">-- اختر الجنسية --</option>
+            <option value="سعودي">سعودي</option>
+            <option value="بنجلاديش">بنجلاديش</option>
+            <option value="باكستان">باكستان</option>
+            <option value="الهند">الهند</option>
+            <option value="اليمن">اليمن</option>
+            <option value="نيبال">نيبال</option>
+            <option value="أفغانستان">أفغانستان</option>
+            <option value="فلسطين">فلسطين</option>
+            <option value="الفلبين">الفلبين</option>
+            <option value="مصر">مصر</option>
+            <option value="السودان">السودان</option>
+            <option value="إثيوبيا">إثيوبيا</option>
+            <option value="نيجيريا">نيجيريا</option>
+            <option value="الصومال">الصومال</option>
+            <option value="تشاد">تشاد</option>
+            <option value="فلسطيني بوثيقة مصرية">فلسطيني بوثيقة مصرية</option>
+            <option value="سريلانكا">سريلانكا</option>
+            <option value="سوريا">سوريا</option>
+            <option value="الأردن">الأردن</option>
+            <option value="لبنان">لبنان</option>
+            <option value="ليبيا">ليبيا</option>
+            <option value="تونس">تونس</option>
+            <option value="الجزائر">الجزائر</option>
+            <option value="المغرب">المغرب</option>
+            <option value="غير معروف">غير معروف</option>
+            <option value="آخر">آخر</option>
+          </select>
+        </div>
+
+        <div>
+          <label>نوع المركبة</label>
+          <select id="vehicleType">
+            <option value="سيارة شركة">سيارة شركة</option>
+            <option value="دباب شركة">دباب شركة</option>
+            <option value="مركبة خاصة">مركبة خاصة</option>
+          </select>
+        </div>
+
+        <div>
+          <label>جوال التواصل</label>
+          <input type="text" id="phone" placeholder="05xxxxxxxx">
+        </div>
+
+        <div>
+          <label>جوال التطبيق</label>
+          <input type="text" id="appPhone" placeholder="05xxxxxxxx">
+        </div>
+
+        <div>
+          <label>حالة كارت البنزين</label>
+          <select id="gasStatus">
+            <option value="">بدون حالة / حفظ الرقم كما هو</option>
+            <option value="نشط">نشط</option>
+            <option value="مراجعة المركبات">مراجعة المركبات</option>
+            <option value="موقوف">موقوف</option>
+            <option value="لا يوجد">لا يوجد</option>
+          </select>
+        </div>
+
+        <div>
+          <label>رقم كارت البنزين / اللوحة</label>
+          <input type="text" id="gasNumber" placeholder="مثال: 12345 أو أ ط ب 1848">
+        </div>
+
+        <div class="full">
+          <label>عهدة الأدوات</label>
+          <div class="tools" id="toolsGroup">
+            <label class="tool"><input type="checkbox" value="تيشرت"> تيشرت</label>
+            <label class="tool"><input type="checkbox" value="شنطة"> شنطة</label>
+            <label class="tool"><input type="checkbox" value="خوذة"> خوذة</label>
+            <label class="tool"><input type="checkbox" value="جاكت"> جاكت</label>
+            <label class="tool"><input type="checkbox" value="طقم كامل"> طقم كامل</label>
+            <label class="tool"><input type="checkbox" value="بدون عهدة"> بدون عهدة</label>
+          </div>
+        </div>
+
+        <div>
+          <label>نوع الآيبان</label>
+          <select id="ibanOptions" onchange="toggleIban()">
+            <option value="manual">إدخال رقم الآيبان</option>
+            <option value="CASH">CASH</option>
+            <option value="جمع الايبان لاحقاً">جمع الايبان لاحقاً</option>
+          </select>
+        </div>
+
+        <div>
+          <label>رقم الآيبان</label>
+          <input type="text" id="ibanInput" placeholder="SA...">
+        </div>
+      </div>
+
+      <div class="note">سيتم تحديث الأعمدة C:D و F:K فقط، مع الحفاظ على معادلات E و L و P.</div>
+      <button id="saveBtn" class="btn btn-success" onclick="save()">💾 حفظ البيانات</button>
+    </div>
+  </div>
+
+<script>
+  const gasStatuses = ["نشط", "مراجعة المركبات", "موقوف", "لا يوجد"];
+
+  function toggleIban(){
+    const opt = document.getElementById("ibanOptions").value;
+    document.getElementById("ibanInput").style.display = opt === "manual" ? "block" : "none";
+  }
+
+  function setLoading(btnId, state, text){
+    const btn = document.getElementById(btnId);
+    btn.disabled = state;
+    btn.innerText = state ? text : btn.dataset.original;
+  }
+
+  document.getElementById("searchBtn").dataset.original = document.getElementById("searchBtn").innerText;
+  document.getElementById("saveBtn").dataset.original = document.getElementById("saveBtn").innerText;
+
+  function search(){
+    const iqama = document.getElementById("iqama").value.trim();
+    if(!iqama) return alert("برجاء إدخال رقم الإقامة");
+    setLoading("searchBtn", true, "جاري البحث...");
+    google.script.run
+      .withSuccessHandler(fillForm)
+      .withFailureHandler(err => {
+        setLoading("searchBtn", false);
+        alert("حدث خطأ: " + err.message);
+      })
+      .searchRider(iqama);
+  }
+
+  function fillForm(rider){
+    setLoading("searchBtn", false);
+    document.getElementById("mainForm").classList.remove("hidden");
+    document.getElementById("saveBtn").style.display = "block";
+
+    clearForm(false);
+
+    if(rider && rider.found){
+      document.getElementById("row").value = rider.row || "";
+      document.getElementById("statusBox").innerText = "✅ تم العثور على المندوب ويمكن تعديل بياناته";
+      document.getElementById("subTypeText").innerText = rider.subType || "-";
+      document.getElementById("currentUserText").innerText = rider.currentUser || "غير موجود حاليا";
+      document.getElementById("name").value = rider.name || "";
+      document.getElementById("phone").value = rider.phone || "";
+      document.getElementById("appPhone").value = rider.appPhone || "";
+      setSelectValue("vehicleType", rider.vehicleType || "سيارة شركة");
+      setSelectValue("nationality", rider.nationality || "");
+
+      const gas = rider.gasCard || "";
+      const matched = gasStatuses.find(s => gas.includes(s));
+      document.getElementById("gasStatus").value = matched || "";
+      document.getElementById("gasNumber").value = matched ? gas.replace(matched, "").replace(/[-–]/g, "").trim() : gas;
+
+      const toolsArr = splitTools(rider.tools || "");
+      document.querySelectorAll("#toolsGroup input").forEach(cb => cb.checked = toolsArr.includes(cb.value));
+
+      const iban = rider.iban || "";
+      if(iban === "CASH" || iban === "جمع الايبان لاحقاً"){
+        document.getElementById("ibanOptions").value = iban;
+        document.getElementById("ibanInput").value = "";
+      } else {
+        document.getElementById("ibanOptions").value = "manual";
+        document.getElementById("ibanInput").value = iban;
+      }
+      toggleIban();
+      document.getElementById("saveBtn").innerText = "💾 تحديث بيانات المندوب";
+      document.getElementById("saveBtn").dataset.original = "💾 تحديث بيانات المندوب";
+    } else {
+      document.getElementById("statusBox").innerText = "➕ المندوب غير موجود، سيتم إنشاء سجل جديد";
+      document.getElementById("subTypeText").innerText = "سيظهر تلقائيًا بعد الحفظ";
+      document.getElementById("currentUserText").innerText = "غير موجود حاليا";
+      document.getElementById("saveBtn").innerText = "➕ إضافة مندوب جديد";
+      document.getElementById("saveBtn").dataset.original = "➕ إضافة مندوب جديد";
+    }
+  }
+
+  function clearForm(keepIqama){
+    if(!keepIqama) {}
+    ["row","name","phone","appPhone","gasNumber","ibanInput"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("vehicleType").value = "سيارة شركة";
+    document.getElementById("nationality").value = "";
+    document.getElementById("gasStatus").value = "";
+    document.getElementById("ibanOptions").value = "manual";
+    document.querySelectorAll("#toolsGroup input").forEach(cb => cb.checked = false);
+    toggleIban();
+  }
+
+  function splitTools(text){
+    return text.split(/,\s*/).map(x => x.trim()).filter(Boolean);
+  }
+
+  function setSelectValue(id, value){
+    const el = document.getElementById(id);
+    const exists = Array.from(el.options).some(o => o.value === value);
+    if(value && !exists) el.add(new Option(value, value));
+    el.value = value;
+  }
+
+  function save(){
+    const selectedTools = Array.from(document.querySelectorAll("#toolsGroup input:checked")).map(cb => cb.value).join(", ");
+    const ibanOpt = document.getElementById("ibanOptions").value;
+    const iban = ibanOpt === "manual" ? document.getElementById("ibanInput").value.trim() : ibanOpt;
+    const gasStatus = document.getElementById("gasStatus").value.trim();
+    const gasNumber = document.getElementById("gasNumber").value.trim();
+    const gasCard = gasStatus ? `${gasStatus} - ${gasNumber}`.trim() : gasNumber;
+
+    const data = {
+      iqama: document.getElementById("iqama").value.trim(),
+      name: document.getElementById("name").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      nationality: document.getElementById("nationality").value,
+      appPhone: document.getElementById("appPhone").value.trim(),
+      vehicleType: document.getElementById("vehicleType").value,
+      gasCard: gasCard,
+      tools: selectedTools,
+      iban: iban
+    };
+
+    if(!data.iqama) return alert("رقم الإقامة مطلوب");
+    if(!data.name) return alert("اسم المندوب مطلوب");
+
+    setLoading("saveBtn", true, "جاري الحفظ...");
+    google.script.run
+      .withSuccessHandler(msg => {
+        alert(msg);
+        google.script.host.close();
+      })
+      .withFailureHandler(err => {
+        setLoading("saveBtn", false);
+        alert("حدث خطأ: " + err.message);
+      })
+      .saveRiderToMaster(data);
+  }
+</script>
+</body>
+</html>

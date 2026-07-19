@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Keeta Shift Capacity Planner V11</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 0; margin: 0; background:#f5f7fa; }
+header {
+  background: #ffd600;
+  color: #000;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header .title-block { display: flex; align-items: center; gap: 10px; }
+header img.logo { height: 32px; border-radius: 4px; }
+header h1 { margin: 0; font-size: 20px; }
+header span.subtitle { font-size: 12px; color:#333; }
+.main { padding: 20px; max-width: 1100px; margin: 0 auto 40px auto; }
+.card {
+  background:#ffffff;
+  border-radius:10px;
+  padding:16px 18px;
+  margin-bottom:16px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.06);
+}
+.card h3 { margin-top:0; margin-bottom:8px; }
+.card p, .card li { font-size:13px; }
+table { border-collapse: collapse; margin-top: 10px; width: 100%; background:#fff; }
+td, th { border: 1px solid #ccc; padding: 6px 10px; text-align: center; font-size: 13px; }
+textarea { width: 100%; height: 130px; font-size:13px; }
+input[type="number"] { width: 90px; padding:3px; font-size:13px; }
+.status-ok { background: #d4edda; }
+.status-low { background: #fff3cd; }
+.status-high { background: #f8d7da; }
+small { font-size: 11px; color: #666; }
+button {
+  margin-right: 6px;
+  margin-top: 4px;
+  padding:6px 10px;
+  font-size:13px;
+  border-radius:6px;
+  border:none;
+  cursor:pointer;
+}
+button.primary { background:#008060; color:#fff; }
+button.secondary { background:#e0e7ff; color:#1f2933; }
+button:hover { opacity:0.95; }
+ul { margin-top:4px; padding-left:18px; }
+.note-ok { background:#d4edda; border:1px solid #a3cfbb; color:#0f5132; padding:10px; border-radius:8px; font-size:13px; }
+.note-bad { background:#f8d7da; border:1px solid #f1aeb5; color:#842029; padding:10px; border-radius:8px; font-size:13px; }
+.note-warn { background:#fff3cd; border:1px solid #ffe69c; color:#664d03; padding:10px; border-radius:8px; font-size:13px; }
+.kpi { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 0 0; }
+.kpi div { background:#f5f7fa; border:1px solid #e5e7eb; padding:8px 10px; border-radius:8px; font-size:13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <img class="logo" alt="Keeta Logo"
+      src="data:image/png;base64,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" />
+    <div>
+      <h1>Keeta Shift Capacity Planner</h1>
+      <span class="subtitle">V11 · 6 shifts · 3 shifts per courier · Max never exceeded · Strong distribution optimizer when supply is low</span>
+    </div>
+  </div>
+  <div style="font-size:12px;">CSV Export · Offline Tool</div>
+</header>
+
+<div class="main">
+
+  <div class="card">
+    <h3>How to use (for Partners)</h3>
+    <ul>
+      <li><b>Step 1:</b> Enter total active couriers.</li>
+      <li><b>Step 2:</b> Paste courier IDs (one per line OR comma separated).</li>
+      <li><b>Step 3:</b> Fill Min & Max for each shift.</li>
+      <li><b>Step 4:</b> Click <b>RUN PLAN</b>.</li>
+      <li><b>Rules:</b>
+        <ul>
+          <li>Every courier will get <b>exactly 3 shifts</b> (if feasible).</li>
+          <li>System will <b>never exceed Max</b>.</li>
+          <li>System tries to <b>reduce gaps</b>: consecutive first, then 1-break, then larger gaps only if needed.</li>
+          <li><b>V11 Fix:</b> If total supply is low (<code>couriers × 3 &lt; Sum(Min)</code>), tool builds a <b>balanced target</b> and then runs an <b>optimizer</b> to reduce slot imbalance (avoid “very low / zero” shifts when possible).</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>1) Basic Inputs</h3>
+    <p style="margin-bottom:4px;"><b>Total Active Couriers</b></p>
+    <input id="total" type="number" value="16">
+
+    <p style="margin-top:10px;margin-bottom:4px;"><b>Courier IDs</b> <small>(lines or commas)</small></p>
+    <textarea id="ids" placeholder="C001
+C002
+C003"></textarea>
+  </div>
+
+  <div class="card">
+    <h3>2) Min / Max per Shift</h3>
+    <table>
+      <tr><th>Shift</th><th>Min</th><th>Max</th></tr>
+      <tr><td>00:00 - 03:00</td><td><input id="min1" type="number" value="0"></td><td><input id="max1" type="number" value="9999"></td></tr>
+      <tr><td>03:00 - 08:00</td><td><input id="min2" type="number" value="0"></td><td><input id="max2" type="number" value="9999"></td></tr>
+      <tr><td>08:00 - 12:00</td><td><input id="min3" type="number" value="0"></td><td><input id="max3" type="number" value="9999"></td></tr>
+      <tr><td>12:00 - 16:00</td><td><input id="min4" type="number" value="0"></td><td><input id="max4" type="number" value="9999"></td></tr>
+      <tr><td>16:00 - 20:00</td><td><input id="min5" type="number" value="0"></td><td><input id="max5" type="number" value="9999"></td></tr>
+      <tr><td>20:00 - 24:00</td><td><input id="min6" type="number" value="0"></td><td><input id="max6" type="number" value="9999"></td></tr>
+    </table>
+
+    <div style="margin-top:10px;">
+      <button class="primary" onclick="runPlan()">RUN PLAN</button>
+      <button class="secondary" onclick="downloadCourierCSV()">Download Courier CSV</button>
+      <button class="secondary" onclick="downloadMatrixCSV()">Download Matrix CSV</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>3) Results</h3>
+    <div id="result"></div>
+  </div>
+
+</div>
+
+<script>
+const shiftNames = ["","00:00 - 03:00","03:00 - 08:00","08:00 - 12:00","12:00 - 16:00","16:00 - 20:00","20:00 - 24:00"];
+
+let lastCourierRows = [];
+let lastMatrix = null;
+
+function cleanIDs(text){
+  return text.replace(/,/g, "\n").split("\n").map(x => x.trim()).filter(x => x.length > 0);
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+function statusFor(slot, val, min, max){
+  if (val < min[slot]) return {txt:"Too Low", cls:"status-low"};
+  if (val > max[slot]) return {txt:"Too High", cls:"status-high"};
+  return {txt:"OK", cls:"status-ok"};
+}
+
+// ---------- Balanced target for short supply ----------
+function computeBalancedSoftMin(minArr, supply, maxArr){
+  const min = minArr.slice();
+  const max = (maxArr && maxArr.length) ? maxArr.slice() : [0,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity];
+
+  const sumMin = min.slice(1).reduce((a,b)=>a+b,0);
+  if (sumMin <= supply) return min;
+
+  const active = [];
+  for (let s=1;s<=6;s++){
+    if (max[s] > 0) active.push(s);
+  }
+  if (!active.length) return min;
+
+  const target = [0,0,0,0,0,0,0];
+  let remaining = supply;
+
+  const order = active.slice().sort((a,b)=> (min[b]-min[a]));
+
+  // give 1 to each shift if possible (avoid zeros)
+  if (remaining >= active.length){
+    for (const s of active){
+      const give = Math.min(1, max[s]);
+      target[s] += give;
+      remaining -= give;
+    }
+  } else {
+    for (let i=0;i<order.length && remaining>0;i++){
+      const s = order[i];
+      const give = Math.min(1, max[s]);
+      target[s] += give;
+      remaining -= give;
+    }
+  }
+  if (remaining <= 0) return target;
+
+  const weightSum = sumMin > 0 ? sumMin : active.length;
+  const shares = [];
+  for (const s of active){
+    const w = (sumMin > 0) ? min[s] : 1;
+    const exact = remaining * w / weightSum;
+    const base = Math.floor(exact);
+    shares.push({s, exact, base, frac: exact - base});
+  }
+
+  let used = 0;
+  for (const it of shares){
+    const cap = Math.max(0, max[it.s] - target[it.s]);
+    const add = Math.min(it.base, cap);
+    target[it.s] += add;
+    used += add;
+  }
+  remaining -= used;
+  if (remaining <= 0) return target;
+
+  shares.sort((a,b)=>b.frac - a.frac);
+  for (let i=0;i<shares.length && remaining>0;i++){
+    const s = shares[i].s;
+    const cap = Math.max(0, max[s] - target[s]);
+    if (cap <= 0) continue;
+    target[s] += 1;
+    remaining -= 1;
+  }
+
+  let guard = 0;
+  while (remaining > 0 && guard < 5000){
+    guard++;
+    let progressed = false;
+    for (const s of order){
+      if (remaining <= 0) break;
+      const cap = Math.max(0, max[s] - target[s]);
+      if (cap <= 0) continue;
+      target[s] += 1;
+      remaining -= 1;
+      progressed = true;
+    }
+    if (!progressed) break;
+  }
+  return target;
+}
+
+// ---------- patterns ----------
+function spanScore(shifts){
+  const arr = shifts.slice().sort((a,b)=>a-b);
+  let bestSpan = 999;
+  for (let startIdx=0; startIdx<arr.length; startIdx++){
+    const start = arr[startIdx];
+    const mapped = arr.map(x => {
+      let y = x;
+      while (y < start) y += 6;
+      return y;
+    }).sort((a,b)=>a-b);
+    const span = mapped[mapped.length-1] - start;
+    if (span < bestSpan) bestSpan = span;
+  }
+  return bestSpan;
+}
+function spanLabel(span){
+  if (span <= 2) return "Consecutive";
+  if (span === 3) return "1-Shift Break";
+  if (span === 4) return "2-Shift Break";
+  return "3-Shift Break";
+}
+const allPatterns = (function(){
+  const pats = [];
+  for (let i=1;i<=6;i++){
+    for (let j=i+1;j<=6;j++){
+      for (let k=j+1;k<=6;k++){
+        const shifts = [i,j,k];
+        const span = spanScore(shifts);
+        pats.push({shifts, span, label: spanLabel(span)});
+      }
+    }
+  }
+  pats.sort((a,b)=>a.span - b.span);
+  return pats;
+})();
+
+function sumSqError(totals, target){
+  let e = 0;
+  for (let s=1;s<=6;s++){
+    const d = totals[s] - target[s];
+    e += d*d;
+  }
+  return e;
+}
+function totalSpan(assigned){
+  let t = 0;
+  for (const a of assigned) t += a.span;
+  return t;
+}
+
+// Post optimizer: try changing a courier's pattern to reduce distribution gap (and keep max valid)
+function optimizeAssignments(sol, max, target, shortSupply){
+  const assigned = sol.assigned;
+  const totals = sol.totalsNow;
+  const cap = sol.cap;
+
+  // In short supply: distribution is PRIMARY, span is secondary
+  const lambdaSpan = shortSupply ? 5 : 800; // strong change vs old
+  const ITER = shortSupply ? 12000 : 5000;
+
+  let bestErr = sumSqError(totals, target) + lambdaSpan * totalSpan(assigned);
+
+  function fits(p){
+    for (const s of p.shifts){ if (cap[s] <= 0) return false; }
+    return true;
+  }
+
+  for (let it=0; it<ITER; it++){
+    const idx = Math.floor(Math.random() * assigned.length);
+    const old = assigned[idx];
+
+    // remove old
+    for (const s of old.shifts){ cap[s]++; totals[s]--; }
+
+    // pick some candidate patterns (random scan)
+    let bestCand = null;
+    let bestCandScore = Infinity;
+
+    for (let k=0;k<12;k++){
+      const p = allPatterns[Math.floor(Math.random()*allPatterns.length)];
+      if (!fits(p)) continue;
+
+      // apply temporarily
+      for (const s of p.shifts){ cap[s]--; totals[s]++; }
+      const score = sumSqError(totals, target) + lambdaSpan * (totalSpan(assigned) - old.span + p.span);
+      // undo
+      for (const s of p.shifts){ cap[s]++; totals[s]--; }
+
+      if (score < bestCandScore){
+        bestCandScore = score;
+        bestCand = p;
+      }
+    }
+
+    // accept if improved, else revert
+    if (bestCand && bestCandScore + 1e-9 < bestErr){
+      // commit bestCand
+      for (const s of bestCand.shifts){ cap[s]--; totals[s]++; }
+      assigned[idx] = bestCand;
+      bestErr = bestCandScore;
+    } else {
+      // revert old
+      for (const s of old.shifts){ cap[s]--; totals[s]++; }
+    }
+  }
+
+  return sol;
+}
+
+// ---------- core ----------
+function runPlan(){
+  const total = Number(document.getElementById("total").value);
+  const ids = cleanIDs(document.getElementById("ids").value);
+
+  if (ids.length !== total){
+    alert("Courier count mismatch.\nYou entered " + ids.length + " IDs but total is " + total);
+    return;
+  }
+
+  const min = [0, Number(min1.value),Number(min2.value),Number(min3.value),Number(min4.value),Number(min5.value),Number(min6.value)];
+  const max = [0, Number(max1.value),Number(max2.value),Number(max3.value),Number(max4.value),Number(max5.value),Number(max6.value)];
+
+  const required = total * 3;
+  const sumMax = max.slice(1).reduce((a,b)=>a+b,0);
+  const sumMin = min.slice(1).reduce((a,b)=>a+b,0);
+
+  if (sumMax < required){
+    document.getElementById("result").innerHTML = `
+      <div class="note-bad">
+        <b>✖ Cannot create plan</b><br>
+        Required shifts = <b>${required}</b> (Total Couriers × 3)<br>
+        Sum of Max = <b>${sumMax}</b><br>
+        ✅ Fix: Increase Max or reduce total couriers.
+      </div>`;
+    lastCourierRows = [];
+    lastMatrix = null;
+    return;
+  }
+
+  const positiveShifts = [];
+  for (let s=1;s<=6;s++) if (max[s] > 0) positiveShifts.push(s);
+  if (positiveShifts.length < 3){
+    document.getElementById("result").innerHTML = `
+      <div class="note-bad">
+        <b>✖ Cannot create plan</b><br>
+        Need at least <b>3 shifts</b> with Max &gt; 0 because each courier needs 3 different shifts.<br>
+        ✅ Fix: Increase Max for at least 3 shifts.
+      </div>`;
+    lastCourierRows = [];
+    lastMatrix = null;
+    return;
+  }
+
+  const softTarget = computeBalancedSoftMin(min, required, max);
+  const shortSupply = (sumMin > required);
+
+  function makePatternOrder(){
+    const bySpan = {};
+    for (const p of allPatterns){
+      bySpan[p.span] = bySpan[p.span] || [];
+      bySpan[p.span].push(p);
+    }
+    function shuffle(arr){
+      const a = arr.slice();
+      for (let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+    const order = [];
+    const spans = Object.keys(bySpan).map(x=>Number(x)).sort((a,b)=>a-b);
+    for (const sp of spans) order.push(...shuffle(bySpan[sp]));
+    return order;
+  }
+
+  // Build solution with a better objective:
+  // - In short supply: hit softTarget first, then span
+  // - Otherwise: span first, then mins
+  function attemptBuild(patternOrder){
+    const cap = max.slice();
+    const totals = [0,0,0,0,0,0,0];
+    const assigned = [];
+
+    // weights
+    const spanWeight = shortSupply ? 200 : 100000; // reduce span dominance in short supply
+    const targetWeight = shortSupply ? 8000 : 1500;
+
+    for (let c=0;c<total;c++){
+      let chosen = null;
+      let bestScore = -Infinity;
+
+      for (const pat of patternOrder){
+        let ok = true;
+        for (const s of pat.shifts){ if (cap[s] <= 0) { ok=false; break; } }
+        if (!ok) continue;
+
+        // compute improvement in squared error to target if we add this pat
+        const before = sumSqError(totals, softTarget);
+        for (const s of pat.shifts) totals[s] += 1;
+        const after = sumSqError(totals, softTarget);
+        for (const s of pat.shifts) totals[s] -= 1;
+
+        const improve = (before - after); // bigger is better
+
+        // slack keep feasibility
+        let slack = 0;
+        for (const s of pat.shifts) slack += cap[s];
+
+        // score
+        const score = (improve * targetWeight) - (pat.span * spanWeight) + slack;
+
+        if (score > bestScore){
+          bestScore = score;
+          chosen = pat;
+        }
+      }
+
+      if (!chosen) return null;
+
+      for (const s of chosen.shifts){ cap[s]--; totals[s]++; }
+      assigned.push(chosen);
+    }
+
+    return {assigned, totalsNow: totals, cap};
+  }
+
+  // Restarts
+  let best = null;
+  const RESTARTS = 50;
+
+  for (let r=0;r<RESTARTS;r++){
+    const order = makePatternOrder();
+    const sol = attemptBuild(order);
+    if (!sol) continue;
+
+    // score solution
+    const score = sumSqError(sol.totalsNow, softTarget) + (shortSupply ? 5 : 800) * totalSpan(sol.assigned);
+    if (!best || score < best.score){
+      best = sol;
+      best.score = score;
+    }
+  }
+
+  if (!best){
+    document.getElementById("result").innerHTML = `
+      <div class="note-bad">
+        <b>✖ Cannot create plan</b><br>
+        The Max distribution is too tight to fit 3-shifts-per-courier without exceeding Max.
+      </div>`;
+    lastCourierRows = [];
+    lastMatrix = null;
+    return;
+  }
+
+  // V11: Post optimizer (this is the key fix for your screenshots)
+  best = optimizeAssignments(best, max, softTarget, shortSupply);
+
+  const assigned = best.assigned;
+  const totalsFinal = best.totalsNow;
+
+  // courier rows
+  const courierRows = [];
+  const counts = { consecutive:0, break1:0, break2:0, break3:0 };
+
+  for (let i=0;i<total;i++){
+    const pat = assigned[i];
+    const span = pat.span;
+
+    if (span <= 2) counts.consecutive++;
+    else if (span === 3) counts.break1++;
+    else if (span === 4) counts.break2++;
+    else counts.break3++;
+
+    const [a,b,c] = pat.shifts;
+    courierRows.push({
+      id: ids[i],
+      s1: shiftNames[a],
+      s2: shiftNames[b],
+      s3: shiftNames[c],
+      kind: pat.label,
+      span: span
+    });
+  }
+
+  // consecutive group counts
+  const consecStartCounts = [0,0,0,0,0,0,0];
+  function isSameSet(a,b,c, x,y,z){
+    const s1 = [a,b,c].slice().sort((m,n)=>m-n).join("-");
+    const s2 = [x,y,z].slice().sort((m,n)=>m-n).join("-");
+    return s1===s2;
+  }
+  for (const row of courierRows){
+    const shifts = [];
+    for (let s=1;s<=6;s++){
+      if (row.s1===shiftNames[s] || row.s2===shiftNames[s] || row.s3===shiftNames[s]) shifts.push(s);
+    }
+    if (shifts.length!==3) continue;
+    const [x,y,z] = shifts;
+    if (isSameSet(x,y,z,1,2,3)) consecStartCounts[1]++;
+    else if (isSameSet(x,y,z,2,3,4)) consecStartCounts[2]++;
+    else if (isSameSet(x,y,z,3,4,5)) consecStartCounts[3]++;
+    else if (isSameSet(x,y,z,4,5,6)) consecStartCounts[4]++;
+    else if (isSameSet(x,y,z,5,6,1)) consecStartCounts[5]++;
+    else if (isSameSet(x,y,z,6,1,2)) consecStartCounts[6]++;
+  }
+
+  function computeTotalsConsecutive(a){
+    const T1 = a[1] + a[5] + a[6];
+    const T2 = a[1] + a[2] + a[6];
+    const T3 = a[1] + a[2] + a[3];
+    const T4 = a[2] + a[3] + a[4];
+    const T5 = a[3] + a[4] + a[5];
+    const T6 = a[4] + a[5] + a[6];
+    return [0,T1,T2,T3,T4,T5,T6];
+  }
+  const consecTotals = computeTotalsConsecutive(consecStartCounts);
+  const flexContrib = [0,0,0,0,0,0,0];
+  for (let s=1;s<=6;s++){
+    flexContrib[s] = totalsFinal[s] - consecTotals[s];
+    if (flexContrib[s] < 0) flexContrib[s] = 0;
+  }
+
+  // statuses vs original min/max
+  const statuses = [];
+  for (let s=1;s<=6;s++){
+    statuses[s] = statusFor(s, totalsFinal[s], min, max);
+  }
+
+  lastCourierRows = courierRows.slice();
+  lastMatrix = {
+    min, max,
+    softTarget, shortSupply,
+    totals: [totalsFinal[1],totalsFinal[2],totalsFinal[3],totalsFinal[4],totalsFinal[5],totalsFinal[6]],
+    statuses,
+    groups: {
+      a1:consecStartCounts[1], a2:consecStartCounts[2], a3:consecStartCounts[3],
+      a4:consecStartCounts[4], a5:consecStartCounts[5], a6:consecStartCounts[6],
+      flex1:flexContrib[1], flex2:flexContrib[2], flex3:flexContrib[3], flex4:flexContrib[4], flex5:flexContrib[5], flex6:flexContrib[6]
+    },
+    counts
+  };
+
+  // render
+  let html = "";
+  html += `<div class="note-ok">
+    <b>✅ Plan Created</b><br>
+    All <b>${total}</b> couriers scheduled with <b>exactly 3 shifts</b>. Max is not exceeded.
+  </div>`;
+
+  if (shortSupply){
+    html += `<div class="note-warn" style="margin-top:10px;">
+      <b>⚠ Short Supply Mode (Optimized Distribution)</b><br>
+      Sum(Min) = <b>${sumMin}</b> but available assignments = <b>${required}</b> (Couriers × 3).<br>
+      Target is balanced and the optimizer reduces “very low / 0” shift cases (when possible).
+    </div>`;
+  }
+
+  html += `
+    <div class="kpi">
+      <div><b>Scheduled:</b> ${total} / ${total}</div>
+      <div><b>Consecutive:</b> ${counts.consecutive}</div>
+      <div><b>1-break:</b> ${counts.break1}</div>
+      <div><b>2-break:</b> ${counts.break2}</div>
+      <div><b>3-break:</b> ${counts.break3}</div>
+    </div>
+  `;
+
+  html += `<h4 style="margin-top:14px;">Courier-wise Shift Assignment</h4>
+    <table>
+      <tr><th>ID</th><th>Shift 1</th><th>Shift 2</th><th>Shift 3</th><th>Gap Type</th></tr>`;
+  courierRows.forEach(r=>{
+    html += `<tr>
+      <td>${esc(r.id)}</td>
+      <td>${esc(r.s1)}</td>
+      <td>${esc(r.s2)}</td>
+      <td>${esc(r.s3)}</td>
+      <td>${esc(r.kind)}</td>
+    </tr>`;
+  });
+  html += `</table>`;
+
+  html += `<h4 style="margin-top:20px;">Shift Matrix Overview</h4>
+    <table>
+      <tr>
+        <th>shift</th>
+        <th>${shiftNames[1]}</th><th>${shiftNames[2]}</th><th>${shiftNames[3]}</th>
+        <th>${shiftNames[4]}</th><th>${shiftNames[5]}</th><th>${shiftNames[6]}</th>
+      </tr>
+      <tr><th>min</th>
+        <td>${min[1]}</td><td>${min[2]}</td><td>${min[3]}</td><td>${min[4]}</td><td>${min[5]}</td><td>${min[6]}</td>
+      </tr>
+      <tr><th>max</th>
+        <td>${max[1]}</td><td>${max[2]}</td><td>${max[3]}</td><td>${max[4]}</td><td>${max[5]}</td><td>${max[6]}</td>
+      </tr>`;
+
+  if (shortSupply){
+    html += `<tr><th>balanced target</th>
+      <td>${softTarget[1]}</td><td>${softTarget[2]}</td><td>${softTarget[3]}</td><td>${softTarget[4]}</td><td>${softTarget[5]}</td><td>${softTarget[6]}</td>
+    </tr>`;
+  }
+
+  html += `
+      <tr><th>consecutive (1–2–3)</th><td>${consecStartCounts[1]||""}</td><td>${consecStartCounts[1]||""}</td><td>${consecStartCounts[1]||""}</td><td></td><td></td><td></td></tr>
+      <tr><th>consecutive (2–3–4)</th><td></td><td>${consecStartCounts[2]||""}</td><td>${consecStartCounts[2]||""}</td><td>${consecStartCounts[2]||""}</td><td></td><td></td></tr>
+      <tr><th>consecutive (3–4–5)</th><td></td><td></td><td>${consecStartCounts[3]||""}</td><td>${consecStartCounts[3]||""}</td><td>${consecStartCounts[3]||""}</td><td></td></tr>
+      <tr><th>consecutive (4–5–6)</th><td></td><td></td><td></td><td>${consecStartCounts[4]||""}</td><td>${consecStartCounts[4]||""}</td><td>${consecStartCounts[4]||""}</td></tr>
+      <tr><th>consecutive (5–6–1)</th><td>${consecStartCounts[5]||""}</td><td></td><td></td><td></td><td>${consecStartCounts[5]||""}</td><td>${consecStartCounts[5]||""}</td></tr>
+      <tr><th>consecutive (6–1–2)</th><td>${consecStartCounts[6]||""}</td><td>${consecStartCounts[6]||""}</td><td></td><td></td><td></td><td>${consecStartCounts[6]||""}</td></tr>
+
+      <tr><th>flexible assignments</th>
+        <td>${flexContrib[1]||0}</td><td>${flexContrib[2]||0}</td><td>${flexContrib[3]||0}</td>
+        <td>${flexContrib[4]||0}</td><td>${flexContrib[5]||0}</td><td>${flexContrib[6]||0}</td>
+      </tr>
+
+      <tr><th>total</th>
+        <td>${totalsFinal[1]}</td><td>${totalsFinal[2]}</td><td>${totalsFinal[3]}</td><td>${totalsFinal[4]}</td><td>${totalsFinal[5]}</td><td>${totalsFinal[6]}</td>
+      </tr>
+      <tr><th>status</th>
+        <td class="${statuses[1].cls}">${statuses[1].txt}</td>
+        <td class="${statuses[2].cls}">${statuses[2].txt}</td>
+        <td class="${statuses[3].cls}">${statuses[3].txt}</td>
+        <td class="${statuses[4].cls}">${statuses[4].txt}</td>
+        <td class="${statuses[5].cls}">${statuses[5].txt}</td>
+        <td class="${statuses[6].cls}">${statuses[6].txt}</td>
+      </tr>
+    </table>`;
+
+  document.getElementById("result").innerHTML = html;
+}
+
+// ---------- CSV download ----------
+function safeExcelText(v){ return '="' + String(v) + '"'; }
+
+function download(filename, text){
+  const blob = new Blob([text], {type: "text/csv;charset=utf-8;"});
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function downloadCourierCSV(){
+  if (!lastCourierRows.length){ alert("Please run the plan first."); return; }
+  const lines = [];
+  lines.push("ID,Shift 1,Shift 2,Shift 3,Gap Type");
+  lastCourierRows.forEach(r=>{
+    lines.push(
+      safeExcelText(r.id) + "," +
+      safeExcelText(r.s1) + "," +
+      safeExcelText(r.s2) + "," +
+      safeExcelText(r.s3) + "," +
+      safeExcelText(r.kind)
+    );
+  });
+  download("courier_shifts.csv", lines.join("\n"));
+}
+
+function downloadMatrixCSV(){
+  if (!lastMatrix){ alert("Please run the plan first."); return; }
+  const m = lastMatrix;
+  const lines = [];
+
+  lines.push("shift," + shiftNames.slice(1).map(safeExcelText).join(","));
+  lines.push("min," + [m.min[1],m.min[2],m.min[3],m.min[4],m.min[5],m.min[6]].map(safeExcelText).join(","));
+  lines.push("max," + [m.max[1],m.max[2],m.max[3],m.max[4],m.max[5],m.max[6]].map(safeExcelText).join(","));
+
+  if (m.shortSupply){
+    lines.push("balanced target," + [m.softTarget[1],m.softTarget[2],m.softTarget[3],m.softTarget[4],m.softTarget[5],m.softTarget[6]].map(safeExcelText).join(","));
+  }
+
+  lines.push("total," + m.totals.map(safeExcelText).join(","));
+  lines.push("status," + [m.statuses[1].txt,m.statuses[2].txt,m.statuses[3].txt,m.statuses[4].txt,m.statuses[5].txt,m.statuses[6].txt].map(safeExcelText).join(","));
+
+  download("shift_matrix.csv", lines.join("\n"));
+}
+</script>
+
+</body>
+</html>

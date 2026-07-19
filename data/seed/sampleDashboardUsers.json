@@ -1,0 +1,20 @@
+[
+  {
+    "id": "dash_user_1",
+    "userId": "1782916129257495",
+    "city": "جدة",
+    "register": "EXPRESS",
+    "status": "working",
+    "vehicleType": "سيارة",
+    "sourceFile": "sample"
+  },
+  {
+    "id": "dash_user_2",
+    "userId": "1782831407480165",
+    "city": "الرياض",
+    "register": "TOGARY",
+    "status": "working",
+    "vehicleType": "دباب",
+    "sourceFile": "sample"
+  }
+]

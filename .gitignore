@@ -1,0 +1,38 @@
+node_modules/
+artifacts/
+uploads/
+private-data/
+data/local-db/*.json
+data/local-db/
+data/backups/
+*.xlsx
+*.xls
+*.csv
+*.zip
+.env
+*.log
+# Node
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# Build
+dist/
+build/
+
+# VS Code
+.vscode/
+
+# Browser artifacts
+.codex-artifacts/
+
+# Windows
+Thumbs.db
+
+# macOS
+.DS_Store

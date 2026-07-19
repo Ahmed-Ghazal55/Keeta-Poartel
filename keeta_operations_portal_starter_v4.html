@@ -1,0 +1,2192 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Al Bawaba Al Muqbilah Operations Portal</title>
+  <link rel="icon" href="./assets/logo.svg" type="image/svg+xml">
+  <style>
+    :root{
+      --navy:#0b2348;
+      --navy-2:#14366c;
+      --green:#0b8b52;
+      --green-2:#12a766;
+      --gold:#f0b533;
+      --gold-2:#ffd67b;
+      --danger:#d6455d;
+      --warning:#f59e0b;
+      --info:#2e7dd7;
+      --ink:#18263d;
+      --muted:#66768f;
+      --line:#d7e0ea;
+      --bg:#edf3f8;
+      --card:#ffffff;
+      --soft:#f6fafc;
+      --shadow:0 18px 42px rgba(11,35,72,.12);
+      --radius-xl:28px;
+      --radius-lg:22px;
+      --radius-md:16px;
+      --radius-sm:12px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(240,181,51,.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(18,167,102,.14), transparent 34%),
+        linear-gradient(180deg, #eff4f8 0%, #e8eff5 100%);
+      font-family:"Segoe UI","Tahoma","Noto Sans Arabic",sans-serif;
+    }
+
+    .app{max-width:1560px;margin:0 auto;padding:20px}
+    .portal-shell{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px;align-items:start}
+    .content-shell{min-width:0}
+    .sidebar{
+      position:sticky;top:20px;max-height:calc(100vh - 40px);overflow:auto;padding:22px;border-radius:30px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,252,255,.92)),
+        linear-gradient(180deg, rgba(11,35,72,.06), rgba(11,35,72,0));
+      border:1px solid rgba(11,35,72,.08);box-shadow:var(--shadow);
+    }
+    .brand-block{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .brand-mark{
+      width:74px;height:74px;border-radius:22px;display:grid;place-items:center;flex:0 0 auto;
+      background:
+        linear-gradient(135deg, rgba(240,181,51,.22), transparent 40%),
+        linear-gradient(135deg, var(--navy), #071933 100%);
+      box-shadow:0 14px 30px rgba(11,35,72,.18);
+    }
+    .brand-mark svg{width:52px;height:52px;display:block}
+    .brand-copy strong{display:block;color:var(--navy);font-size:18px;font-weight:900;line-height:1.5}
+    .brand-copy span{display:block;color:var(--muted);font-size:12px;line-height:1.8}
+    .sidebar-note{
+      margin-bottom:16px;padding:14px 16px;border-radius:20px;background:linear-gradient(180deg,#fffaf0,#fff);
+      border:1px solid #f0e0b1;color:#4d5b74;font-size:13px;line-height:1.9;
+    }
+    .sidebar-section{margin-top:16px}
+    .sidebar-label{
+      margin-bottom:10px;color:var(--navy);font-size:12px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;
+    }
+    .selector-grid{display:grid;gap:10px}
+    .selector-grid .field{margin-bottom:0}
+    .sidebar .nav-btn{
+      width:100%;display:flex;justify-content:space-between;align-items:center;text-align:right;margin-bottom:8px;
+      border-radius:16px;padding:12px 14px;background:rgba(11,35,72,.06);color:var(--navy);border:1px solid rgba(11,35,72,.05);
+    }
+    .sidebar .nav-btn.active{
+      color:#081a38;background:linear-gradient(135deg, var(--gold), var(--gold-2));border-color:rgba(240,181,51,.35);
+    }
+    .hero{
+      position:sticky;top:8px;z-index:30;overflow:hidden;border-radius:32px;padding:24px;
+      background:
+        linear-gradient(135deg, rgba(240,181,51,.18), transparent 35%),
+        linear-gradient(135deg, var(--navy) 0%, #071933 100%);
+      color:#fff;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.08);
+    }
+    .hero::after{
+      content:"";position:absolute;inset:auto -120px -120px auto;width:320px;height:320px;border-radius:50%;
+      background:radial-gradient(circle, rgba(18,167,102,.28), transparent 65%);pointer-events:none;
+    }
+    .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}
+    .hero h1{margin:0;font-size:34px;font-weight:900;letter-spacing:.2px}
+    .sub{margin-top:8px;color:rgba(255,255,255,.8);font-size:14px;line-height:1.7}
+    .hero-badges{display:flex;gap:10px;flex-wrap:wrap}
+    .hero-badge,.link-chip{
+      display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;text-decoration:none;color:#fff;
+      background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);font-size:13px;font-weight:800;backdrop-filter:blur(8px);
+    }
+    .hero-kpis,.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .hero-kpis{margin-top:18px}
+    .hero-kpi,.kpi{
+      padding:14px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.1);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .hero-kpi b,.kpi b{display:block;margin-bottom:8px;font-size:12px;color:rgba(255,255,255,.72)}
+    .hero-kpi strong,.kpi strong{display:block;font-size:26px;line-height:1.2;font-weight:900;color:#fff}
+    .hero-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+    .nav-btn{
+      border:0;border-radius:999px;padding:11px 16px;background:rgba(255,255,255,.12);color:#fff;font-weight:900;cursor:pointer;
+      transition:transform .18s ease, background .18s ease;
+    }
+    .nav-btn:hover{transform:translateY(-1px)}
+    .nav-btn.active{color:#081a38;background:linear-gradient(135deg, var(--gold), var(--gold-2))}
+    .page{display:none;margin-top:18px}
+    .page.active{display:block}
+    .grid{display:grid;gap:14px}
+    .grid-2{grid-template-columns:1.1fr .9fr}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .card{
+      background:var(--card);border:1px solid rgba(11,35,72,.08);border-radius:var(--radius-xl);padding:20px;box-shadow:var(--shadow);overflow:hidden;
+    }
+    .card h2,.card h3{margin:0 0 14px;color:var(--navy);font-weight:900}
+    .card h2{font-size:25px}
+    .card h3{font-size:20px}
+    .section-title{display:flex;align-items:center;gap:10px}
+    .section-title::before{
+      content:"";width:10px;height:32px;border-radius:999px;background:linear-gradient(180deg,var(--gold),var(--green));display:inline-block;flex:0 0 auto;
+    }
+    .eyebrow{
+      display:inline-block;margin-bottom:12px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;color:var(--navy);
+      background:#edf4ff;border:1px solid #dbe9ff;
+    }
+    .en-label{
+      display:block;margin-top:4px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+    }
+    .field{margin-bottom:12px}
+    label{display:block;margin-bottom:6px;color:#30415d;font-size:13px;font-weight:900}
+    input,select,textarea{
+      width:100%;border:1px solid var(--line);border-radius:16px;padding:12px 13px;background:#fff;color:var(--ink);
+      font:inherit;outline:none;transition:border-color .18s ease, box-shadow .18s ease;
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(11,139,82,.12)}
+    textarea{min-height:140px;resize:vertical;direction:ltr;text-align:left}
+    .arabic-area{direction:rtl;text-align:right}
+    .hint{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.6}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .btn{
+      border:0;border-radius:15px;padding:11px 14px;cursor:pointer;font-weight:900;font:inherit;color:#fff;background:var(--navy);
+      transition:transform .18s ease, opacity .18s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.green{background:var(--green)}
+    .btn.gold{background:var(--gold);color:#111}
+    .btn.light{background:#e8eef7;color:var(--navy)}
+    .btn.red{background:var(--danger)}
+    .note{
+      border:1px solid #efe3b8;border-right:5px solid var(--gold);border-radius:18px;background:#fffaf0;padding:14px;line-height:1.8;color:#4b5872;font-size:14px;
+    }
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:900;background:#eef7f1;color:var(--green)}
+    .pill.red{background:#fff1f3;color:var(--danger)}
+    .pill.gold{background:#fff6de;color:#9e6a00}
+    .pill.blue{background:#eef5ff;color:var(--info)}
+    .surface{border:1px solid var(--line);background:linear-gradient(180deg,#ffffff,#f9fcff);border-radius:20px;padding:16px}
+    .result-panel{
+      padding:20px;color:#fff;text-align:center;border-radius:26px;
+      background:
+        linear-gradient(135deg, rgba(255,214,123,.18), transparent 28%),
+        linear-gradient(135deg, var(--green), #06703d);
+    }
+    .result-panel b{display:block;font-size:14px;color:rgba(255,255,255,.84)}
+    .result-panel strong{display:block;margin:10px 0 12px;font-size:40px;line-height:1.1}
+    .kpi-grid .kpi{background:linear-gradient(180deg,#fff,#f7fbff);border:1px solid var(--line);box-shadow:none}
+    .kpi-grid .kpi b{color:var(--muted)}
+    .kpi-grid .kpi strong{color:var(--navy)}
+    .kpi-grid .kpi.good strong{color:var(--green)}
+    .kpi-grid .kpi.bad strong{color:var(--danger)}
+    .kpi-grid .kpi.warn strong{color:var(--warning)}
+    table{width:100%;border-collapse:collapse;min-width:660px;background:#fff}
+    .table-wrap{overflow:auto;border-radius:20px;border:1px solid var(--line);background:#fff}
+    th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:right;font-size:13px;vertical-align:top}
+    th{position:sticky;top:0;z-index:1;background:#0e1830;color:var(--gold);font-weight:900;white-space:nowrap}
+    tbody tr:nth-child(even) td{background:#fbfdff}
+    tbody tr:last-child td{border-bottom:0}
+    .mini-stack{display:flex;flex-direction:column;gap:10px}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .list-item{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:14px}
+    .list-item:last-child{border-bottom:0}
+    .metric-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .metric{border-radius:18px;border:1px solid var(--line);background:var(--soft);padding:16px}
+    .metric strong{display:block;margin-top:6px;color:var(--navy);font-size:25px;font-weight:900}
+    .toggle{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:#fff}
+    .toggle input{width:auto;transform:scale(1.1)}
+    .inline-links{display:flex;gap:8px;flex-wrap:wrap}
+    .footer{margin:20px 0 6px;text-align:center;color:var(--muted);font-size:12px}
+    .empty{padding:20px;text-align:center;color:var(--muted);font-weight:800;border:1px dashed var(--line);border-radius:18px;background:#fcfeff}
+    .danger-text{color:var(--danger)!important}
+    .good-text{color:var(--green)!important}
+    .warn-text{color:var(--warning)!important}
+    .muted{color:var(--muted)}
+    .status-box{
+      border:1px solid var(--line);border-radius:18px;background:#f8fbff;padding:12px 14px;color:var(--navy);font-size:13px;font-weight:800;
+    }
+    .status-box.good{background:#edf9f2;border-color:#b9e5ca;color:#0d6a37}
+    .status-box.warn{background:#fff8e9;border-color:#ffe1a9;color:#855b00}
+    .filter-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+    .search-box{position:relative}
+    .search-box input{padding-inline-start:42px}
+    .search-box::before{
+      content:"⌕";position:absolute;inset:11px auto auto 14px;color:var(--muted);font-size:16px;font-weight:900;
+    }
+    .helper-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .mono{font-family:Consolas,"Courier New",monospace}
+    @media (max-width:1100px){
+      .portal-shell,.grid-2,.grid-3,.grid-4,.hero-kpis,.kpi-grid,.metric-cards,.helper-grid,.filter-row{grid-template-columns:1fr}
+      .sidebar{position:relative;top:0;max-height:none}
+      .hero{position:relative;top:0}
+    }
+    @media (max-width:720px){
+      .app{padding:14px}
+      .hero{padding:18px;border-radius:24px}
+      .hero h1{font-size:28px}
+      .result-panel strong{font-size:34px}
+      .nav-btn,.btn{width:100%;justify-content:center}
+      .actions{flex-direction:column}
+    }
+  </style>
+  <link rel="stylesheet" href="./keeta_operations_portal_ui_redesign.css">
+  <link rel="stylesheet" href="./keeta_operations_portal_stabilization.css">
+</head>
+<body>
+  <div class="app portal-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f0b533"/>
+                <stop offset="100%" stop-color="#ffd67b"/>
+              </linearGradient>
+              <linearGradient id="logoGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#12a766"/>
+                <stop offset="100%" stop-color="#0b8b52"/>
+              </linearGradient>
+            </defs>
+            <path d="M18 70 L54 70 L68 56 L100 56" fill="none" stroke="url(#logoGold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M52 42 L68 56 L52 70" fill="none" stroke="url(#logoGold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="16" y="30" width="24" height="24" rx="7" fill="url(#logoGreen)"/>
+            <rect x="26" y="78" width="16" height="16" rx="8" fill="#ffffff"/>
+            <rect x="78" y="78" width="16" height="16" rx="8" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="brand-copy">
+          <strong>شركة البوابة المقبلة</strong>
+          <span>لنقل الطرود والخدمات اللوجستية</span>
+        </div>
+      </div>
+
+      <div class="sidebar-note">
+        المرحلة الحالية معتمدة كمرحلة تأسيس: هيكل واجهة، تحليل عميق للشيتات، Data Model، وصفحات Shell للموديولات قبل بدء منطق الرواتب والإقفال الكامل.
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Phase 1 Shell</div>
+        <button class="nav-btn active" data-page="dashboard"><span>لوحة المرحلة</span><span>01</span></button>
+        <button class="nav-btn" data-page="import-center"><span>Import Center</span><span>02</span></button>
+        <button class="nav-btn" data-page="data-model"><span>Data Model</span><span>03</span></button>
+        <button class="nav-btn" data-page="rider-master"><span>قاعدة المناديب</span><span>04</span></button>
+        <button class="nav-btn" data-page="operations-shell"><span>التشغيل</span><span>05</span></button>
+        <button class="nav-btn" data-page="monthly-rules-shell"><span>الشروط الشهرية</span><span>06</span></button>
+        <button class="nav-btn" data-page="performance-shell"><span>الأداء والصلاحية</span><span>07</span></button>
+        <button class="nav-btn" data-page="hr-shell"><span>HR</span><span>08</span></button>
+        <button class="nav-btn" data-page="fleet-shell"><span>المركبات</span><span>09</span></button>
+        <button class="nav-btn" data-page="shifts-shell"><span>الشفتات</span><span>10</span></button>
+        <button class="nav-btn" data-page="monthly-closing-shell"><span>الإقفال الشهري</span><span>11</span></button>
+        <button class="nav-btn" data-page="archive-shell"><span>الأرشيف</span><span>12</span></button>
+        <button class="nav-btn" data-page="reports-shell"><span>التقارير والتصدير</span><span>13</span></button>
+        <button class="nav-btn" data-page="settings-shell"><span>الإعدادات</span><span>14</span></button>
+        <button class="nav-btn" data-page="excel"><span>تحليل الشيتات</span><span>15</span></button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Current Prototypes</div>
+        <button class="nav-btn" data-page="validation"><span>Validation</span><span>QA</span></button>
+        <button class="nav-btn" data-page="monthly-closing"><span>الإقفال الشهري</span><span>P</span></button>
+        <button class="nav-btn" data-page="salary"><span>الراتب</span><span>P</span></button>
+        <button class="nav-btn" data-page="rules"><span>الشروط والحوافز</span><span>P</span></button>
+        <button class="nav-btn" data-page="shifts"><span>Scheduler Proto</span><span>P</span></button>
+        <button class="nav-btn" data-page="vehicles"><span>Fleet Proto</span><span>P</span></button>
+        <button class="nav-btn" data-page="vda"><span>VDA Proto</span><span>P</span></button>
+        <button class="nav-btn" data-page="face"><span>Face Proto</span><span>P</span></button>
+        <button class="nav-btn" data-page="delivery"><span>Delivery Proto</span><span>P</span></button>
+        <button class="nav-btn" data-page="opr"><span>OPR Proto</span><span>P</span></button>
+        <button class="nav-btn" data-page="exports"><span>Exports</span><span>P</span></button>
+      </div>
+    </aside>
+
+    <div class="content-shell">
+      <header class="hero">
+        <div class="hero-top">
+          <div>
+            <h1>بوابة البوابة المقبلة للتشغيل اللوجستي</h1>
+            <div class="sub">
+              Phase 1 focuses on interface shell, workbook logic analysis, data modeling, and the operational page map for Keeta before salary and monthly-closing automation.
+            </div>
+          </div>
+          <div class="hero-badges">
+            <span class="hero-badge">Google Sheets Logic First</span>
+            <span class="hero-badge">Offline Client-side</span>
+            <span class="hero-badge">RTL Control Portal</span>
+            <span class="hero-badge">Phase 1 Architecture</span>
+          </div>
+        </div>
+
+        <div class="hero-kpis" id="heroKpis"></div>
+
+        <div class="hero-nav">
+          <button class="btn gold" data-page-target="import-center">فتح مركز الاستيراد</button>
+          <button class="btn light" data-page-target="data-model">مراجعة Data Model</button>
+          <button class="btn light" data-page-target="excel">مراجعة منطق الشيتات</button>
+          <button class="btn light" data-page-target="operations-shell">صفحة التشغيل</button>
+        </div>
+      </header>
+
+      <main>
+      <section class="page active" id="page-dashboard">
+        <div class="kpi-grid" id="overviewKpis"></div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Phase 1</span>
+            <h2 class="section-title">خريطة التنفيذ الحالية</h2>
+            <div class="list">
+              <div class="list-item"><span>1. تثبيت مخرجات Prompt 0 وربطها بلوحة المرحلة الحالية</span><button class="btn light" data-page-target="dashboard">لوحة المرحلة</button></div>
+              <div class="list-item"><span>2. اعتماد Data Model و Import Registry كبداية تنفيذ Prompt 2</span><button class="btn light" data-page-target="data-model">مراجعة النموذج</button></div>
+              <div class="list-item"><span>3. تشغيل Rider Master ثم Operations State ثم قواعد الشهر</span><button class="btn light" data-page-target="operations-shell">صفحة التشغيل</button></div>
+              <div class="list-item"><span>4. إبقاء البروتوتايب المتقدم كمرجع حتى يتم ربط الأداء والمركبات والإقفال على النموذج الجديد</span><button class="btn light" data-page-target="validation">مراجعة الوضع</button></div>
+            </div>
+            <div class="actions">
+              <button class="btn green" id="refreshAllBtn">تحديث واجهة المرحلة</button>
+              <button class="btn gold" id="copyOperationsSummaryBtnDashboard">نسخ الملخص</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Deliverables</span>
+            <h2 class="section-title">المخرجات المعتمدة الآن</h2>
+            <div class="metric-cards" id="readinessCards"></div>
+            <div class="note" style="margin-top:12px" id="workspaceNotice"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Source Workbooks</span>
+            <h2 class="section-title">مصادر النظام الفعلية</h2>
+            <div class="list">
+              <div class="list-item"><span><b>نسخة من تشغيل كيتا جدة شهر مايو.xlsx</b><br><span class="muted">Keeta Operations Engine: rider master, OPR, performance, VDA, face, shifts</span></span><span class="pill blue">Core</span></div>
+              <div class="list-item"><span><b>البوابة المقبلة.xlsx</b><br><span class="muted">HR Master, archive, licenses, driver cards, cross-platform records</span></span><span class="pill">HR</span></div>
+              <div class="list-item"><span><b>Updata_Vehicles (2).xlsx</b><br><span class="muted">Fleet Rules Engine: vehicles, branches, city/register matching, capacity review</span></span><span class="pill gold">Fleet</span></div>
+              <div class="list-item"><span><b>Keeta Shifts Scheduling Tool V1.2 (3-Shifts) - AD (2).xlsm</b><br><span class="muted">3-shift allocation formulas plus VBA balancing logic</span></span><span class="pill red">Macro</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Module Map</span>
+            <h2 class="section-title">صفحات البوابة المقترحة</h2>
+            <div class="helper-grid">
+              <div class="metric"><b>Executive Dashboard</b><strong>ملخص عام</strong></div>
+              <div class="metric"><b>Rider Master</b><strong>قاعدة المناديب</strong></div>
+              <div class="metric"><b>Operations</b><strong>التشغيل اليومي</strong></div>
+              <div class="metric"><b>Monthly Rules</b><strong>الشروط الشهرية</strong></div>
+              <div class="metric"><b>Performance</b><strong>الأداء والصلاحية</strong></div>
+              <div class="metric"><b>HR</b><strong>الموارد البشرية</strong></div>
+              <div class="metric"><b>Fleet</b><strong>المركبات والأسطول</strong></div>
+              <div class="metric"><b>Shifts</b><strong>توزيع الشفتات</strong></div>
+              <div class="metric"><b>Monthly Closing</b><strong>الإقفال والتسوية</strong></div>
+              <div class="metric"><b>Archive</b><strong>الأرشيف الشهري والكامل</strong></div>
+              <div class="metric"><b>Reports</b><strong>التقارير والتصدير</strong></div>
+              <div class="metric"><b>Settings</b><strong>الضبط المركزي</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Architecture Summary</span>
+            <h2 class="section-title">ملخص المرحلة التنفيذية</h2>
+            <div class="note" id="overviewNarrative"></div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Tests</span>
+            <h2 class="section-title">حالة الاختبارات الحالية</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الاختبار</th>
+                    <th>الحالة</th>
+                    <th>التفاصيل</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardTestsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Deferred Prototypes</span>
+            <h2 class="section-title">الموديولات المؤجلة بعد اعتماد النموذج</h2>
+            <div class="kpi-grid" id="dashboardV9Kpis"></div>
+            <div class="mini-stack" style="margin-top:12px" id="dashboardMonthWarnings"></div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Imported Reports</span>
+            <h2 class="section-title">آخر التقارير المرفوعة</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الملف</th>
+                    <th>النوع</th>
+                    <th>المدينة</th>
+                    <th>الشهر</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardImportBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-data-model">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Foundation</span>
+            <h2 class="section-title">الكيانات الأساسية</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الكيان</th>
+                    <th>الغرض</th>
+                    <th>المصدر الأساسي</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>City</td><td>فصل جدة عن الرياض في كل الموديولات</td><td>جميع الملفات</td></tr>
+                  <tr><td>Register</td><td>تحديد السجل والداش بورد المالك</td><td>OPR + HR + Fleet</td></tr>
+                  <tr><td>Rider</td><td>Master record لكل مندوب</td><td>بيانات المناديب + HR</td></tr>
+                  <tr><td>Dashboard Account</td><td>تمثيل الأيدي التشغيلية</td><td>OPR + Dash + ايديهات كيتا</td></tr>
+                  <tr><td>Assignment</td><td>ربط المندوب بالأيدي عبر الزمن</td><td>OPR + سجل الحركة + الاقالات</td></tr>
+                  <tr><td>Vehicle</td><td>مركبة التشغيل الفعلية</td><td>Operating Vehicles</td></tr>
+                  <tr><td>Performance Daily</td><td>النتائج اليومية المعيارية</td><td>الاداء اليومي</td></tr>
+                  <tr><td>VDA Result</td><td>الصلاحية الشهرية والاهلية</td><td>VDA + VDA_kEETA</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Import Order</span>
+            <h2 class="section-title">ترتيب البناء الصحيح</h2>
+            <div class="list">
+              <div class="list-item"><span>1. استيراد ملفات المصدر وتصنيفها إلى Operations / HR / Fleet / Shifts</span><span class="pill">Batch</span></div>
+              <div class="list-item"><span>2. بناء Rider Master وربط HR مع OPR</span><span class="pill">Master</span></div>
+              <div class="list-item"><span>3. بناء Status History وحالة كل يوزر</span><span class="pill gold">State</span></div>
+              <div class="list-item"><span>4. تطبيع الأداء اليومي ثم VDA وFace Verification</span><span class="pill blue">Normalize</span></div>
+              <div class="list-item"><span>5. ربط المركبات والشفتات بعد تثبيت الهويات التشغيلية</span><span class="pill red">Later</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-rider-master">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Rider Master</span>
+            <h2 class="section-title">صفحة قاعدة المناديب</h2>
+            <div class="list">
+              <div class="list-item"><span>بيانات الإقامة والجوال والجنسية وIBAN</span><span class="pill">Core</span></div>
+              <div class="list-item"><span>نوع البديل ونوع المركبة ونظام العمل</span><span class="pill">Ops</span></div>
+              <div class="list-item"><span>هل يعمل حاليا / لا يعمل / سبق له العمل</span><span class="pill gold">History</span></div>
+              <div class="list-item"><span>أول تاريخ عمل وآخر تاريخ عمل</span><span class="pill blue">Timeline</span></div>
+              <div class="list-item"><span>ربط HR وربط الأيدي الحالية أو السابقة</span><span class="pill red">Linkage</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Sources</span>
+            <h2 class="section-title">الشيتات التي تغذي الصفحة</h2>
+            <div class="note">
+              المصدر الأساسي سيكون `بيانات المناديب` من ملف تشغيل كيتا، مع إغناء البيانات من
+              `HR (1059)` و`HR (8094)` و`HR (Togary)` وملفات HR داخل `البوابة المقبلة.xlsx`.
+            </div>
+            <div class="surface" style="margin-top:12px">
+              فلترة المرحلة الأولى:
+              المدينة، السجل، نوع العمل، نوع المركبة، هل يعمل حاليا، هل له أيدي حالية، رقم الإقامة، رقم الجوال، اسم المندوب.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-operations-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Operations</span>
+            <h2 class="section-title">صفحة العمليات التشغيلية</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الفرع</th>
+                    <th>الهدف</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Dashboard Users</td><td>عرض جميع الأيدي وربطها بالمستخدم الحالي وصاحب الأيدي</td></tr>
+                  <tr><td>Working Riders</td><td>من يعمل فعليًا الآن مع فلترة المدينة والسجل</td></tr>
+                  <tr><td>Accepted / Activated</td><td>المقبولون والمفعلون حتى لو لا يعملون حاليا</td></tr>
+                  <tr><td>Resignations</td><td>الإقالات والتحويل إلى أرشيف الحالة</td></tr>
+                  <tr><td>First-Time Placement</td><td>التسكين لأول مرة بعد استيراد تحديث جديد</td></tr>
+                  <tr><td>Swap / Replace</td><td>تبديل المندوب على اليوزر أو الإيقاف بدون بديل</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Import Diff</span>
+            <h2 class="section-title">قواعد المقارنة عند رفع تحديث جديد</h2>
+            <div class="list">
+              <div class="list-item"><span>يوزر جديد في آخر تحديث</span><span class="pill">New</span></div>
+              <div class="list-item"><span>يوزر موجود وتم تحديث بياناته</span><span class="pill blue">Update</span></div>
+              <div class="list-item"><span>يوزر اختفى من آخر تحديث</span><span class="pill gold">Review / Resignation</span></div>
+              <div class="list-item"><span>اختلاف الإقامة أو المركبة أو السجل</span><span class="pill red">Warning</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-monthly-rules-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Monthly Rules</span>
+            <h2 class="section-title">صفحة الشروط الشهرية والحوافز</h2>
+            <div class="list">
+              <div class="list-item"><span>اختيار الشهر والمدينة والسجل ونوع المركبة قبل تطبيق القواعد</span><span class="pill">Scope</span></div>
+              <div class="list-item"><span>أيام الحضور الإلزامية والحد الأدنى اليومي للطلبات</span><span class="pill blue">Attendance</span></div>
+              <div class="list-item"><span>مستويات السيارات والدبابات والحوافز المقابلة</span><span class="pill gold">Tiers</span></div>
+              <div class="list-item"><span>شروط ATA والإلغاءات وFace Verification وSOP</span><span class="pill red">Quality</span></div>
+              <div class="list-item"><span>نسخة ثنائية اللغة قابلة للنسخ والإرسال للمشرفين والمناديب</span><span class="pill">Announcement</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Rule Pack</span>
+            <h2 class="section-title">كيف سيتم تخزين إعلان الشهر</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>العنصر</th>
+                    <th>الوصف</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Month Profile</td><td>اسم الشهر، المدينة، السجل، حالة التفعيل، لغة الإعلان</td></tr>
+                  <tr><td>Mandatory Days</td><td>قائمة الأيام الإلزامية + حد الطلبات المطلوب لكل يوم</td></tr>
+                  <tr><td>Daily Validity</td><td>الحد الأدنى لباقي الأيام وقاعدة فقدان الأهلية</td></tr>
+                  <tr><td>Vehicle Tiers</td><td>أهداف cars / bikes + قيمة كل مستوى</td></tr>
+                  <tr><td>Quality Gates</td><td>ATA، cancellations، face، SOP، الاستثناءات</td></tr>
+                  <tr><td>Output Template</td><td>رسالة عربية وإنجليزية + نسخة Structured للمحرك</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-performance-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Performance</span>
+            <h2 class="section-title">الأداء والطلبات والتحقق والصلاحية</h2>
+            <div class="list">
+              <div class="list-item"><span>الأداء اليومي</span><span class="pill">Daily</span></div>
+              <div class="list-item"><span>الأداء الكلي الشهري</span><span class="pill blue">Monthly</span></div>
+              <div class="list-item"><span>VDA و VDA_kEETA</span><span class="pill gold">Eligibility</span></div>
+              <div class="list-item"><span>Face Verification</span><span class="pill red">Compliance</span></div>
+              <div class="list-item"><span>Delivery Experience</span><span class="pill">Ranking</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Output</span>
+            <h2 class="section-title">ماذا ستخرج الصفحة لاحقًا</h2>
+            <div class="note">
+              صالح / غير صالح، سبب عدم الصلاحية، عدد الأيام الناقصة، الطلبات الناقصة، هل يستطيع اللحاق قبل نهاية الشهر،
+              وما إذا كان يحتاج متابعة مباشرة من العمليات أو HR.
+            </div>
+            <div class="surface" style="margin-top:12px">
+              هذه الصفحة تعتمد بالكامل على تحويل منطق `الاداء الكلى` و`VDA` و`التحقق الكلي من الوجة` إلى JavaScript بدلا من الاعتماد على Excel formulas.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-hr-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">HR</span>
+            <h2 class="section-title">صفحة الموارد البشرية</h2>
+            <div class="list">
+              <div class="list-item"><span>دعم تعدد السجلات وربط كل سجل بفريقه</span><span class="pill">Multi-Register</span></div>
+              <div class="list-item"><span>الكفالة وحالة الإقامة والمسمى الوظيفي</span><span class="pill blue">Compliance</span></div>
+              <div class="list-item"><span>الرخص وبطاقات السائقين والسكن</span><span class="pill gold">Documents</span></div>
+              <div class="list-item"><span>مناديب لم تعمل وأرشيف الموارد البشرية</span><span class="pill red">Archive</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Primary Source</span>
+            <h2 class="section-title">الملف المرجعي</h2>
+            <div class="note">
+              `البوابة المقبلة.xlsx` هو Master file لهذا الموديول، ويحتوي HR، الأرشيف، الرخص، بطاقات السائقين، ومنصات أخرى
+              مثل Keeta وNinja وJahez وChefz.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-fleet-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Fleet</span>
+            <h2 class="section-title">صفحة المركبات والأسطول</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>العنصر</th>
+                    <th>المراجعة المطلوبة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>المركبة التشغيلية</td><td>هل المركبة فعالة ومصرح بها للتشغيل</td></tr>
+                  <tr><td>الرقم التسلسلي</td><td>المفتاح الأساسي للربط</td></tr>
+                  <tr><td>المدينة</td><td>منع خلط جدة والرياض</td></tr>
+                  <tr><td>السجل</td><td>منع خلط السجلات بدون اتفاق مباشر</td></tr>
+                  <tr><td>السعة</td><td>كم يوزر على المركبة وهل ما زالت تقبل</td></tr>
+                  <tr><td>نوع النقل</td><td>عام أو خاص وهل يطابق نوع اليوزر</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Workbook Engine</span>
+            <h2 class="section-title">مصدر القواعد</h2>
+            <div class="note">
+              `Updata_Vehicles (2).xlsx` ليس مجرد كشف مركبات، بل Fleet Rules Engine يحتوي منطق مطابقة المدينة والسجل
+              والمركبة الفعلية وتعريفات `تضارب سجل` و`اختلاط المدينة` و`تفريغ السعة`.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-shifts-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Shifts</span>
+            <h2 class="section-title">صفحة توزيع الشفتات</h2>
+            <div class="list">
+              <div class="list-item"><span>رفع أو لصق الأيديهات</span><span class="pill">Input</span></div>
+              <div class="list-item"><span>اختيار المدينة والسجل</span><span class="pill blue">Scope</span></div>
+              <div class="list-item"><span>3 شفتات لكل مندوب</span><span class="pill gold">Rule</span></div>
+              <div class="list-item"><span>Target و Max لكل Slot</span><span class="pill red">Capacity</span></div>
+              <div class="list-item"><span>توزيع تلقائي مع منع تجاوز الحد الأقصى</span><span class="pill">Planner</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Logic Source</span>
+            <h2 class="section-title">من أين سيأتي المنطق</h2>
+            <div class="note">
+              من `شفتات الاسبوع الحالي` و`توزيع الاعداد.` داخل ملف تشغيل كيتا، ومن ملف
+              `Keeta Shifts Scheduling Tool V1.2 (3-Shifts) - AD (2).xlsm` الذي يحتوي VBA فعلي لعملية الموازنة.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-monthly-closing-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Monthly Closing</span>
+            <h2 class="section-title">الإقفال الشهري والتسوية النهائية</h2>
+            <div class="list">
+              <div class="list-item"><span>رفع فواتير الشركة الأصلية وملف التسوية الداخلي لنفس الشهر</span><span class="pill">Sources</span></div>
+              <div class="list-item"><span>مطابقة الشركاء والمناديب بين الفاتورة الخارجية والبيانات الداخلية</span><span class="pill blue">Matching</span></div>
+              <div class="list-item"><span>حساب الفروقات والسلف والخصومات والحوافز النهائية</span><span class="pill gold">Settlement</span></div>
+              <div class="list-item"><span>إخراج تقرير مراجعة قبل الإقفال النهائي</span><span class="pill red">Review</span></div>
+              <div class="list-item"><span>أرشفة حزمة الشهر بعد اعتمادها</span><span class="pill">Archive</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Required Inputs</span>
+            <h2 class="section-title">مصادر الحقيقة في هذه الصفحة</h2>
+            <div class="note">
+              سيتم الاعتماد على فواتير الشركة الأصلية، تقارير الأداء والصلاحية، Snapshot من Rider Master،
+              وربط نتائج Face / VDA / Operations قبل توليد التسوية النهائية والأرشيف الشهري.
+            </div>
+            <div class="surface" style="margin-top:12px">
+              ملاحظة تنفيذية: وجود Prototype للإقفال حالياً لا يعني اعتماد المنطق النهائي. صفحة الـ shell هنا
+              تمثل شكل Prompt 8 الذي سيُربط لاحقًا بمحرك التسوية الفعلي.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-archive-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Archive</span>
+            <h2 class="section-title">الأرشيف الشهري والأرشيف الكامل</h2>
+            <div class="list">
+              <div class="list-item"><span>أرشيف شهر بعد الإقفال</span><span class="pill">Monthly</span></div>
+              <div class="list-item"><span>أرشيف كامل لأي يوزر أو مندوب</span><span class="pill blue">Rider History</span></div>
+              <div class="list-item"><span>سجل حركة اليوزرات التاريخي</span><span class="pill gold">Timeline</span></div>
+              <div class="list-item"><span>استرجاع حالات العمل السابقة</span><span class="pill red">Audit</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Dependency</span>
+            <h2 class="section-title">ما الذي نؤجله حتى اعتماد الـ Data Model</h2>
+            <div class="note">
+              الفواتير، التسوية النهائية، السلف، المخالفات، الحوافز النهائية، وأرشفة الإقفال الشهري تبقى مرحلة لاحقة
+              بعد تثبيت Rider Master وOperations State وPerformance.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-reports-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Reports</span>
+            <h2 class="section-title">التقارير والتصدير</h2>
+            <div class="list">
+              <div class="list-item"><span>ملخص تنفيذي حسب المدينة والسجل والداش بورد</span><span class="pill">Exec</span></div>
+              <div class="list-item"><span>تقرير تشغيلي يومي: يعمل / لا يعمل / مفعّل / مقبول / إقالات</span><span class="pill blue">Ops</span></div>
+              <div class="list-item"><span>تقرير الأداء والصلاحية والحوافز المتوقعة</span><span class="pill gold">Performance</span></div>
+              <div class="list-item"><span>تقارير Fleet و HR و Shift Coverage</span><span class="pill red">Support</span></div>
+              <div class="list-item"><span>تصدير CSV / JSON / Markdown / Clipboard حسب الحاجة</span><span class="pill">Export</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Bundles</span>
+            <h2 class="section-title">حزم التصدير المقترحة</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الحزمة</th>
+                    <th>المحتوى</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Daily Ops</td><td>Working Riders + Accepted + Stopped + Alerts</td></tr>
+                  <tr><td>Monthly Review</td><td>Performance + VDA + Face + Incentive eligibility</td></tr>
+                  <tr><td>Fleet Audit</td><td>Assignments + Conflicts + Capacity + City/Register issues</td></tr>
+                  <tr><td>Closing Pack</td><td>Settlement + invoices + archive manifest</td></tr>
+                  <tr><td>Rider Archive</td><td>Timeline + all user IDs + previous statuses</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-settings-shell">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Settings</span>
+            <h2 class="section-title">الإعدادات المركزية</h2>
+            <div class="list">
+              <div class="list-item"><span>تعريف المدن والسجلات والداش بوردات النشطة</span><span class="pill">Master</span></div>
+              <div class="list-item"><span>قواميس الحالات التشغيلية والوظيفية وحالات الأرشفة</span><span class="pill blue">States</span></div>
+              <div class="list-item"><span>ربط أسماء الأعمدة وخرائط الاستيراد بين الشيتات المختلفة</span><span class="pill gold">Mappings</span></div>
+              <div class="list-item"><span>سعات المركبات وأنواعها وقواعد التحقق الأساسية</span><span class="pill red">Rules</span></div>
+              <div class="list-item"><span>إعدادات التخزين المحلي ونسخ الـ snapshots</span><span class="pill">Storage</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Admin Scope</span>
+            <h2 class="section-title">لماذا هذه الصفحة مهمة قبل التوسع</h2>
+            <div class="note">
+              أي منطق تشغيلي جديد سيحتاج نقطة ضبط واحدة لتعريف السجلات، المدن، القواميس،
+              وأسماء الأعمدة القادمة من Google Sheets المختلفة. لذلك وجود صفحة Settings shell الآن
+              يمنع تشتت الإعدادات بين أكثر من موديول عند بدء Prompt 2 و Prompt 3.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-import-center">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Data Import</span>
+            <h2 class="section-title">مركز رفع وتحليل الملفات</h2>
+            <div class="note" id="importStatus">
+              ارفع CSV / XLSX / XLS / TXT / JSON ليتم التعرف على نوع الملف ومحاولة ربطه بالتقارير التشغيلية أو الإقفال الشهري.
+            </div>
+
+            <div class="grid grid-2" style="margin-top:12px">
+              <div class="field">
+                <label>المدينة المستهدفة <span class="en-label">Target City</span></label>
+                <select id="importCity">
+                  <option value="جدة">جدة</option>
+                  <option value="الرياض">الرياض</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>رفع دفعة ملفات <span class="en-label">Batch Upload</span></label>
+                <input id="importBatchFiles" type="file" accept=".xlsx,.xls,.xlsm,.csv,.txt,.json,.zip" multiple>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn green" id="importAnalyzeBtn">Analyze Uploaded Files</button>
+              <button class="btn light" id="importClearBtn">مسح الدفعة الحالية</button>
+              <button class="btn gold" data-page-target="monthly-closing">الانتقال إلى الإقفال</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Quality Report</span>
+            <h2 class="section-title">جودة البيانات واكتشاف النوع</h2>
+            <div class="kpi-grid" id="importKpis"></div>
+            <div class="mini-stack" style="margin-top:12px" id="importWarnings"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Imported Files Inventory</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الملف</th>
+                    <th>النوع المكتشف</th>
+                    <th>الحالة</th>
+                    <th>السجل</th>
+                    <th>المدينة</th>
+                    <th>الشهر</th>
+                    <th>الأوراق/الصفوف</th>
+                    <th>الموثوقية</th>
+                    <th>إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="importBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Preview + Mapping</span>
+            <h2 class="section-title">معاينة الملف قبل الحفظ</h2>
+            <div class="empty" id="importPreviewEmpty">اختر ملفًا من جدول الاستيراد لعرض المعاينة والتعديل اليدوي قبل الحفظ.</div>
+            <div id="importPreviewPanel" style="display:none">
+              <div class="mini-stack" id="importPreviewMeta"></div>
+
+              <div class="grid grid-2" style="margin-top:12px">
+                <div class="field">
+                  <label>نوع الملف <span class="en-label">File Type</span></label>
+                  <select id="importManualType"></select>
+                </div>
+                <div class="field">
+                  <label>الكيان المستهدف <span class="en-label">Target Entity</span></label>
+                  <select id="importManualTargetEntity"></select>
+                </div>
+                <div class="field">
+                  <label>المدينة <span class="en-label">City</span></label>
+                  <select id="importManualCity">
+                    <option value="">غير محدد</option>
+                    <option value="جدة">جدة</option>
+                    <option value="الرياض">الرياض</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>السجل <span class="en-label">Register</span></label>
+                  <select id="importManualRegister"></select>
+                </div>
+                <div class="field">
+                  <label>الشهر <span class="en-label">Month</span></label>
+                  <input id="importManualMonth" type="month">
+                </div>
+                <div class="field">
+                  <label>الملف المحدد <span class="en-label">Selected File</span></label>
+                  <input id="importSelectedFileName" type="text" readonly>
+                </div>
+              </div>
+
+              <div class="mini-stack" style="margin-top:12px" id="importPreviewIssues"></div>
+
+              <div class="table-wrap" style="margin-top:14px">
+                <table>
+                  <thead id="importPreviewHead"></thead>
+                  <tbody id="importPreviewBody"></tbody>
+                </table>
+              </div>
+
+              <div class="actions" style="margin-top:14px">
+                <button class="btn green" id="importSaveBtn">Save Import</button>
+                <button class="btn light" id="importRejectBtn">Reject</button>
+                <button class="btn light" id="importRedetectBtn">Re-detect</button>
+                <button class="btn gold" id="importExportDetectionBtn">Export Detection Report</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Import Batch History</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>التاريخ</th>
+                  <th>الملف</th>
+                  <th>النوع</th>
+                  <th>الحالة</th>
+                  <th>الكيان</th>
+                  <th>المدينة / السجل</th>
+                  <th>السجلات المحفوظة</th>
+                </tr>
+              </thead>
+              <tbody id="importHistoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-salary">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Calculator</span>
+            <h2 class="section-title">حاسبة الراتب والعمولة</h2>
+
+            <div class="grid grid-3">
+              <div class="field">
+                <label>نوع المركبة <span class="en-label">Vehicle Type</span></label>
+                <select id="salaryVehicleType">
+                  <option value="car">سيارة</option>
+                  <option value="bike">دباب</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>مصدر المركبة <span class="en-label">Vehicle Source</span></label>
+                <select id="salaryVehicleSource">
+                  <option value="company">شركة</option>
+                  <option value="own">خاصة</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>عدد أيام الشهر <span class="en-label">Month Days</span></label>
+                <input id="salaryMonthDays" type="number" min="1" max="31">
+              </div>
+            </div>
+
+            <div class="grid grid-3">
+              <div class="field">
+                <label>عدد الطلبات <span class="en-label">Orders</span></label>
+                <input id="salaryOrders" type="number" min="0">
+              </div>
+              <div class="field">
+                <label>أيام العمل الفعلية <span class="en-label">Work Days</span></label>
+                <input id="salaryWorkDays" type="number" min="0">
+              </div>
+              <div class="field">
+                <label>أيام وجود المركبة <span class="en-label">Vehicle Days</span></label>
+                <input id="salaryVehicleDays" type="number" min="0">
+              </div>
+            </div>
+
+            <div class="grid grid-3">
+              <div class="field">
+                <label>أيام الصلاحية من 7 <span class="en-label">Valid Days</span></label>
+                <input id="salaryValidDays" type="number" min="0" max="7">
+                <div class="hint">الشرط الإلزامي: 6 أيام من أصل 7 مع تحقق الحد الأدنى للطلبات.</div>
+              </div>
+              <div class="field">
+                <label>حالة الصلاحية <span class="en-label">Eligibility Override</span></label>
+                <select id="salaryValidOverride">
+                  <option value="auto">تلقائي</option>
+                  <option value="valid">صالح يدويًا</option>
+                  <option value="invalid">غير صالح يدويًا</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>مستوى تجربة التوصيل <span class="en-label">Experience Tier</span></label>
+                <select id="salaryExperienceLevel">
+                  <option value="NONE">None</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-4">
+              <div class="field">
+                <label>سعر الطلب <span class="en-label">Base Fare</span></label>
+                <input id="salaryBaseFare" type="number" step="0.01" min="0">
+              </div>
+              <div class="field">
+                <label>سعر الكيلو <span class="en-label">KM Rate</span></label>
+                <input id="salaryKmRate" type="number" step="0.01" min="0">
+              </div>
+              <div class="field">
+                <label>متوسط كم السيارة <span class="en-label">Car KM</span></label>
+                <input id="salaryCarKm" type="number" step="0.1" min="0">
+              </div>
+              <div class="field">
+                <label>متوسط كم الدباب <span class="en-label">Bike KM</span></label>
+                <input id="salaryBikeKm" type="number" step="0.1" min="0">
+              </div>
+            </div>
+
+            <div class="grid grid-4">
+              <div class="field">
+                <label>سكن تابع للشركة؟ <span class="en-label">Company Housing</span></label>
+                <select id="salaryCompanyHousing">
+                  <option value="no">لا</option>
+                  <option value="yes">نعم</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>أيام السكن <span class="en-label">Housing Days</span></label>
+                <input id="salaryHousingDays" type="number" min="0">
+              </div>
+              <div class="field">
+                <label>السلف <span class="en-label">Loans</span></label>
+                <input id="salaryLoans" type="number" step="0.01" min="0">
+              </div>
+              <div class="field">
+                <label>خصومات أخرى <span class="en-label">Other Deductions</span></label>
+                <input id="salaryOtherDeductions" type="number" step="0.01" min="0">
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn green" id="salaryCalculateBtn">احسب الآن</button>
+              <button class="btn light" id="salaryResetBtn">إعادة ضبط</button>
+              <button class="btn gold" id="salaryCopyBtn">نسخ الملخص</button>
+              <button class="btn light" id="salaryExportBtn">Export CSV</button>
+            </div>
+
+            <div class="actions">
+              <button class="btn light" id="salaryScenarioCarBtn">سيناريو سيارة 460</button>
+              <button class="btn light" id="salaryScenarioBikeBtn">سيناريو دباب 460</button>
+              <button class="btn light" id="salaryScenarioInvalidBtn">سيناريو غير صالح</button>
+              <button class="btn light" id="salaryScenarioMidMonthBtn">بدء يوم 15</button>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>مصدر الحسبة الشهري</h3>
+              <div class="grid grid-3">
+                <div class="field">
+                  <label>مصدر الحسبة <span class="en-label">Source</span></label>
+                  <select id="salaryDataSource">
+                    <option value="manual">Manual Estimate</option>
+                    <option value="monthly">From Monthly Closing</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>المدينة <span class="en-label">City</span></label>
+                  <select id="salaryMonthlyCity">
+                    <option value="جدة">جدة</option>
+                    <option value="الرياض">الرياض</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>الشهر <span class="en-label">Month</span></label>
+                  <input id="salaryMonthlyMonth" type="month">
+                </div>
+              </div>
+
+              <div class="field">
+                <label>بحث بالمعرف / الإقامة / الاسم <span class="en-label">Settlement Search</span></label>
+                <input id="salaryMonthlySearch" type="search" placeholder="ابحث داخل نتائج الإقفال الشهري">
+              </div>
+
+              <div class="actions">
+                <button class="btn green" id="salaryRefreshMonthlyMatchesBtn">عرض السجلات الشهرية</button>
+                <button class="btn light" data-page-target="monthly-closing">فتح صفحة الإقفال</button>
+              </div>
+
+              <div class="status-box" style="margin-top:12px" id="salaryMonthlyStatus">
+                اختر From Monthly Closing ثم اعرض السجلات المتاحة لتطبيقها على الحاسبة الحالية.
+              </div>
+
+              <div class="table-wrap" style="margin-top:12px">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>المعرف</th>
+                      <th>الاسم</th>
+                      <th>السجل</th>
+                      <th>الطلبات</th>
+                      <th>الصلاحية</th>
+                      <th>الصافي</th>
+                      <th>تطبيق</th>
+                    </tr>
+                  </thead>
+                  <tbody id="salaryMonthlyMatchesBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Result</span>
+            <h2 class="section-title">نتيجة الحسبة</h2>
+            <div class="result-panel">
+              <b>صافي المستحق المتوقع</b>
+              <strong id="salaryNetPay">0 ريال</strong>
+              <span class="pill gold" id="salaryBadge">جاهز للحساب</span>
+            </div>
+            <div class="kpi-grid" style="margin-top:12px" id="salaryKpis"></div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>تفصيل البنود</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>البند</th>
+                      <th>القيمة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="salaryBreakdownBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>Validation</h3>
+              <div class="mini-stack" id="salaryValidations"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-rules">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Eligibility</span>
+            <h2 class="section-title">حوافز الصلاحية</h2>
+            <div class="table-wrap" id="rulesValidityTable"></div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Experience</span>
+            <h2 class="section-title">حافز تجربة التوصيل</h2>
+            <div class="table-wrap" id="rulesExperienceTable"></div>
+            <div class="note" style="margin-top:12px">
+              يتم صرف جميع الحوافز فقط عند تحقق الصلاحية. إذا كان المندوب غير صالح فالحافزان يصبحان صفرًا مباشرة.
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Formula Sheet</span>
+            <h2 class="section-title">المعادلات الأساسية</h2>
+            <div class="list" id="rulesFormulaList"></div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Vehicle Rules</span>
+            <h2 class="section-title">قواعد توزيع المركبات</h2>
+            <div class="list" id="rulesVehicleList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-shifts">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Planner</span>
+            <h2 class="section-title">توزيع الشفتات</h2>
+
+            <div class="grid grid-4">
+              <div class="field">
+                <label>قالب الشفتات <span class="en-label">Template</span></label>
+                <select id="shiftTemplate">
+                  <option value="standard6">6 Shifts</option>
+                  <option value="standard5">5 Shifts</option>
+                  <option value="ramadan">Ramadan</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>الاستراتيجية <span class="en-label">Strategy</span></label>
+                <select id="shiftStrategy">
+                  <option value="balanced">Balanced</option>
+                  <option value="consecutive">Consecutive</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>إجمالي المناديب <span class="en-label">Rider Count</span></label>
+                <input id="shiftRiderCount" type="number" min="0">
+              </div>
+              <div class="field">
+                <label>شفتات لكل مندوب <span class="en-label">Shifts / Rider</span></label>
+                <input id="shiftBundleSize" type="number" min="1" max="6">
+              </div>
+            </div>
+
+            <div class="note" style="margin-bottom:12px">
+              يدعم هذا الإصدار قراءة أيديهات حقيقية من النص أو CSV/TXT، ثم يوزعها على تركيبات
+              <b>Back to Back</b> ثم <b>1 Gap</b> ثم <b>2 Gap</b> ثم <b>1 Gap + 1 Gap</b>
+              مع منع تجاوز <b>Max</b>.
+            </div>
+
+            <div class="surface" style="margin-bottom:12px">
+              <h3>قائمة اليوزرات / الأيديهات المراد توزيعها</h3>
+              <div class="helper-grid">
+                <div class="field">
+                  <label>رفع ملف CSV / TXT</label>
+                  <input id="shiftRiderIdsFile" type="file" accept=".csv,.txt">
+                  <div class="hint">سيتم التقاط أعمدة مثل <span class="mono">user_id</span> أو <span class="mono">rider_id</span> أو أول عمود صالح تلقائيًا.</div>
+                </div>
+                <div class="field">
+                  <label>إجراءات القائمة</label>
+                  <div class="actions">
+                    <button class="btn green" id="shiftSyncIdsBtn">قراءة الأيديهات</button>
+                    <button class="btn light" id="shiftClearIdsBtn">مسح القائمة</button>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label>لصق الأيديهات يدويًا</label>
+                <textarea id="shiftRiderIdsPaste" rows="8" placeholder="1782916129257495&#10;1782831407480165&#10;1782866909257884"></textarea>
+              </div>
+              <div class="status-box warn" id="shiftRiderStatus"></div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الشفت</th>
+                    <th>الوقت</th>
+                    <th>Target</th>
+                    <th>Max</th>
+                  </tr>
+                </thead>
+                <tbody id="shiftConfigBody"></tbody>
+              </table>
+            </div>
+
+            <div class="actions">
+              <button class="btn light" id="shiftLoadTemplateBtn">إعادة تحميل القالب</button>
+              <button class="btn green" id="shiftGenerateBtn">توليد التوزيع</button>
+              <button class="btn light" id="shiftResetBtn">Reset</button>
+              <button class="btn gold" id="shiftExportBtn">Export Assignments CSV</button>
+              <button class="btn light" id="shiftExportSummaryBtn">Export Summary CSV</button>
+              <button class="btn light" id="shiftCopyBtn">Copy Results</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Coverage</span>
+            <h2 class="section-title">نتائج الشفتات</h2>
+            <div class="kpi-grid" id="shiftKpis"></div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>Shift Summary</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>الشفت</th>
+                      <th>Target</th>
+                      <th>Assigned</th>
+                      <th>Max</th>
+                      <th>Coverage</th>
+                      <th>Deficit</th>
+                      <th>Surplus</th>
+                    </tr>
+                  </thead>
+                  <tbody id="shiftCoverageBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <div class="filter-row">
+                <div class="search-box">
+                  <input id="shiftAssignmentsSearch" type="search" placeholder="بحث في Rider Assignment">
+                </div>
+                <div class="search-box">
+                  <input id="shiftUnassignedSearch" type="search" placeholder="بحث في Unassigned">
+                </div>
+              </div>
+
+              <h3>Rider Assignment</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>user_id</th>
+                      <th>shift_1</th>
+                      <th>shift_2</th>
+                      <th>shift_3</th>
+                      <th>shifts_text</th>
+                      <th>combination_type</th>
+                    </tr>
+                  </thead>
+                  <tbody id="shiftAssignmentsBody"></tbody>
+                </table>
+              </div>
+
+              <h3 style="margin-top:14px">Unassigned</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>user_id</th>
+                      <th>reason</th>
+                    </tr>
+                  </thead>
+                  <tbody id="shiftUnassignedBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mini-stack" style="margin-top:12px" id="shiftWarnings"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-vehicles">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Data Sources</span>
+            <h2 class="section-title">مصادر المركبات واليوزرات</h2>
+            <div class="inline-links" style="margin-bottom:12px">
+              <a class="link-chip" href="./data/samples/operating_vehicles.csv" download>Operating Vehicles Sample</a>
+              <a class="link-chip" href="./data/samples/update_vehicles.csv" download>Update Vehicles Sample</a>
+              <a class="link-chip" href="./data/samples/update_branches.csv" download>Update Branches Sample</a>
+              <a class="link-chip" href="./data/samples/riders.csv" download>Riders Sample</a>
+            </div>
+
+            <div class="grid grid-3">
+              <div class="field">
+                <label>سعة السيارة <span class="en-label">Car Capacity</span></label>
+                <input id="vehicleCarCapacity" type="number" min="1">
+              </div>
+              <div class="field">
+                <label>سعة الدباب <span class="en-label">Bike Capacity</span></label>
+                <input id="vehicleBikeCapacity" type="number" min="1">
+              </div>
+              <div class="field">
+                <label>سياسة الـ Dashboard <span class="en-label">Dashboard Rule</span></label>
+                <select id="vehicleDashboardRule">
+                  <option value="public_only">Public Only</option>
+                  <option value="allow_private">Allow Private</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-2">
+              <label class="toggle"><input id="vehicleStrictCity" type="checkbox"> <span>منع خلط المدن</span></label>
+              <label class="toggle"><input id="vehicleStrictRegister" type="checkbox"> <span>منع خلط السجل إلا باتفاقية مباشرة</span></label>
+            </div>
+
+            <div class="field" style="margin-top:12px">
+              <label>Operating Vehicles <span class="en-label">Source of Truth</span></label>
+              <input id="operatingVehiclesFile" type="file" accept=".csv,.xlsx,.xls">
+              <div class="hint" id="operatingVehiclesMeta"></div>
+              <textarea id="operatingVehiclesText"></textarea>
+            </div>
+
+            <div class="field">
+              <label>Update Vehicles</label>
+              <input id="updateVehiclesFile" type="file" accept=".csv,.xlsx,.xls">
+              <div class="hint" id="updateVehiclesMeta"></div>
+              <textarea id="updateVehiclesText"></textarea>
+            </div>
+
+            <div class="field">
+              <label>Update Branches</label>
+              <input id="updateBranchesFile" type="file" accept=".csv,.xlsx,.xls">
+              <div class="hint" id="updateBranchesMeta"></div>
+              <textarea id="updateBranchesText"></textarea>
+            </div>
+
+            <div class="field">
+              <label>Riders / Users</label>
+              <input id="ridersFile" type="file" accept=".csv,.xlsx,.xls">
+              <div class="hint" id="ridersMeta"></div>
+              <textarea id="ridersText"></textarea>
+            </div>
+
+            <div class="actions">
+              <button class="btn light" id="vehicleLoadSamplesBtn">تحميل عينات جاهزة</button>
+              <button class="btn green" id="vehicleAnalyzeBtn">تحليل وتوزيع</button>
+              <button class="btn light" id="vehicleResetBtn">Reset</button>
+              <button class="btn gold" id="vehicleCopyBtn">نسخ الملخص</button>
+              <button class="btn light" id="vehicleExportAssignmentsBtn">Export Assignments</button>
+              <button class="btn light" id="vehicleExportIssuesBtn">Export Unassigned</button>
+              <button class="btn light" id="vehicleExportUtilizationBtn">Export Utilization</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Results</span>
+            <h2 class="section-title">نتائج محرك المركبات</h2>
+            <div class="kpi-grid" id="vehicleKpis"></div>
+
+            <div class="filter-row" style="margin-top:12px">
+              <div class="search-box">
+                <input id="vehicleAssignmentsSearch" type="search" placeholder="بحث في التعيينات">
+              </div>
+              <div class="search-box">
+                <input id="vehicleConflictsSearch" type="search" placeholder="بحث في التعارضات / غير الموزعين / المركبات">
+              </div>
+            </div>
+
+            <div class="surface">
+              <h3>Registration Proposal / Valid Assignments</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>user_id</th>
+                      <th>name</th>
+                      <th>vehicle_serial</th>
+                      <th>city</th>
+                      <th>register</th>
+                      <th>capacity</th>
+                      <th>reason / notes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vehicleAssignmentsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>Unassigned Riders</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>user_id</th>
+                      <th>code</th>
+                      <th>reason</th>
+                      <th>suggestion</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vehicleUnassignedBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>Vehicle Capacity & Availability</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>vehicle_serial</th>
+                      <th>type</th>
+                      <th>city</th>
+                      <th>register</th>
+                      <th>occupancy</th>
+                      <th>available_slots</th>
+                      <th>assigned_users</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vehicleUtilizationBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>Conflicts</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>user_id</th>
+                      <th>code</th>
+                      <th>message</th>
+                      <th>suggestion</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vehicleConflictsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mini-stack" style="margin-top:12px" id="vehicleWarnings"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-vda">
+        <div class="card">
+          <span class="eyebrow">Validity</span>
+          <h2 class="section-title">VDA / Validity</h2>
+          <div class="status-box" id="vdaStatus">
+            ارفع ملفات VDA من مركز الاستيراد أو حلل ملف الإقفال الشهري الداخلي لعرض النتائج هنا.
+          </div>
+          <div class="kpi-grid" style="margin-top:12px" id="vdaKpis"></div>
+        </div>
+
+        <div class="card">
+          <div class="search-box" style="margin-bottom:12px">
+            <input id="vdaSearch" type="search" placeholder="بحث في Rider ID / السجل / الصلاحية">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rider ID</th>
+                  <th>السجل</th>
+                  <th>المركبة</th>
+                  <th>الأيام الصالحة</th>
+                  <th>الطلبات</th>
+                  <th>الهدف الحالي</th>
+                  <th>الحالة</th>
+                  <th>الإجراء</th>
+                </tr>
+              </thead>
+              <tbody id="vdaBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-face">
+        <div class="card">
+          <span class="eyebrow">Face Verification</span>
+          <h2 class="section-title">تحليل التحقق من الوجه</h2>
+          <div class="status-box" id="faceStatus">
+            ارفع تقارير Face Recognition أو استخدم الملفات المستوردة لعرض نسب النجاح والفشل هنا.
+          </div>
+          <div class="kpi-grid" style="margin-top:12px" id="faceKpis"></div>
+        </div>
+
+        <div class="card">
+          <div class="search-box" style="margin-bottom:12px">
+            <input id="faceSearch" type="search" placeholder="بحث في Rider ID / Partner / Result">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rider ID</th>
+                  <th>Partner</th>
+                  <th>Triggered</th>
+                  <th>Passed</th>
+                  <th>Pass Rate</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="faceBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-delivery">
+        <div class="card">
+          <span class="eyebrow">Delivery Experience</span>
+          <h2 class="section-title">تجربة التوصيل والحوافز</h2>
+          <div class="status-box" id="deliveryStatus">
+            سيتم عرض ترتيب تجربة التوصيل والحوافز بعد تحليل ملف الإقفال الشهري أو ورقة حالة نتيجة تجربة التوصيل.
+          </div>
+          <div class="kpi-grid" style="margin-top:12px" id="deliveryKpis"></div>
+        </div>
+
+        <div class="card">
+          <div class="search-box" style="margin-bottom:12px">
+            <input id="deliverySearch" type="search" placeholder="بحث في المندوب / السجل / المستوى">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>المعرف</th>
+                  <th>الاسم</th>
+                  <th>السجل</th>
+                  <th>Level</th>
+                  <th>Ranking</th>
+                  <th>الحافز</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="deliveryBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-monthly-closing">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Monthly Closing</span>
+            <h2 class="section-title">إقفال الشهر وبناء التسوية النهائية</h2>
+            <div class="grid grid-2">
+              <div class="field">
+                <label>المدينة <span class="en-label">City</span></label>
+                <select id="monthlyCity">
+                  <option value="جدة">جدة</option>
+                  <option value="الرياض">الرياض</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>الشهر <span class="en-label">Month</span></label>
+                <input id="monthlyMonth" type="month">
+              </div>
+              <div class="field">
+                <label>بداية الشهر <span class="en-label">Start Date</span></label>
+                <input id="monthlyStartDate" type="date">
+              </div>
+              <div class="field">
+                <label>نهاية الشهر <span class="en-label">End Date</span></label>
+                <input id="monthlyEndDate" type="date">
+              </div>
+              <div class="field">
+                <label>توفر التقارير النهائية <span class="en-label">Final Reports Date</span></label>
+                <input id="monthlyFinalReportsDate" type="date">
+              </div>
+              <div class="field">
+                <label>تقارير إضافية <span class="en-label">Supplemental Upload</span></label>
+                <input id="monthlySupplementalFiles" type="file" accept=".xlsx,.xls,.csv,.zip" multiple>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn green" id="monthlyAnalyzeBtn">Analyze Uploaded Reports</button>
+              <button class="btn light" id="monthlyCompareBtn">Compare Company vs Internal</button>
+              <button class="btn gold" id="monthlyBuildBtn">Build Final Settlement</button>
+              <button class="btn light" id="monthlyArchiveBtn">Create Monthly Archive</button>
+              <button class="btn red" id="monthlyLockBtn">Lock Month</button>
+              <button class="btn light" id="monthlyReopenBtn">Reopen Month</button>
+              <button class="btn green" id="monthlyExportAllBtn">Export All Reports</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Status</span>
+            <h2 class="section-title">حالة الشهر والتنبيهات</h2>
+            <div class="status-box" id="monthlyStatus">
+              Open
+            </div>
+            <div class="kpi-grid" style="margin-top:12px" id="monthlyKpis"></div>
+            <div class="mini-stack" style="margin-top:12px" id="monthlyWarnings"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Company Invoice Summary</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Partner ID</th>
+                    <th>الاسم</th>
+                    <th>السجل</th>
+                    <th>التسعير</th>
+                    <th>الحوافز</th>
+                    <th>الإجمالي المستحق</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlyCompanyPartnerBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Courier Invoice Details</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rider ID</th>
+                    <th>الاسم</th>
+                    <th>السجل</th>
+                    <th>الطلبات</th>
+                    <th>المسافة</th>
+                    <th>صالح</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlyCompanyCourierBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Internal Settlement</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>المعرف</th>
+                    <th>الاسم</th>
+                    <th>السجل</th>
+                    <th>الطلبات</th>
+                    <th>الحوافز</th>
+                    <th>الإجمالي</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlyInternalBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="search-box" style="margin-bottom:12px">
+              <input id="monthlyDiffSearch" type="search" placeholder="بحث في فروقات المطابقة">
+            </div>
+            <h3>Match Differences</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>المعرف</th>
+                    <th>السجل</th>
+                    <th>الطلبات</th>
+                    <th>المسافة</th>
+                    <th>الحوافز</th>
+                    <th>الحالة</th>
+                    <th>الملاحظات</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlyDiffBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="search-box" style="margin-bottom:12px">
+              <input id="monthlySettlementSearch" type="search" placeholder="بحث في التسوية النهائية">
+            </div>
+            <h3>Final Monthly Settlement</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>المعرف</th>
+                    <th>الاسم</th>
+                    <th>السجل</th>
+                    <th>الطلبات</th>
+                    <th>الحوافز</th>
+                    <th>الخصومات</th>
+                    <th>الصافي</th>
+                    <th>المطابقة</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlySettlementBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Invalid / Missing Data</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>النوع</th>
+                    <th>المعرف</th>
+                    <th>الاسم</th>
+                    <th>الملاحظة</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlyInvalidBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Archive Log</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>المسار/العنصر</th>
+                  <th>التفاصيل</th>
+                </tr>
+              </thead>
+              <tbody id="monthlyArchiveLogBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-opr">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">OPR Import</span>
+            <h2 class="section-title">إدارة OPR والبحث في اليوزرات</h2>
+            <div class="status-box" id="oprStatus">
+              ارفع ملفات OPR الحالية ثم استخدم البحث أو معاينة إجراءات التسكين والإيقاف.
+            </div>
+
+            <div class="grid grid-2" style="margin-top:12px">
+              <div class="field">
+                <label>EXPRESS OPR</label>
+                <input id="oprExpressFile" type="file" accept=".csv,.xlsx,.xls">
+              </div>
+              <div class="field">
+                <label>Albwaba OPR</label>
+                <input id="oprAlbwabaFile" type="file" accept=".csv,.xlsx,.xls">
+              </div>
+              <div class="field">
+                <label>TOGARY OPR</label>
+                <input id="oprTogaryFile" type="file" accept=".csv,.xlsx,.xls">
+              </div>
+              <div class="field">
+                <label>Per Order Mode</label>
+                <input id="oprPerOrderFile" type="file" accept=".csv,.xlsx,.xls">
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn green" id="oprAnalyzeBtn">Analyze OPR Files</button>
+              <button class="btn light" id="oprSearchBtn">Search Current Rows</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Actions</span>
+            <h2 class="section-title">معاينة إجراءات OPR</h2>
+            <div class="grid grid-2">
+              <div class="field">
+                <label>المعرف الحالي <span class="en-label">Current User ID</span></label>
+                <input id="oprSelectedUserId" type="text">
+              </div>
+              <div class="field">
+                <label>المعرف البديل <span class="en-label">Replacement User ID</span></label>
+                <input id="oprReplacementUserId" type="text">
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn red" id="oprPreviewStopBtn">Preview Stop Without Replacement</button>
+              <button class="btn gold" id="oprPreviewSwapBtn">Preview Swap</button>
+            </div>
+            <div class="mini-stack" style="margin-top:12px" id="oprPreviewBody"></div>
+            <div class="kpi-grid" style="margin-top:12px" id="oprKpis"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="search-box" style="margin-bottom:12px">
+            <input id="oprSearch" type="search" placeholder="بحث في OPR بالمعرف / الإقامة / الاسم / السجل">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Platform</th>
+                  <th>المعرف</th>
+                  <th>الاسم</th>
+                  <th>الإقامة</th>
+                  <th>الهاتف</th>
+                  <th>السجل</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="oprBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-validation">
+        <div class="card">
+          <span class="eyebrow">Validation Engine</span>
+          <h2 class="section-title">Validation Dashboard</h2>
+          <div class="kpi-grid" id="validationKpis"></div>
+          <div class="kpi-grid" style="margin-top:12px" id="validationOpsKpis"></div>
+          <div class="actions">
+            <button class="btn green" id="rerunTestsBtn">إعادة تشغيل الاختبارات</button>
+            <button class="btn light" id="refreshValidationBtn">تحديث الـ Dashboard</button>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Unified Issues</h3>
+            <div class="search-box" style="margin-bottom:12px">
+              <input id="validationSearch" type="search" placeholder="بحث في الـ Validation">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Severity</th>
+                    <th>Message</th>
+                    <th>Suggestion</th>
+                  </tr>
+                </thead>
+                <tbody id="validationBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Test Matrix</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الاختبار</th>
+                    <th>الحالة</th>
+                    <th>التفاصيل</th>
+                  </tr>
+                </thead>
+                <tbody id="testBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-exports">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Downloads</span>
+            <h2 class="section-title">Export Center</h2>
+            <div class="note" id="exportOverview"></div>
+            <div class="actions">
+              <button class="btn light" id="exportSalaryBtn">Salary CSV</button>
+              <button class="btn light" id="exportShiftBtn">Shift Assignments CSV</button>
+              <button class="btn light" id="exportShiftSummaryBtn">Shift Summary CSV</button>
+              <button class="btn light" id="exportVehicleBtn">Vehicle Assignments CSV</button>
+              <button class="btn light" id="exportVehicleIssuesBtn">Vehicle Unassigned CSV</button>
+              <button class="btn light" id="exportVehicleUtilBtn">Vehicle Utilization CSV</button>
+              <button class="btn light" id="exportValidationBtn">Validation CSV</button>
+              <button class="btn light" id="exportTestsBtn">Tests CSV</button>
+              <button class="btn light" id="exportWorkbookBtn">Excel Report MD</button>
+              <button class="btn gold" id="exportSnapshotBtn">Full Snapshot JSON</button>
+              <button class="btn light" id="exportMonthlySettlementBtn">Monthly Settlement CSV</button>
+              <button class="btn light" id="exportMonthlyMatchingBtn">Monthly Matching CSV</button>
+              <button class="btn light" id="exportMonthlySummaryBtn">Monthly Summary JSON</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Clipboard</span>
+            <h2 class="section-title">ملخصات سريعة</h2>
+            <div class="list" id="exportSummaryList"></div>
+            <div class="actions">
+              <button class="btn green" id="copyOperationsSummaryBtn">نسخ الملخص التشغيلي</button>
+              <button class="btn gold" id="exportMonthlyAllFromCenterBtn">Export All Monthly Reports</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-excel">
+        <div class="grid grid-2">
+          <div class="card">
+            <span class="eyebrow">Workbook Review</span>
+            <h2 class="section-title">مراجعة Excel واستخراج المعادلات</h2>
+            <div class="note" id="excelStatus">
+              ارفع ملف XLSX/XLS لمراجعة الأوراق والأعمدة والمعادلات من داخل المتصفح.
+            </div>
+            <div class="field" style="margin-top:12px">
+              <label>ملف Excel المرجعي <span class="en-label">Workbook Upload</span></label>
+              <input id="excelWorkbookInput" type="file" accept=".xlsx,.xls">
+            </div>
+            <div class="actions">
+              <button class="btn green" id="excelAnalyzeBtn">تحليل الملف</button>
+              <button class="btn gold" id="excelExportReportBtn">Export Report</button>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <h3>Translated Functions</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Function</th>
+                      <th>Source</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody id="excelFunctionsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <span class="eyebrow">Inventory</span>
+            <h2 class="section-title">جرد الأوراق والمعادلات</h2>
+
+            <div class="surface">
+              <h3>Sheets</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>الورقة</th>
+                      <th>Range</th>
+                      <th>Rows</th>
+                      <th>Columns</th>
+                      <th>Formulas</th>
+                    </tr>
+                  </thead>
+                  <tbody id="excelSheetsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="surface" style="margin-top:12px">
+              <div class="search-box" style="margin-bottom:12px">
+                <input id="excelFormulaSearch" type="search" placeholder="بحث في المعادلات">
+              </div>
+              <h3>Formula Preview</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Sheet</th>
+                      <th>Cell</th>
+                      <th>Formula</th>
+                      <th>Value</th>
+                    </tr>
+                  </thead>
+                  <tbody id="excelFormulasBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mini-stack" style="margin-top:12px" id="excelWarnings"></div>
+          </div>
+        </div>
+      </section>
+      </main>
+
+      <div class="footer">
+        Al Bawaba Al Muqbilah Operations Portal · Phase 1 Shell · Google Sheets Logic Review · Offline HTML + local XLSX library
+      </div>
+    </div>
+  </div>
+
+  <script src="./vendor/xlsx.full.min.js"></script>
+  <script src="./keeta_operations_portal_logic.js"></script>
+  <script src="./src/lib/formulaEngine.js"></script>
+  <script src="./src/lib/normalizeOverallPerformance.js"></script>
+  <script src="./src/lib/vdaEngine.js"></script>
+  <script src="./src/lib/faceVerificationEngine.js"></script>
+  <script src="./src/lib/deliveryExperienceEngine.js"></script>
+  <script src="./src/lib/statusReviewEngine.js"></script>
+  <script src="./src/lib/oprEngine.js"></script>
+  <script src="./src/lib/monthlyClosingEngine.js"></script>
+  <script src="./src/import/importTypes.js"></script>
+  <script src="./src/import/headerMapper.js"></script>
+  <script src="./src/import/csvReader.js"></script>
+  <script src="./src/import/workbookReader.js"></script>
+  <script src="./src/import/fileDetector.js"></script>
+  <script src="./src/hr/hrComputedFieldsService.js"></script>
+  <script src="./src/hr/hrComputedFields.js"></script>
+  <script src="./src/hr/riderMatching.js"></script>
+  <script src="./src/hr/riderArchive.js"></script>
+  <script src="./src/hr/riderNormalizer.js"></script>
+  <script src="./src/hr/riderIdentityResolver.js"></script>
+  <script src="./src/riders/riderOperationalProfileService.js"></script>
+  <script src="./src/riders/riderResolverFacade.js"></script>
+  <script src="./src/hr/hrValidator.js"></script>
+  <script src="./src/operations/operationsCommon.js"></script>
+  <script src="./src/operations/assignmentWorkflowSupport.js?v=20260715-1"></script>
+  <script src="./src/operations/operationsStatusEngine.js"></script>
+  <script src="./src/operations/dashboardImportSnapshot.js"></script>
+  <script src="./src/operations/dashboardUserLifecycle.js"></script>
+  <script src="./src/operations/assignmentReadinessService.js"></script>
+  <script src="./src/operations/assignmentPeriodResolver.js"></script>
+  <script src="./src/fleet/vehicleValidator.js"></script>
+  <script src="./src/fleet/vehicleMovementService.js"></script>
+  <script src="./src/fleet/vehicleComputedFieldsService.js"></script>
+  <script src="./src/fleet/vehicleComputedFields.js"></script>
+  <script src="./src/fleet/vehicleNormalizer.js"></script>
+  <script src="./src/fleet/fleetImportService.js"></script>
+  <script src="./src/import/importPreview.js"></script>
+  <script src="./src/import/importValidator.js"></script>
+  <script src="./src/import/importNormalizer.js"></script>
+  <script src="./src/import/importAudit.js"></script>
+  <script src="./src/import/importRegistry.js"></script>
+  <script src="./src/import/importBatchService.js"></script>
+  <script src="./src/import/importTemplateRegistry.js"></script>
+  <script src="./src/data/entitySchemas.js"></script>
+  <script src="./src/data/lifecycleRegistry.js"></script>
+  <script src="./src/data/dataMigrations.js"></script>
+  <script src="./src/data/memoryStore.js"></script>
+  <script src="./src/data/browserLocalStore.js"></script>
+  <script src="./src/data/dataStore.js"></script>
+  <script src="./src/data/storageBridge.js"></script>
+  <script src="./src/data/devDataReset.js"></script>
+  <script src="./src/data/repositories.js"></script>
+  <script src="./src/data/importRegistry.js"></script>
+  <script src="./src/audit/auditPolicy.js"></script>
+  <script src="./src/audit/auditLogRepository.js"></script>
+  <script src="./src/audit/auditLogService.js"></script>
+  <script src="./src/audit/auditLogCleanup.js"></script>
+  <script src="./src/data/auditLog.js"></script>
+  <script src="./src/auth/rbac.js"></script>
+  <script src="./src/auth/devSession.js"></script>
+  <script src="./src/rules/monthlyRulesDefaults.js"></script>
+  <script src="./src/rules/monthlyRulesValidator.js"></script>
+  <script src="./src/rules/monthlyRulesVersioning.js"></script>
+  <script src="./src/rules/monthlyRulesPreview.js"></script>
+  <script src="./src/rules/monthlyRulesService.js"></script>
+  <script src="./src/performance/performanceCommon.js"></script>
+  <script src="./src/performance/performanceRuleResolver.js"></script>
+  <script src="./src/performance/dailyPerformanceEngine.js"></script>
+  <script src="./src/performance/mandatoryDaysEngine.js"></script>
+  <script src="./src/performance/faceVerificationAdapter.js"></script>
+  <script src="./src/performance/vdaAdapter.js"></script>
+  <script src="./src/performance/deliveryExperienceAdapter.js"></script>
+  <script src="./src/performance/monthlyValidityEngine.js"></script>
+  <script src="./src/performance/performanceRecalculationService.js"></script>
+  <script src="./src/fleet/vehicleCapacityEngine.js"></script>
+  <script src="./src/fleet/vehicleMatchingEngine.js"></script>
+  <script src="./src/fleet/fleetOperationsIntegration.js"></script>
+  <script src="./src/ui/layering.js"></script>
+  <script src="./src/ui/actionDropdown.js"></script>
+  <script src="./src/ui/detailFields.js"></script>
+  <script src="./src/ui/detailsDrawer.js"></script>
+  <script src="./src/ui/liveClock.js"></script>
+  <script src="./src/ui/pageRenderController.js"></script>
+  <script src="./src/ui/runtimeContainment.js"></script>
+  <script src="./src/ui/sidebarRouting.js"></script>
+  <script src="./src/runtime/bootMode.js"></script>
+  <script src="./src/runtime/startupProfiler.js"></script>
+  <script src="./src/runtime/pageScopedDataLoading.js"></script>
+  <script src="./src/runtime/runtimeLoopGuard.js"></script>
+  <script src="./src/runtime/fleetRebuildPolicy.js"></script>
+  <script src="./src/runtime/recoveryMode.js"></script>
+  <script src="./src/runtime/verificationProfiles.js?v=20260716-2"></script>
+  <script src="./src/notifications/notificationSourceMapping.js?v=20260716-1"></script>
+  <script src="./src/notifications/notificationDrawerModel.js?v=20260716-1"></script>
+  <script src="./src/notifications/notificationNavigation.js?v=20260716-1"></script>
+  <script src="./src/operations/currentAssignmentsViewModel.js?v=20260716-3"></script>
+  <script src="./src/operations/operationsViewModel.js?v=20260718-1"></script>
+  <script src="./src/notifications/notificationRules.js?v=20260716-1"></script>
+  <script src="./src/notifications/notificationCenter.js?v=20260716-1"></script>
+  <script src="./src/data/browserRuntime.js?v=20260715-2"></script>
+  <script src="./keeta_operations_portal_app_v4.js"></script>
+  <script src="./keeta_operations_portal_v9_extension.js"></script>
+  <script src="./keeta_operations_portal_ui_redesign.js"></script>
+  <script src="./keeta_operations_portal_hr_extension.js"></script>
+  <script src="./src/operations/operationsLogView.js"></script>
+  <script src="./src/operations/assignmentService.js"></script>
+  <script src="./src/operations/swapService.js"></script>
+  <script src="./src/operations/terminationService.js"></script>
+  <script src="./keeta_operations_portal_operations_extension.js?v=20260716-2"></script>
+  <script src="./keeta_operations_portal_fleet_extension.js"></script>
+  <script src="./keeta_operations_portal_monthly_rules_extension.js"></script>
+  <script src="./keeta_operations_portal_performance_extension.js"></script>
+  <script src="./keeta_operations_portal_stabilization.js"></script>
+</body>
+</html>

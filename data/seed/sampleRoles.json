@@ -1,0 +1,26 @@
+[
+  {
+    "id": "super_admin",
+    "name": "Super Admin",
+    "status": "active",
+    "permissionCount": 1
+  },
+  {
+    "id": "city_supervisor",
+    "name": "City Supervisor",
+    "status": "active",
+    "permissionCount": 8
+  },
+  {
+    "id": "finance_officer",
+    "name": "Finance Officer",
+    "status": "active",
+    "permissionCount": 7
+  },
+  {
+    "id": "viewer",
+    "name": "Viewer",
+    "status": "active",
+    "permissionCount": 5
+  }
+]

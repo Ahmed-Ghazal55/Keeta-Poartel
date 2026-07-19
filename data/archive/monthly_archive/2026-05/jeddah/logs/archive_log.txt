@@ -1,0 +1,6 @@
+generatedAt=2026-07-08T23:43:26.741Z
+sourceReports=EXPRESS GATE Company ( Jeddah)#2026-05#نظام الشرائح الفاتورة1781618262314.xlsx; Albwaba almoqbla Company ( Jeddah )#2026-05#نظام الشرائح الفاتورة1781040180288 (1).xlsx; فاتورة كيتا جدة 05-2026 م.xlsx
+companyPartners=2
+companyCouriers=193
+comparisonTotal=193
+settlementTotal=193

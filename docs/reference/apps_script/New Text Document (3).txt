@@ -1,0 +1,640 @@
+/**
+ * نظام كيتـا جدة ERP - نسخة موحدة
+ *
+ * التعديلات المضافة:
+ * 1) إضافة TOGARY OPR ضمن أوراق التشغيل.
+ * 2) Per Order Mode نفس أعمدة التشغيل لكن مزاحة عمود واحد بسبب وجود عمود A إضافي.
+ * 3) عند تسكين أيدي فارغ يتم تحديث ورقة "مراجعة الحالة" إلى "شغال".
+ * 4) إضافة عملية "إيقاف بدون بديل": أرشفة بيانات المندوب الحالي، تفريغ التسكين، وتحديث الحالة إلى "لا يعمل حاليا".
+ * 5) عند تسكين بديل غير موجود في قاعدة بيانات المناديب يمكن إنشاؤه مباشرة من نفس فورم التبديل.
+ */
+
+const CONFIG = {
+  masterSheet: "بيانات المناديب",
+  archiveSheet: "سجل حركة اليوزرات التاريخي",
+  timezone: "Asia/Riyadh",
+
+  // ورقة مراجعة الحالة: الافتراض أن رقم الأيدي في A والحالة في B.
+  // لو رقم الأيدي عندك في عمود مختلف، غيّر idCol فقط.
+  statusSheet: {
+    name: "مراجعة الحالة",
+    idCol: 1,
+    statusCol: 2
+  },
+
+  oprSheets: [
+    {
+      name: "EXPRESS OPR",
+      idCol: 1,
+      ownerNameCol: 2,
+      ownerIqamaCol: 3,
+      currentIqamaCol: 7,
+      currentNameCol: 8,
+      currentPhoneCol: 9,
+      currentSubTypeCol: 10,
+      currentVehicleCol: 11,
+      currentGasCardCol: 12,
+      currentToolsCol: 13,
+      currentNationalityCol: 14,
+      currentAppPhoneCol: 15,
+      currentIbanCol: 16,
+      assignDateCol: 17,
+      receiveNotesCol: 19
+    },
+    {
+      name: "Albwaba OPR",
+      idCol: 1,
+      ownerNameCol: 2,
+      ownerIqamaCol: 3,
+      currentIqamaCol: 7,
+      currentNameCol: 8,
+      currentPhoneCol: 9,
+      currentSubTypeCol: 10,
+      currentVehicleCol: 11,
+      currentGasCardCol: 12,
+      currentToolsCol: 13,
+      currentNationalityCol: 14,
+      currentAppPhoneCol: 15,
+      currentIbanCol: 16,
+      assignDateCol: 17,
+      receiveNotesCol: 19
+    },
+    {
+      name: "TOGARY OPR",
+      idCol: 1,
+      ownerNameCol: 2,
+      ownerIqamaCol: 3,
+      currentIqamaCol: 7,
+      currentNameCol: 8,
+      currentPhoneCol: 9,
+      currentSubTypeCol: 10,
+      currentVehicleCol: 11,
+      currentGasCardCol: 12,
+      currentToolsCol: 13,
+      currentNationalityCol: 14,
+      currentAppPhoneCol: 15,
+      currentIbanCol: 16,
+      assignDateCol: 17,
+      receiveNotesCol: 19
+    },
+    {
+      // نفس ترتيب EXPRESS / Albwaba / TOGARY لكن يوجد عمود A إضافي، لذلك كل الأعمدة +1.
+      name: "Per Order Mode",
+      idCol: 2,
+      ownerNameCol: 3,
+      ownerIqamaCol: 4,
+      currentIqamaCol: 8,
+      currentNameCol: 9,
+      currentPhoneCol: 10,
+      currentSubTypeCol: 11,
+      currentVehicleCol: 12,
+      currentGasCardCol: 13,
+      currentToolsCol: 14,
+      currentNationalityCol: 15,
+      currentAppPhoneCol: 16,
+      currentIbanCol: 17,
+      assignDateCol: 18,
+      receiveNotesCol: 20
+    }
+  ]
+};
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu("⚙️ نظام كيتـا ERP")
+    .addItem("👥 إدارة قاعدة بيانات المناديب", "showRiderDB")
+    .addItem("🔄 حركة التبديلات والأرشفة", "showSwapPortal")
+    .addSeparator()
+    .addItem("🔁 تحديث مراجعة الحالة", "updateStatus")
+    .addToUi();
+}
+
+function showRiderDB() {
+  const html = HtmlService.createHtmlOutputFromFile("RiderForm")
+    .setTitle("قاعدة بيانات المناديب - كيتـا جدة")
+    .setWidth(860)
+    .setHeight(920);
+  SpreadsheetApp.getUi().showModalDialog(html, "إضافة وتعديل المناديب");
+}
+
+function showSwapPortal() {
+  const html = HtmlService.createHtmlOutputFromFile("SwapForm")
+    .setTitle("مركز التبديلات والأرشفة - كيتـا جدة")
+    .setWidth(860)
+    .setHeight(960);
+  SpreadsheetApp.getUi().showModalDialog(html, "التبديلات وإغلاق العهد");
+}
+
+function searchRider(iqama) {
+  const rider = getRiderRecord_(iqama);
+  if (!rider.found) {
+    return { found: false, msg: "لم يتم تسجيل المندوب من قبل - سيتم إضافة سجل جديد" };
+  }
+  return rider;
+}
+
+function searchIqamaMaster(iqama) {
+  return getRiderRecord_(iqama);
+}
+
+function getRiderPreview(iqama) {
+  const rider = getRiderRecord_(iqama);
+  if (!rider.found) {
+    return {
+      found: false,
+      iqama: normalizeId_(iqama),
+      msg: "المندوب غير موجود في قاعدة بيانات المناديب"
+    };
+  }
+  return {
+    found: true,
+    row: rider.row,
+    iqama: rider.iqama,
+    name: rider.name,
+    phone: rider.phone,
+    subType: rider.subType,
+    vehicleType: rider.vehicleType,
+    gasCard: rider.gasCard,
+    tools: rider.tools,
+    nationality: rider.nationality,
+    appPhone: rider.appPhone,
+    iban: rider.iban,
+    currentUser: rider.currentUser
+  };
+}
+
+function saveRiderToMaster(formData) {
+  const lock = LockService.getDocumentLock();
+  lock.waitLock(15000);
+
+  try {
+    const result = upsertRiderToMaster_(formData);
+    if (!result.ok) return result.msg;
+
+    return result.isNew
+      ? `✅ تم إضافة المندوب [ ${result.name} ] وتفعيل معادلاته بنجاح`
+      : `✅ تم تحديث بيانات المندوب [ ${result.name} ] بنجاح`;
+  } catch (err) {
+    return "❌ حدث خطأ أثناء الحفظ: " + err.message;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function searchKeetaForSwap(keetaId) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const idStr = normalizeId_(keetaId);
+  if (!idStr) return { found: false, msg: "برجاء إدخال رقم اليوزر" };
+
+  for (const cfg of CONFIG.oprSheets) {
+    const sheet = ss.getSheetByName(cfg.name);
+    if (!sheet) continue;
+
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) continue;
+
+    const maxCol = Math.max(
+      cfg.idCol,
+      cfg.ownerNameCol,
+      cfg.ownerIqamaCol,
+      cfg.currentIqamaCol,
+      cfg.currentNameCol,
+      cfg.currentPhoneCol,
+      cfg.currentSubTypeCol,
+      cfg.currentVehicleCol,
+      cfg.currentGasCardCol,
+      cfg.currentToolsCol,
+      cfg.currentNationalityCol,
+      cfg.currentAppPhoneCol,
+      cfg.currentIbanCol,
+      cfg.assignDateCol,
+      cfg.receiveNotesCol
+    );
+
+    const data = sheet.getRange(2, 1, lastRow - 1, maxCol).getDisplayValues();
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (normalizeId_(getByCol_(row, cfg.idCol)) === idStr) {
+        const currentIqama = getByCol_(row, cfg.currentIqamaCol);
+        return {
+          found: true,
+          sheetName: cfg.name,
+          row: i + 2,
+          keetaId: getByCol_(row, cfg.idCol),
+          ownerName: getByCol_(row, cfg.ownerNameCol),
+          ownerIqama: getByCol_(row, cfg.ownerIqamaCol),
+          currentIqama: currentIqama,
+          currentName: getByCol_(row, cfg.currentNameCol),
+          currentPhone: getByCol_(row, cfg.currentPhoneCol),
+          currentSubType: getByCol_(row, cfg.currentSubTypeCol),
+          currentVehicle: getByCol_(row, cfg.currentVehicleCol),
+          currentGasCard: getByCol_(row, cfg.currentGasCardCol),
+          currentTools: getByCol_(row, cfg.currentToolsCol),
+          currentNationality: getByCol_(row, cfg.currentNationalityCol),
+          currentAppPhone: getByCol_(row, cfg.currentAppPhoneCol),
+          currentIban: getByCol_(row, cfg.currentIbanCol),
+          assignDate: getByCol_(row, cfg.assignDateCol) || "غير مسجل",
+          currentReceiveNotes: getByCol_(row, cfg.receiveNotesCol) || "",
+          hasCurrentRider: normalizeId_(currentIqama) !== ""
+        };
+      }
+    }
+  }
+
+  return { found: false, msg: "لم يتم العثور على هذا اليوزر في أوراق تشغيل جدة" };
+}
+
+function processSwapAndArchive(data) {
+  const lock = LockService.getDocumentLock();
+  lock.waitLock(20000);
+
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const keetaId = normalizeId_(data.keetaId);
+    const operationType = String(data.operationType || "assign_or_swap").trim();
+
+    if (!keetaId) return "❌ رقم اليوزر غير واضح";
+
+    const current = searchKeetaForSwap(keetaId);
+    if (!current.found) {
+      return "❌ لم يتم العثور على اليوزر أثناء التنفيذ. برجاء إعادة البحث.";
+    }
+
+    const cfg = getOprConfig_(current.sheetName);
+    if (!cfg) return "❌ إعدادات ورقة التشغيل غير موجودة: " + current.sheetName;
+
+    const oprSheet = ss.getSheetByName(current.sheetName);
+    if (!oprSheet) return "❌ ورقة التشغيل غير موجودة: " + current.sheetName;
+
+    const hasOldRider = normalizeId_(current.currentIqama) !== "";
+
+    if (operationType === "stop") {
+      if (!hasOldRider) {
+        return "⚠️ لا يمكن إيقاف الأيدي؛ لأنه لا يوجد مندوب مسكن عليه حاليا.";
+      }
+
+      archiveCurrentRider_(current, data, "إيقاف بدون بديل");
+      clearOprAssignment_(oprSheet, current.row, cfg, data.notes || "إيقاف الأيدي بدون بديل");
+
+      const statusResult = updateReviewStatusByKeetaId_(keetaId, "لا يعمل حاليا");
+      SpreadsheetApp.flush();
+
+      return statusResult.ok
+        ? "✅ تم إيقاف الأيدي، وأرشفة بيانات المندوب، وتحديث الحالة إلى لا يعمل حاليا."
+        : "✅ تم إيقاف الأيدي وأرشفة بيانات المندوب. ⚠️ لم يتم العثور على الأيدي في ورقة مراجعة الحالة لتحديثها.";
+    }
+
+    const newIqama = normalizeId_(data.newIqama);
+    if (!newIqama) return "❌ برجاء إدخال إقامة المندوب البديل / الجديد";
+
+    if (hasOldRider && normalizeId_(current.currentIqama) === newIqama) {
+      return "⚠️ لا يمكن تنفيذ العملية لأن المندوب البديل هو نفس المندوب الحالي على اليوزر.";
+    }
+
+    let newRider = getRiderRecord_(newIqama);
+
+    if (!newRider.found) {
+      if (!data.autoCreateRider || !data.newRiderData) {
+        return "❌ المندوب البديل غير مسجل في قاعدة بيانات المناديب. أضفه أولاً أو فعّل خيار إضافته من نفس الفورم.";
+      }
+
+      data.newRiderData.iqama = newIqama;
+      const created = upsertRiderToMaster_(data.newRiderData);
+      if (!created.ok) return created.msg;
+
+      newRider = getRiderRecord_(newIqama);
+      if (!newRider.found) {
+        return "❌ تم محاولة إضافة المندوب لكن لم يتم العثور عليه بعد الحفظ. راجع ورقة بيانات المناديب.";
+      }
+    }
+
+    if (hasOldRider) {
+      archiveCurrentRider_(current, data, "تبديل مندوب");
+    }
+
+    setText_(oprSheet.getRange(current.row, cfg.currentIqamaCol), newRider.iqama);
+
+    const receiveDate = data.newReceiveDate || data.receiveDate || data.deliveryDate || "";
+    if (receiveDate) {
+      oprSheet.getRange(current.row, cfg.assignDateCol).setValue(dateFromInput_(receiveDate));
+    } else {
+      oprSheet.getRange(current.row, cfg.assignDateCol).setValue(new Date());
+    }
+
+    const receiveNotes = String(data.newRiderNotes || data.receiveNotes || data.newNotes || "").trim();
+    setText_(oprSheet.getRange(current.row, cfg.receiveNotesCol), receiveNotes);
+
+    const statusResult = updateReviewStatusByKeetaId_(keetaId, "شغال");
+
+    SpreadsheetApp.flush();
+
+    const baseMsg = hasOldRider
+      ? "✅ تم التبديل وتسجيل السجل في الأرشيف بنجاح."
+      : "✅ تم تسكين المندوب على اليوزر لأول مرة بنجاح.";
+
+    return statusResult.ok
+      ? baseMsg + " وتم تحديث مراجعة الحالة إلى شغال."
+      : baseMsg + " ⚠️ لم يتم العثور على الأيدي في ورقة مراجعة الحالة لتحديثها.";
+  } catch (err) {
+    return "❌ حدث خطأ أثناء تنفيذ العملية: " + err.message;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function upsertRiderToMaster_(formData) {
+  const sheet = getSheet_(CONFIG.masterSheet);
+  const iqama = normalizeId_(formData.iqama);
+
+  if (!iqama) return { ok: false, msg: "❌ برجاء إدخال رقم الإقامة" };
+  if (iqama.length < 10) return { ok: false, msg: "❌ رقم الإقامة غير مكتمل" };
+
+  const rider = getRiderRecord_(iqama);
+  const isNew = !rider.found;
+  const row = isNew ? sheet.getLastRow() + 1 : rider.row;
+
+  if (isNew) {
+    sheet.getRange(row, 1).setValue(new Date());
+    setText_(sheet.getRange(row, 2), iqama);
+  }
+
+  setText_(sheet.getRange(row, 3), formData.name);
+  setText_(sheet.getRange(row, 4), formData.phone);
+  setText_(sheet.getRange(row, 6), formData.vehicleType);
+  setText_(sheet.getRange(row, 7), formData.gasCard);
+  setText_(sheet.getRange(row, 8), formData.tools);
+  setText_(sheet.getRange(row, 9), formData.nationality);
+  setText_(sheet.getRange(row, 10), formData.appPhone);
+  setText_(sheet.getRange(row, 11), formData.iban);
+
+  ensureMasterFormulas_(sheet, row);
+  SpreadsheetApp.flush();
+
+  return {
+    ok: true,
+    isNew: isNew,
+    row: row,
+    iqama: iqama,
+    name: formData.name || iqama
+  };
+}
+
+function archiveCurrentRider_(current, data, operationLabel) {
+  if (!current || normalizeId_(current.currentIqama) === "") return false;
+
+  const archive = ensureArchiveSheet_();
+  const archiveRow = archive.getLastRow() + 1;
+  const notePrefix = operationLabel ? `[${operationLabel}] ` : "";
+
+  archive.getRange(archiveRow, 1, 1, 13).setValues([[
+    formatNow_(),
+    current.keetaId,
+    current.currentIqama,
+    current.currentName,
+    current.currentSubType,
+    current.currentVehicle,
+    current.assignDate,
+    data.deliveryDate || "",
+    data.orders || "0",
+    data.violations || "0",
+    notePrefix + (data.notes || ""),
+    getUserEmail_(),
+    current.sheetName
+  ]]);
+
+  return true;
+}
+
+function clearOprAssignment_(sheet, row, cfg, note) {
+  setText_(sheet.getRange(row, cfg.currentIqamaCol), "");
+  sheet.getRange(row, cfg.assignDateCol).clearContent();
+  setText_(sheet.getRange(row, cfg.receiveNotesCol), note || "إيقاف بدون بديل");
+}
+
+function updateReviewStatusByKeetaId_(keetaId, newStatus) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const cfg = CONFIG.statusSheet;
+  const sheet = ss.getSheetByName(cfg.name);
+
+  if (!sheet) {
+    return { ok: false, msg: "ورقة مراجعة الحالة غير موجودة" };
+  }
+
+  const id = normalizeId_(keetaId);
+  if (!id) return { ok: false, msg: "رقم الأيدي فارغ" };
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { ok: false, msg: "لا توجد بيانات في مراجعة الحالة" };
+
+  const ids = sheet.getRange(2, cfg.idCol, lastRow - 1, 1).getDisplayValues();
+  for (let i = 0; i < ids.length; i++) {
+    if (normalizeId_(ids[i][0]) === id) {
+      sheet.getRange(i + 2, cfg.statusCol).setValue(newStatus);
+      return { ok: true, row: i + 2 };
+    }
+  }
+
+  return { ok: false, msg: "لم يتم العثور على الأيدي في مراجعة الحالة" };
+}
+
+function getRiderRecord_(iqama) {
+  const sheet = getSheet_(CONFIG.masterSheet);
+  const id = normalizeId_(iqama);
+  if (!id) return { found: false };
+
+  const row = findRowById_(sheet, 2, id);
+  if (!row) return { found: false };
+
+  const display = sheet.getRange(row, 1, 1, 17).getDisplayValues()[0];
+
+  return {
+    found: true,
+    row: row,
+    data: display,
+    timestamp: display[0],
+    iqama: normalizeId_(display[1]) || id,
+    name: display[2] || "",
+    phone: display[3] || "",
+    subType: display[4] || "",
+    vehicleType: display[5] || "",
+    gasCard: display[6] || "",
+    tools: display[7] || "",
+    nationality: display[8] || "",
+    appPhone: display[9] || "",
+    iban: display[10] || "",
+    ibanLen: display[11] || "",
+    currentUser: display[15] || "",
+    email: display[16] || ""
+  };
+}
+
+function findRowById_(sheet, colIndex, id) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 0;
+
+  const range = sheet.getRange(2, colIndex, lastRow - 1, 1);
+  const display = range.getDisplayValues();
+  const values = range.getValues();
+
+  for (let i = 0; i < display.length; i++) {
+    const d = normalizeId_(display[i][0]);
+    const v = normalizeId_(values[i][0]);
+    if (d === id || v === id) return i + 2;
+  }
+
+  return 0;
+}
+
+function ensureMasterFormulas_(sheet, row) {
+  const e = sheet.getRange(row, 5);
+  const l = sheet.getRange(row, 12);
+  const p = sheet.getRange(row, 16);
+
+  if (!e.getFormula()) safeSetFormula_(e, buildRiderTypeFormula_(row));
+  if (!l.getFormula()) safeSetFormula_(l, `=LEN(K${row})`);
+  if (!p.getFormula()) safeSetFormula_(p, buildCurrentUserFormula_(row));
+}
+
+function safeSetFormula_(range, formula) {
+  try {
+    range.setFormula(formula);
+  } catch (err) {}
+}
+
+function buildRiderTypeFormula_(row) {
+  return `=LET(
+    ID_KEY, B${row},
+    S_EXP, XLOOKUP(ID_KEY, 'HR (1059)'!C:C, 'HR (1059)'!P:P, ""),
+    R_EXP, XLOOKUP(ID_KEY, 'HR (1059)'!C:C, 'HR (1059)'!L:L, ""),
+    S_ALB, XLOOKUP(ID_KEY, 'HR (8094)'!E:E, 'HR (8094)'!T:T, ""),
+    R_ALB, XLOOKUP(ID_KEY, 'HR (8094)'!E:E, 'HR (8094)'!N:N, ""),
+    FINAL_STATUS, IF(S_EXP <> "", S_EXP, S_ALB),
+    FINAL_REG, IF(S_EXP <> "", R_EXP, R_ALB),
+    IFS(
+      FINAL_STATUS = "علي الكفالة",
+        SWITCH(FINAL_REG,
+          7034861059, "EXPRESS",
+          7015658094, "AlBawwabah",
+          "خارجي"
+        ),
+      FINAL_STATUS = "خارج الكفالة", "تم نقل كفالة",
+      TRUE, "خارجي"
+    )
+  )`;
+}
+
+function buildCurrentUserFormula_(row) {
+  return `=IFERROR(
+    "EXPRESS - " & XLOOKUP(B${row}, 'EXPRESS OPR'!G:G, 'EXPRESS OPR'!A:A),
+    IFERROR(
+      "Albwaba - " & XLOOKUP(B${row}, 'Albwaba OPR'!G:G, 'Albwaba OPR'!A:A),
+      IFERROR(
+        "TOGARY - " & XLOOKUP(B${row}, 'TOGARY OPR'!G:G, 'TOGARY OPR'!A:A),
+        IFERROR(
+          "Per Order Mode - " & XLOOKUP(B${row}, 'Per Order Mode'!H:H, 'Per Order Mode'!B:B),
+          "غير موجود حاليا"
+        )
+      )
+    )
+  )`;
+}
+
+function ensureArchiveSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(CONFIG.archiveSheet);
+  if (!sheet) sheet = ss.insertSheet(CONFIG.archiveSheet);
+
+  if (sheet.getLastRow() === 0 || sheet.getRange(1, 1).getDisplayValue().trim() === "") {
+    const headers = [
+      "وقت العملية",
+      "الأيدي",
+      "رقم الاقامة",
+      "اسم البديل",
+      "كفالة المندوب",
+      "المركبة المستخدمة",
+      "تاريخ الاستلام",
+      "تاريخ التسليم",
+      "الطلبات",
+      "المخالفات",
+      "الملاحظات",
+      "تم بواسطة",
+      "ورقة التشغيل"
+    ];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.getRange(1, 1, 1, headers.length)
+      .setFontWeight("bold")
+      .setBackground("#1a237e")
+      .setFontColor("#ffffff")
+      .setHorizontalAlignment("center");
+    sheet.setFrozenRows(1);
+  }
+
+  return sheet;
+}
+
+function getOprConfig_(sheetName) {
+  return CONFIG.oprSheets.find(s => s.name === sheetName) || null;
+}
+
+function getByCol_(row, colIndex) {
+  return row[colIndex - 1] || "";
+}
+
+function getSheet_(sheetName) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  if (!sheet) throw new Error("لم يتم العثور على الورقة: " + sheetName);
+  return sheet;
+}
+
+function setText_(range, value) {
+  const text = value === null || value === undefined ? "" : String(value).trim();
+  range.setNumberFormat("@");
+  range.setValue(text);
+}
+
+function normalizeId_(value) {
+  if (value === null || value === undefined) return "";
+  let s = String(value).trim();
+  const ar = "٠١٢٣٤٥٦٧٨٩";
+  const fa = "۰۱۲۳۴۵۶۷۸۹";
+
+  s = s.replace(/[٠-٩]/g, d => ar.indexOf(d))
+       .replace(/[۰-۹]/g, d => fa.indexOf(d))
+       .replace(/\s+/g, "")
+       .replace(/^'/, "")
+       .replace(/\.0$/, "");
+
+  if (/^\d+(\.\d+)?E\+?\d+$/i.test(s)) {
+    const n = Number(s);
+    if (Number.isFinite(n) && Math.abs(n) < 9007199254740991) {
+      s = String(Math.trunc(n));
+    }
+  }
+
+  return s;
+}
+
+function dateFromInput_(value) {
+  if (!value) return new Date();
+  const text = String(value).trim();
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    return new Date(text + "T00:00:00");
+  }
+
+  const parsed = new Date(text);
+  return isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+function getUserEmail_() {
+  try {
+    return Session.getActiveUser().getEmail() || Session.getEffectiveUser().getEmail() || "";
+  } catch (err) {
+    return "";
+  }
+}
+
+function formatNow_() {
+  return Utilities.formatDate(new Date(), CONFIG.timezone, "yyyy-MM-dd HH:mm:ss");
+}

@@ -1,0 +1,20 @@
+{
+  "city": "jeddah",
+  "month": "2026-05",
+  "status": "Generated Reference",
+  "validationWarnings": [],
+  "settlementSummary": {
+    "total": 193,
+    "totalOrders": 97033,
+    "totalDistance": 0,
+    "totalNet": 1591903.1700000002,
+    "valid": 167,
+    "invalid": 26
+  },
+  "matchingSummary": {
+    "total": 193,
+    "matched": 1,
+    "different": 19,
+    "missingInternal": 173
+  }
+}

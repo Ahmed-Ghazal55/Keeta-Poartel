@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "2026.07.prompt2",
+  "entities": [
+    { "entity": "cities", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "name", "code"] },
+    { "entity": "registers", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "name", "code"] },
+    { "entity": "dashboardUsers", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "userId", "vehicleType"] },
+    { "entity": "riders", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "riderId", "fullName"] },
+    { "entity": "hrProfiles", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "riderId", "workType"] },
+    { "entity": "vehicles", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "vehicleSerial", "vehicleType"] },
+    { "entity": "assignments", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "dashboardUserId", "riderId"] },
+    { "entity": "assignmentHistory", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "dashboardUserId", "riderId"] },
+    { "entity": "statusReviews", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "dashboardUserId", "reviewStatus"] },
+    { "entity": "performanceDaily", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "riderId", "dateKey"] },
+    { "entity": "performanceMonthly", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "riderId", "month"] },
+    { "entity": "vdaResults", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "riderId", "month"] },
+    { "entity": "faceVerification", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "riderId", "dateKey"] },
+    { "entity": "deliveryExperience", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "riderId", "month"] },
+    { "entity": "monthlyRules", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "month", "ruleType"] },
+    { "entity": "monthlyClosingBatches", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "month"] },
+    { "entity": "invoicePartnerSummary", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "month"] },
+    { "entity": "invoiceCourierDetail", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "month", "riderId"] },
+    { "entity": "internalSettlement", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "month", "riderId"] },
+    { "entity": "finalMonthlySettlement", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "month", "riderId"] },
+    { "entity": "shiftSchedules", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "shiftDate"] },
+    { "entity": "importBatches", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "importType"] },
+    { "entity": "auditLogs", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "timestamp", "userId", "action", "entity", "entityId", "note"] },
+    { "entity": "users", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "username", "displayName", "role"] },
+    { "entity": "roles", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "name", "permissionCount"] },
+    { "entity": "permissions", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "name", "category"] },
+    { "entity": "sessions", "idField": "id", "fields": ["id", "createdAt", "updatedAt", "sourceFile", "city", "register", "status", "userId", "sessionType"] }
+  ]
+}

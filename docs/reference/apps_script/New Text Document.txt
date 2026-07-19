@@ -1,0 +1,101 @@
+function updateStatus() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('مراجعة الحالة'); // ✅ تحديد الورقة
+  var lastRow = sheet.getLastRow();
+
+  if (lastRow < 2) {
+    ss.toast('لا توجد بيانات للمعالجة', 'تنبيه');
+    return;
+  }
+
+  var today = new Date();
+
+  for (var i = 2; i <= lastRow; i++) {
+    try {
+      var status = sheet.getRange(i, 2).getValue(); // العمود B (الحالة)
+
+      if (status === 'مقيد بالايام') {
+        var dateValue = sheet.getRange(i, 3).getValue(); // العمود C (تاريخ التقييد)
+        var daysValue = sheet.getRange(i, 4).getValue(); // العمود D (عدد الايام)
+
+        var startDate;
+
+        if (typeof dateValue === 'string') {
+          startDate = parseArabicDate(dateValue);
+        } else if (Object.prototype.toString.call(dateValue) === '[object Date]' && !isNaN(dateValue.getTime())) {
+          startDate = dateValue;
+        } else {
+          startDate = parseArabicDate(String(dateValue));
+        }
+
+        if (startDate && !isNaN(startDate.getTime())) {
+          var endDate = new Date(startDate);
+          endDate.setDate(endDate.getDate() + Number(daysValue));
+
+          // لو التاريخ الحالي أكبر من تاريخ الانتهاء
+          if (today >= endDate) {
+            // ✅ تغيير الحالة إلى شغال
+            sheet.getRange(i, 2).setValue('شغال');
+
+            // ✅ حفظ التاريخ القديم في نص داخل العمود C
+            var tz = ss.getSpreadsheetTimeZone() || Session.getScriptTimeZone();
+            var formatted = Utilities.formatDate(startDate, tz, 'yyyy-MM-dd HH:mm:ss');
+
+            var note = 'تاريخ اخر تقييد للمعرف: ' + formatted + ' لمدة ' + daysValue + ' يوم';
+            sheet.getRange(i, 3).setValue(note);
+          }
+        }
+      }
+    } catch (err) {
+      Logger.log('خطأ في الصف ' + i + ': ' + err.message);
+    }
+  }
+
+  ss.toast('✅ تم تحديث الحالات وتسجيل آخر تقييد', 'إشعار');
+}
+
+
+function parseArabicDate(dateString) {
+  if (!dateString) return null;
+
+  try {
+    dateString = dateString.toString().trim().replace(/،/g, ',');
+
+    var parts = dateString.split(',');
+    var datePart = parts[0].trim();
+    var timePart = parts.length > 1 ? parts[1].trim() : '';
+
+    var datePieces = datePart.split(/[/\-\.]/);
+    if (datePieces.length !== 3) {
+      var parsedFallback = new Date(dateString);
+      if (!isNaN(parsedFallback.getTime())) return parsedFallback;
+      return null;
+    }
+
+    var day = parseInt(datePieces[0], 10);
+    var month = parseInt(datePieces[1], 10) - 1;
+    var year = parseInt(datePieces[2], 10);
+    if (year < 100) year += 2000;
+
+    var d = new Date(year, month, day);
+
+    if (timePart) {
+      var hasPM = /م/.test(timePart);
+      var hasAM = /ص/.test(timePart);
+
+      var nums = timePart.replace(/[^\d:]/g, '').split(':');
+      var hours = parseInt(nums[0], 10) || 0;
+      var minutes = parseInt(nums[1], 10) || 0;
+      var seconds = parseInt(nums[2], 10) || 0;
+
+      if (hasPM && hours < 12) hours += 12;
+      if (hasAM && hours === 12) hours = 0;
+
+      d.setHours(hours, minutes, seconds, 0);
+    }
+
+    return d;
+  } catch (e) {
+    return null;
+  }
+}

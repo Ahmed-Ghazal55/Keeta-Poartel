@@ -1,0 +1,27 @@
+{
+  "companyPartners": 2,
+  "companyCouriers": 193,
+  "internalCounts": {
+    "express": 86,
+    "albwaba": 107,
+    "fr3pl": 5,
+    "vda": 5105,
+    "shortVda": 14,
+    "vdaReport": 204,
+    "deliveryExperience": 193
+  },
+  "comparisonSummary": {
+    "total": 193,
+    "matched": 1,
+    "different": 19,
+    "missingInternal": 173
+  },
+  "settlementSummary": {
+    "total": 193,
+    "totalOrders": 97033,
+    "totalDistance": 0,
+    "totalNet": 1591903.1700000002,
+    "valid": 167,
+    "invalid": 26
+  }
+}

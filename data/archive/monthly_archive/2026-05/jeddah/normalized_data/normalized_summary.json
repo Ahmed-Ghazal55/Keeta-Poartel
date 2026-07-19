@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-07-08T23:43:26.741Z",
+  "companyPartners": 2,
+  "companyCouriers": 193,
+  "settlementRows": 193,
+  "comparisonSummary": {
+    "total": 193,
+    "matched": 1,
+    "different": 19,
+    "missingInternal": 173
+  },
+  "settlementSummary": {
+    "total": 193,
+    "totalOrders": 97033,
+    "totalDistance": 0,
+    "totalNet": 1591903.1700000002,
+    "valid": 167,
+    "invalid": 26
+  }
+}

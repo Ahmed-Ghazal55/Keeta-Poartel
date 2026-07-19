@@ -1,0 +1,62 @@
+[
+  {
+    "id": "user_super_admin_demo",
+    "username": "super.admin",
+    "displayName": "Super Admin Demo",
+    "role": "super_admin",
+    "status": "active",
+    "cityScope": "all",
+    "selectedCities": ["جدة", "الرياض"],
+    "registerScope": "all",
+    "selectedRegisters": ["EXPRESS", "ALBAWABA", "TOGARY", "PER_ORDER_FR3PL"],
+    "permissions": []
+  },
+  {
+    "id": "user_ops_jeddah",
+    "username": "ops.jeddah",
+    "displayName": "مشرف عمليات جدة",
+    "role": "city_supervisor",
+    "status": "active",
+    "cityScope": "single",
+    "selectedCities": ["جدة"],
+    "registerScope": "multi",
+    "selectedRegisters": ["EXPRESS", "ALBAWABA"],
+    "permissions": []
+  },
+  {
+    "id": "user_ops_riyadh",
+    "username": "ops.riyadh",
+    "displayName": "مشرف عمليات الرياض",
+    "role": "city_supervisor",
+    "status": "active",
+    "cityScope": "single",
+    "selectedCities": ["الرياض"],
+    "registerScope": "multi",
+    "selectedRegisters": ["EXPRESS", "TOGARY"],
+    "permissions": []
+  },
+  {
+    "id": "user_finance_demo",
+    "username": "finance.demo",
+    "displayName": "مسؤول المالية",
+    "role": "finance_officer",
+    "status": "active",
+    "cityScope": "all",
+    "selectedCities": ["جدة", "الرياض"],
+    "registerScope": "all",
+    "selectedRegisters": ["EXPRESS", "ALBAWABA", "TOGARY", "PER_ORDER_FR3PL"],
+    "permissions": []
+  },
+  {
+    "id": "user_viewer_demo",
+    "username": "viewer.demo",
+    "displayName": "مستخدم عرض فقط",
+    "role": "viewer",
+    "status": "active",
+    "cityScope": "single",
+    "selectedCities": ["جدة"],
+    "registerScope": "single",
+    "selectedRegisters": ["EXPRESS"],
+    "permissions": []
+  }
+]

@@ -1,0 +1,27 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gateGold" x1="30" y1="28" x2="196" y2="216" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFCF5A"/>
+      <stop offset="1" stop-color="#F0B533"/>
+    </linearGradient>
+    <linearGradient id="gateGreen" x1="62" y1="50" x2="188" y2="206" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#19B66F"/>
+      <stop offset="1" stop-color="#0B8B52"/>
+    </linearGradient>
+    <linearGradient id="gateDark" x1="52" y1="44" x2="216" y2="208" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B1B1B"/>
+      <stop offset="1" stop-color="#0B2348"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="#F6F8FB"/>
+  <path d="M60 170H132L160 142H222" stroke="url(#gateGold)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M126 96L160 130L126 164" stroke="url(#gateGold)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M72 66C72 57.1634 79.1634 50 88 50H112C120.837 50 128 57.1634 128 66V152H72V66Z" fill="url(#gateDark)"/>
+  <path d="M144 94C144 85.1634 151.163 78 160 78H184C192.837 78 200 85.1634 200 94V152H144V94Z" fill="url(#gateGreen)"/>
+  <rect x="82" y="174" width="28" height="28" rx="14" fill="#0B2348"/>
+  <rect x="178" y="174" width="28" height="28" rx="14" fill="#0B2348"/>
+  <path d="M68 122H120" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <path d="M152 122H192" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <path d="M92 50V152" stroke="white" stroke-width="10" stroke-linecap="round" opacity="0.92"/>
+  <path d="M108 50V152" stroke="#D7F5E5" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+</svg>
