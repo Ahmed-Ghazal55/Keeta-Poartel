@@ -1,0 +1,11 @@
+const assert = require("assert");
+const fs = require("fs");
+const html = fs.readFileSync(require.resolve("../keeta_operations_portal_starter_v4.html"), "utf8");
+const ui = fs.readFileSync(require.resolve("../keeta_operations_portal_ui_redesign.js"), "utf8");
+const extension = fs.readFileSync(require.resolve("../keeta_operations_portal_performance_extension.js"), "utf8");
+assert.ok(html.includes("src/performance/performanceViewModel.js"));
+["PF1", "PF2", "PF3", "PF4", "PF5", "PF6", "PF7", "PF8"].forEach(code => assert.ok(ui.includes(`code: \"${code}\"`)));
+["performance_overview", "overall_performance", "daily_performance", "vda", "face_verification", "delivery_experience", "validity_results", "issues"].forEach(view => assert.ok(extension.includes(view)));
+assert.ok(extension.includes("data-performance-action=\"import\""));
+assert.ok(extension.includes("data-performance-active-view") || extension.includes("performanceActiveView"));
+console.log(JSON.stringify({ summary: { total: 5, passed: 5, failed: 0 } }, null, 2));

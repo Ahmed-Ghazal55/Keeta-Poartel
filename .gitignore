@@ -7,6 +7,7 @@ data/local-db/
 data/backups/
 *.xlsx
 *.xls
+*.xlsm
 *.csv
 *.zip
 .env

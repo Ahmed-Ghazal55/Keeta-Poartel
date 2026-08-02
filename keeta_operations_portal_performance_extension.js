@@ -23,11 +23,11 @@
     ? ActionDropdown.createGlobalController(document)
     : null;
 
-  document.body.dataset.performanceExtensionMode = "prompt7";
+  document.body.dataset.performanceExtensionMode = "prompt8_12";
 
   var state = {
     activeTab: "results",
-    activeView: "daily_performance",
+    activeView: "performance_overview",
     drawerResultId: "",
     issueSeverity: "all",
     mandatoryStatus: "all",
@@ -141,6 +141,10 @@
       runRecalculation();
       return;
     }
+    if (action === "import") {
+      openPerformanceImport();
+      return;
+    }
     if (action === "export") {
       exportCurrentResults();
     }
@@ -174,7 +178,9 @@
   function applyPerformanceRoute(subPage) {
     var key = String(subPage || "").toLowerCase();
     var map = {
-      results: "daily_performance",
+      results: "validity_results",
+      overview: "performance_overview",
+      performance_overview: "performance_overview",
       "daily-performance": "daily_performance",
       daily_performance: "daily_performance",
       "overall-performance": "overall_performance",
@@ -187,10 +193,12 @@
       "face-verification": "face_verification",
       delivery_experience: "delivery_experience",
       "delivery-experience": "delivery_experience",
+      validity: "validity_results",
+      validity_results: "validity_results",
       issues: "issues",
       "follow-up": "issues"
     };
-    state.activeView = map[key] || "daily_performance";
+    state.activeView = map[key] || "performance_overview";
     state.activeTab = state.activeView === "issues" ? "issues" : "results";
   }
 
@@ -208,6 +216,9 @@
     var issuesState = safeList(function () {
       return service.listPerformanceIssues(getFilters(), user, context);
     });
+    document.body.dataset.performanceActiveView = state.activeView;
+    document.body.dataset.performanceVisibleResults = String(resultsState.rows.length);
+    document.body.dataset.performanceVisibleIssues = String(issuesState.rows.length);
 
     if (!state.month) {
       state.month = pickDefaultMonth();
@@ -245,6 +256,7 @@
       '      <p class="perf-subtitle">' + escapeHtml(viewDefinition.subtitle) + "</p>",
       "    </div>",
       '    <div class="perf-toolbar__actions">',
+      '      <button class="btn light" data-performance-action="import" data-performance-import-route="performance_pipeline_import">Import Center</button>',
       '      <button class="btn green" data-performance-action="recalculate"' + (canCurrentUser("performance.recalculate") ? "" : " disabled") + '>\u0625\u0639\u0627\u062f\u0629 \u062d\u0633\u0627\u0628</button>',
       '      <button class="btn light" data-performance-action="export"' + (canCurrentUser("performance.export") ? "" : " disabled") + '>Export CSV</button>',
       "    </div>",
@@ -896,6 +908,12 @@
 
   function getViewDefinition() {
     var views = {
+      performance_overview: {
+        eyebrow: "Performance Overview",
+        shortLabel: "Overview",
+        subtitle: "ملخص تشغيلي مفلتر للأداء والصلاحية دون دمج المالك مع المنفذ الفعلي.",
+        title: "نظرة عامة على الأداء والصلاحية"
+      },
       daily_performance: {
         eyebrow: "Daily Performance",
         shortLabel: "\u0627\u0644\u0623\u062f\u0627\u0621 \u0627\u0644\u064a\u0648\u0645\u064a",
@@ -932,6 +950,12 @@
         subtitle: "\u0645\u0631\u0627\u062c\u0639\u0629 \u062a\u062c\u0631\u0628\u0629 \u0627\u0644\u062a\u0648\u0635\u064a\u0644 \u0648\u0623\u062b\u0631 \u0627\u0644\u062a\u0642\u064a\u064a\u0645\u0627\u062a \u0639\u0644\u0649 \u0627\u0644\u0623\u0647\u0644\u064a\u0629.",
         title: "\u062a\u062c\u0631\u0628\u0629 \u0627\u0644\u062a\u0648\u0635\u064a\u0644"
       },
+      validity_results: {
+        eyebrow: "Validity Results",
+        shortLabel: "Validity",
+        subtitle: "إشارات صلاحية أولية وحالات نقص البيانات، جاهزة للإقفال اللاحق دون أي حساب رواتب.",
+        title: "نتائج الصلاحية"
+      },
       issues: {
         eyebrow: "Follow-up Queue",
         shortLabel: "\u064a\u062d\u062a\u0627\u062c \u0645\u062a\u0627\u0628\u0639\u0629",
@@ -940,6 +964,16 @@
       }
     };
     return views[state.activeView] || views.daily_performance;
+  }
+
+  function openPerformanceImport() {
+    if (!Portal.ImportEntryPoint || typeof Portal.ImportEntryPoint.openRouteImport !== "function") {
+      toast("تعذر فتح مركز الاستيراد.", "danger");
+      return false;
+    }
+    return Portal.ImportEntryPoint.openRouteImport("performance_pipeline_import", {
+      month: state.month
+    });
   }
 
   function renderErrorPanel(message) {

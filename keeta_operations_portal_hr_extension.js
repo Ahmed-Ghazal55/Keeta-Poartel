@@ -11,6 +11,7 @@
   var ActionDropdown = Portal.ActionDropdown || null;
   var DetailsDrawer = Portal.DetailsDrawer || null;
   var HrComputedFieldsService = Portal.HrComputedFieldsService || null;
+  var HrViewModel = Portal.HrViewModel || null;
   var PageRenderController = Portal.PageRenderController || null;
   var riderResolverFacade = Portal.Runtime.riderResolverFacade || null;
   var bootModeState = Portal.BootMode && typeof Portal.BootMode.getState === "function"
@@ -22,9 +23,15 @@
   var state = {
     archiveQuery: "",
     archiveType: "all",
+    hrCity: "all",
+    hrDocumentStatus: "all",
     hrEmployment: "all",
+    hrKafalaStatus: "all",
+    hrNationality: "all",
     hrQuery: "",
+    hrRegister: "all",
     hrStatus: "all",
+    hrTab: "hr_master",
     resolverIqama: "",
     riderPlatform: "all",
     riderQuery: "",
@@ -34,7 +41,7 @@
     ? PageRenderController.createPageRenderController({
         debounceMs: 110,
         onRender: renderAll,
-        pageIds: ["hr-shell", "rider-master", "archive-shell"]
+        pageIds: ["hr-shell", "rider-master"]
       })
     : null;
 
@@ -647,6 +654,78 @@
       "</div>";
   }
 
+  function normalizeHrTabRoute(subPage) {
+    if (HrViewModel && typeof HrViewModel.normalizeHrRoute === "function") {
+      return HrViewModel.normalizeHrRoute(subPage);
+    }
+    var key = normalizeText(subPage).toLowerCase();
+    var map = {
+      documents: "documents",
+      "hr-archive": "hr_archive",
+      hr_archive: "hr_archive",
+      "hr-master": "hr_master",
+      hr_master: "hr_master",
+      inactive: "inactive_hr_riders",
+      kafala: "kafala_status",
+      kafala_status: "kafala_status",
+      "kafala-status": "kafala_status"
+    };
+    return map[key] || "hr_master";
+  }
+
+  function buildHrCleanupRows(scoped) {
+    if (!HrViewModel || typeof HrViewModel.buildHrRows !== "function") {
+      return [];
+    }
+    return HrViewModel.buildHrRows({
+      assignmentHistory: getCollectionSafe("assignmentHistory"),
+      assignments: getCollectionSafe("assignments"),
+      dashboardUsers: getCollectionSafe("dashboardUsers"),
+      hrProfiles: scoped.hrProfiles,
+      riderOperationalProfiles: scoped.riderOperationalProfiles,
+      terminations: getCollectionSafe("terminations")
+    });
+  }
+
+  function buildHrFilterOptions(rows, fieldName) {
+    return unique((rows || []).map(function (row) {
+      return normalizeText(row && row[fieldName]);
+    }).filter(Boolean)).sort();
+  }
+
+  function renderHrTabButtons(activeTab, rows) {
+    var tabs = HrViewModel && typeof HrViewModel.listHrTabs === "function"
+      ? HrViewModel.listHrTabs()
+      : [];
+    return '<div class="ops-tabs" style="margin-top:16px">' + tabs.map(function (tab) {
+      var count = HrViewModel && typeof HrViewModel.filterHrRows === "function"
+        ? HrViewModel.filterHrRows(rows, {}, tab.key).length
+        : rows.length;
+      return '<button type="button" class="ops-tab' + (activeTab === tab.key ? " is-active" : "") + '" data-hr-tab="' + escapeHtml(tab.key) + '">' +
+        escapeHtml(tab.label) + ' <span>' + escapeHtml(String(count)) + "</span></button>";
+    }).join("") + "</div>";
+  }
+
+  function renderHrSelect(id, currentValue, options, labelForAll) {
+    return '<select id="' + escapeHtml(id) + '">' +
+      '<option value="all">' + escapeHtml(labelForAll) + "</option>" +
+      (options || []).map(function (value) {
+        return '<option value="' + escapeHtml(value) + '"' + (value === currentValue ? " selected" : "") + ">" + escapeHtml(value) + "</option>";
+      }).join("") +
+      "</select>";
+  }
+
+  function renderHrStatusPill(value, tone) {
+    return '<span class="pill' + (tone ? " " + tone : "") + '">' + escapeHtml(value || "-") + "</span>";
+  }
+
+  function renderHrLinkedSummary(row) {
+    return [
+      renderHrStatusPill(String(row.linkedDashboardUserCount || 0) + " users", row.linkedDashboardUserCount ? "blue" : ""),
+      renderHrStatusPill(String(row.currentActualAssignmentCount || 0) + " actual", row.currentActualAssignmentCount ? "" : "gold")
+    ].join(" ");
+  }
+
   function renderHrPage(scoped) {
     var section = byId("page-hr-shell");
     var user = getCurrentUser();
@@ -657,55 +736,90 @@
       section.innerHTML = renderEmptyState("HR Master", "You do not have permission to view HR master data in the current session.");
       return;
     }
-    var hrColumns = getHrTemplateColumns();
-    var rows = buildHrDisplayRows(scoped).filter(function (row) {
-      var matchesQuery = !state.hrQuery || normalizeText(row.__fullText).toLowerCase().indexOf(state.hrQuery.toLowerCase()) >= 0;
-      var matchesStatus = state.hrStatus === "all" || row.__hrStatus === state.hrStatus;
-      var matchesEmployment = state.hrEmployment === "all" || row.__employmentType === state.hrEmployment;
-      return matchesQuery && matchesStatus && matchesEmployment;
-    });
 
-    if (!scoped.hrProfiles.length) {
+    var allRows = buildHrCleanupRows(scoped);
+    var activeTab = normalizeHrTabRoute(state.hrTab);
+    var rows = HrViewModel && typeof HrViewModel.filterHrRows === "function"
+      ? HrViewModel.filterHrRows(allRows, {
+          city: state.hrCity,
+          documentStatus: state.hrDocumentStatus,
+          employmentStatus: state.hrStatus,
+          kafalaStatus: state.hrKafalaStatus,
+          nationality: state.hrNationality,
+          query: state.hrQuery,
+          register: state.hrRegister
+        }, activeTab)
+      : [];
+    var kpis = HrViewModel && typeof HrViewModel.buildHrKpis === "function"
+      ? HrViewModel.buildHrKpis(rows)
+      : {
+          active: 0,
+          currentlyWorking: 0,
+          inactive: 0,
+          linkedDashboardUsers: 0,
+          missingDocuments: 0,
+          needsReview: 0,
+          offKafala: 0,
+          onKafala: 0,
+          totalHrRiders: 0
+        };
+
+    if (!allRows.length) {
       section.innerHTML = renderEmptyState("HR Master", "No HR profiles are stored yet. Import البوابة المقبلة.xlsx from Import Center to build the master data.");
       return;
     }
 
+    var cityOptions = buildHrFilterOptions(allRows, "city");
+    var registerOptions = buildHrFilterOptions(allRows, "register");
+    var nationalityOptions = buildHrFilterOptions(allRows, "nationality");
+
     section.innerHTML = [
       '<div class="card">',
-      '  <span class="eyebrow">Prompt 4</span>',
-      '  <h2 class="section-title">HR Master</h2>',
-      '  <div class="note">These rows follow the official HR Master order A:S then computed T:AB, and already respect the selected organization context from the header.</div>',
+      '  <span class="eyebrow">Prompt 8.11</span>',
+      '  <h2 class="section-title">HR Support Module</h2>',
+      '  <div class="note">HR riders remain separate from external riders and from the actual rider currently working on a dashboard user. Use the tabs below to review company riders, document health, and archive-linked records without creating any mutations.</div>',
       renderKpis([
-        { label: "Total Profiles", value: scoped.hrProfiles.length },
-        { label: "Active", value: countMatching(scoped.hrProfiles, function (item) { return item.hrStatus === "active"; }), className: "good" },
-        { label: "Inactive", value: countMatching(scoped.hrProfiles, function (item) { return item.hrStatus === "inactive"; }), className: "warn" },
-        { label: "Exited", value: countMatching(scoped.hrProfiles, function (item) { return item.hrStatus === "exited"; }) },
-        { label: "Not Started", value: countMatching(scoped.hrProfiles, function (item) { return item.hrStatus === "not_started"; }) },
-        { label: "Under Review", value: countMatching(scoped.hrProfiles, function (item) { return item.hrStatus === "under_review"; }), className: "warn" },
-        { label: "Missing Iqama", value: countMatching(scoped.hrProfiles, function (item) { return !item.iqama; }), className: "bad" },
-        { label: "Expired Docs", value: countMatching(scoped.hrProfiles, function (item) { return isExpired(item.licenseExpiry) || isExpired(item.healthCardExpiry); }), className: "bad" }
+        { label: "إجمالي HR Riders", value: kpis.totalHrRiders },
+        { label: "نشط", value: kpis.active, className: "good" },
+        { label: "غير نشط", value: kpis.inactive, className: kpis.inactive ? "warn" : "" },
+        { label: "على الكفالة", value: kpis.onKafala, className: "good" },
+        { label: "خارج الكفالة", value: kpis.offKafala, className: kpis.offKafala ? "warn" : "" },
+        { label: "مستندات ناقصة", value: kpis.missingDocuments, className: kpis.missingDocuments ? "bad" : "" },
+        { label: "مرتبط بيوزر داشبورد", value: kpis.linkedDashboardUsers },
+        { label: "يعمل فعليًا الآن", value: kpis.currentlyWorking, className: kpis.currentlyWorking ? "good" : "" },
+        { label: "يحتاج مراجعة", value: kpis.needsReview, className: kpis.needsReview ? "warn" : "" }
       ]),
+      renderHrTabButtons(activeTab, allRows),
       '  <div class="filter-row" style="margin-top:12px">',
-      '    <div class="search-box"><input id="hrMasterSearch" type="search" placeholder="Search by name / iqama / phone / city" value="' + escapeHtml(state.hrQuery) + '"></div>',
-      '    <select id="hrMasterStatusFilter"><option value="all">All Statuses</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="exited">Exited</option><option value="not_started">Not Started</option><option value="under_review">Under Review</option></select>',
+      '    <div class="search-box"><input id="hrMasterSearch" type="search" placeholder="Search by name / iqama / mobile / dashboard user" value="' + escapeHtml(state.hrQuery) + '"></div>',
+      renderHrSelect("hrMasterStatusFilter", state.hrStatus, ["active", "inactive", "exited", "under_review"], "All Employment Statuses"),
+      renderHrSelect("hrMasterRegisterFilter", state.hrRegister, registerOptions, "All Registers"),
+      renderHrSelect("hrMasterCityFilter", state.hrCity, cityOptions, "All Cities"),
       '  </div>',
       '  <div class="filter-row">',
-      '    <select id="hrMasterEmploymentFilter"><option value="all">All Employment Types</option><option value="sponsorship">Sponsorship</option><option value="freelancer">External</option><option value="unknown">Unknown</option></select>',
+      renderHrSelect("hrMasterKafalaFilter", state.hrKafalaStatus, ["on_kafala", "off_kafala", "unknown"], "All Kafala States"),
+      renderHrSelect("hrMasterNationalityFilter", state.hrNationality, nationalityOptions, "All Nationalities"),
+      renderHrSelect("hrMasterDocumentFilter", state.hrDocumentStatus, ["complete", "review", "missing", "expired"], "All Document Statuses"),
       '    <div class="status-box">Visible rows: ' + escapeHtml(String(rows.length)) + "</div>",
       "  </div>",
       '  <div class="table-wrap" style="margin-top:12px">',
       "    <table>",
-      "      <thead><tr>" + hrColumns.map(function (columnDefinition) {
-        return "<th>" + escapeHtml(columnDefinition.header) + "</th>";
-      }).join("") + "<th>Actions</th></tr></thead>",
+      "      <thead><tr><th>Name</th><th>Iqama</th><th>Mobile</th><th>City</th><th>Register</th><th>Status</th><th>Kafala</th><th>Documents</th><th>Links</th><th>Warnings</th><th>Actions</th></tr></thead>",
       '      <tbody>' + (rows.length ? rows.map(function (row) {
         return "<tr>" +
-          hrColumns.map(function (columnDefinition) {
-            return renderHrCell(columnDefinition.fieldName, row[columnDefinition.fieldName]);
-          }).join("") +
-          '<td>' + renderActionDropdownCell("hr_profile", row.__profileId, "عرض الملف", "عرض الملف", { "hr-profile-id": row.__profileId }) + '</td>' +
+          "<td>" + escapeHtml(row.name || "-") + "</td>" +
+          '<td class="mono">' + escapeHtml(row.iqama || "-") + "</td>" +
+          '<td class="mono">' + escapeHtml(row.mobile || "-") + "</td>" +
+          "<td>" + escapeHtml(row.city || "-") + "</td>" +
+          "<td>" + escapeHtml(row.registerName || row.register || "-") + "</td>" +
+          "<td>" + renderHrStatusPill(statusLabel(row.employmentStatus), row.isActive ? "green" : "gold") + "</td>" +
+          "<td>" + renderHrStatusPill(row.kafalaStatus, row.isOnKafala ? "green" : "gold") + "</td>" +
+          "<td>" + renderHrStatusPill(row.documentStatus, row.isDocumentMissing ? "red" : (row.documentStatus === "review" ? "gold" : "blue")) + "</td>" +
+          "<td>" + renderHrLinkedSummary(row) + "</td>" +
+          "<td>" + renderPills((row.warningCodes || []).slice(0, 3), row.warningCodes && row.warningCodes.length ? "gold" : "") + "</td>" +
+          '<td>' + renderActionDropdownCell("hr_profile", row.profileId, "عرض الملف", "عرض الملف", { "hr-profile-id": row.profileId }) + '</td>' +
           "</tr>";
-      }).join("") : '<tr><td colspan="' + String(hrColumns.length + 1) + '"><div class="empty">No HR rows match the current filters.</div></td></tr>') + "</tbody>",
+      }).join("") : '<tr><td colspan="11"><div class="empty">No HR rows match the current filters.</div></td></tr>') + "</tbody>",
       "    </table>",
       "  </div>",
       "</div>"
@@ -715,7 +829,11 @@
     }
 
     byId("hrMasterStatusFilter").value = state.hrStatus;
-    byId("hrMasterEmploymentFilter").value = state.hrEmployment;
+    byId("hrMasterRegisterFilter").value = state.hrRegister;
+    byId("hrMasterCityFilter").value = state.hrCity;
+    byId("hrMasterKafalaFilter").value = state.hrKafalaStatus;
+    byId("hrMasterNationalityFilter").value = state.hrNationality;
+    byId("hrMasterDocumentFilter").value = state.hrDocumentStatus;
   }
 
   function renderRiderPage(scoped) {
@@ -1118,6 +1236,74 @@
       : '<div class="mini-stack"><div class="status-box"><strong>' + escapeHtml(profile.fullNameArabic || profile.fullNameEnglish || "HR Profile") + '</strong><br>Iqama: ' + escapeHtml(profile.iqama || "-") + " | Status: " + escapeHtml(statusLabel(profile.hrStatus)) + '</div><div class="surface"><h3>HR Summary</h3>' + renderHrProfileSummary(profile, scoped) + '</div><div class="surface"><h3>Notes</h3><div class="empty">No linked rider yet. This HR profile will appear in Rider Master after a matching rider identity is created.</div></div></div>');
   }
 
+  function focusHrProfile(focus, options) {
+    focus = focus || {};
+    options = options || {};
+    var scoped = buildScopedData();
+    var rows = buildHrCleanupRows(scoped);
+    var row = HrViewModel && typeof HrViewModel.findHrRow === "function"
+      ? HrViewModel.findHrRow(rows, focus)
+      : null;
+    if (!row) {
+      openDrawer("HR Warning", '<div class="empty">No HR profile was found for iqama ' + escapeHtml(focus.iqama || focus.ownerIqama || focus.actualRiderIqama || "-") + " in the current scope.</div>");
+      return {
+        found: false,
+        mode: "missing_hr_profile"
+      };
+    }
+    state.hrTab = normalizeHrTabRoute(options.subPage || "hr_master");
+    state.hrQuery = row.iqama || row.name || "";
+    var page = byId("page-hr-shell");
+    if (page) {
+      page.setAttribute("data-hr-focused-iqama", row.iqama || "");
+      page.setAttribute("data-hr-focus-mode", "hr_profile");
+    }
+    if (Portal.UIShell && typeof Portal.UIShell.openPage === "function") {
+      Portal.UIShell.openPage("hr-shell", {
+        code: options.code || "HR1",
+        page: "hr-shell",
+        subPage: state.hrTab
+      });
+    }
+    scheduleRender("hr-focus", 0);
+    window.setTimeout(function () {
+      openHrProfileDrawer(row.profileId || "");
+    }, 80);
+    return {
+      found: true,
+      mode: "hr_profile",
+      row: row
+    };
+  }
+
+  function focusExternalRider(focus) {
+    focus = focus || {};
+    state.resolverIqama = normalizeText(focus.iqama || focus.actualRiderIqama || focus.ownerIqama);
+    state.riderQuery = state.resolverIqama || normalizeText(focus.query || "");
+    var page = byId("page-rider-master");
+    if (page) {
+      page.setAttribute("data-hr-focused-iqama", state.resolverIqama);
+      page.setAttribute("data-hr-focus-mode", "external_rider");
+    }
+    if (Portal.UIShell && typeof Portal.UIShell.openPage === "function") {
+      Portal.UIShell.openPage("rider-master", {
+        code: "HR3",
+        page: "rider-master",
+        subPage: "external_riders"
+      });
+    }
+    scheduleRender("external-focus", 0);
+    return {
+      found: !!state.resolverIqama,
+      mode: "external_rider",
+      iqama: state.resolverIqama
+    };
+  }
+
+  Portal.HrEntryPoint = Portal.HrEntryPoint || {};
+  Portal.HrEntryPoint.focusProfile = focusHrProfile;
+  Portal.HrEntryPoint.focusExternalRider = focusExternalRider;
+
   function openImportRoute(routeId) {
     if (!Portal.ImportEntryPoint || typeof Portal.ImportEntryPoint.openRouteImport !== "function") {
       return false;
@@ -1191,9 +1377,13 @@
   }
 
   function syncStateFromInputs() {
+    state.hrCity = byId("hrMasterCityFilter") ? byId("hrMasterCityFilter").value : state.hrCity;
+    state.hrDocumentStatus = byId("hrMasterDocumentFilter") ? byId("hrMasterDocumentFilter").value : state.hrDocumentStatus;
     state.hrQuery = byId("hrMasterSearch") ? byId("hrMasterSearch").value.trim() : state.hrQuery;
+    state.hrKafalaStatus = byId("hrMasterKafalaFilter") ? byId("hrMasterKafalaFilter").value : state.hrKafalaStatus;
+    state.hrNationality = byId("hrMasterNationalityFilter") ? byId("hrMasterNationalityFilter").value : state.hrNationality;
+    state.hrRegister = byId("hrMasterRegisterFilter") ? byId("hrMasterRegisterFilter").value : state.hrRegister;
     state.hrStatus = byId("hrMasterStatusFilter") ? byId("hrMasterStatusFilter").value : state.hrStatus;
-    state.hrEmployment = byId("hrMasterEmploymentFilter") ? byId("hrMasterEmploymentFilter").value : state.hrEmployment;
     state.resolverIqama = byId("riderResolverIqama") ? byId("riderResolverIqama").value.trim() : state.resolverIqama;
     state.riderQuery = byId("riderMasterSearch") ? byId("riderMasterSearch").value.trim() : state.riderQuery;
     state.riderStatus = byId("riderMasterStatusFilter") ? byId("riderMasterStatusFilter").value : state.riderStatus;
@@ -1210,9 +1400,6 @@
     }
     if (isPageActive("rider-master")) {
       renderRiderPage(scoped);
-    }
-    if (isPageActive("archive-shell")) {
-      renderArchivePage(scoped);
     }
   }
 
@@ -1256,7 +1443,11 @@
     if ([
       "archiveSearch",
       "archiveTypeFilter",
-      "hrMasterEmploymentFilter",
+      "hrMasterCityFilter",
+      "hrMasterDocumentFilter",
+      "hrMasterKafalaFilter",
+      "hrMasterNationalityFilter",
+      "hrMasterRegisterFilter",
       "hrMasterSearch",
       "hrMasterStatusFilter",
       "riderResolverIqama",
@@ -1287,6 +1478,30 @@
     var hrButton = event.target.closest(".hr-profile-detail");
     if (hrButton) {
       openHrProfileDrawer(hrButton.getAttribute("data-hr-profile-id") || "");
+      return;
+    }
+    var hrTabButton = event.target.closest("[data-hr-tab]");
+    if (hrTabButton) {
+      state.hrTab = normalizeHrTabRoute(hrTabButton.getAttribute("data-hr-tab") || "");
+      if (Portal.UIShell && typeof Portal.UIShell.openPage === "function") {
+        Portal.UIShell.openPage("hr-shell", {
+          code: "HR1",
+          page: "hr-shell",
+          subPage: state.hrTab
+        });
+      }
+      scheduleRender("hr-tab", 0);
+    }
+  }
+
+  function handleHrRouteChange(route) {
+    route = route || {};
+    if (String(route.page || "") === "hr-shell") {
+      state.hrTab = normalizeHrTabRoute(route.subPage);
+      return;
+    }
+    if (String(route.page || "") === "archive-shell") {
+      state.hrTab = "hr_archive";
     }
   }
 
@@ -1366,6 +1581,7 @@
   function boot() {
     patchDataStoreNotifications();
     injectResolverStyles();
+    handleHrRouteChange({ page: "hr-shell", subPage: state.hrTab });
     document.addEventListener("input", handleDocumentInput);
     document.addEventListener("change", handleDocumentInput);
     document.addEventListener("click", handleDocumentClick);
@@ -1374,7 +1590,8 @@
     window.addEventListener("keeta:data-changed", function () {
       scheduleRender("data", 120);
     });
-    document.addEventListener("keeta:shell-route-change", function () {
+    document.addEventListener("keeta:shell-route-change", function (event) {
+      handleHrRouteChange(event && event.detail ? event.detail : {});
       scheduleRender("route", 40);
     });
     if (Portal.OrganizationContext && typeof Portal.OrganizationContext.subscribe === "function") {

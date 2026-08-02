@@ -23,8 +23,10 @@ results.push(test("dropdown renderer builds a single trigger with menu items", (
   });
 
   assert.ok(html.includes('data-action-dropdown-trigger="ops_user_1"'));
+  assert.ok(html.includes('data-action-dropdown-open="false"'));
   assert.ok(html.includes('data-action-menu-item="details"'));
   assert.ok(html.includes('data-action-menu-item="terminate"'));
+  assert.ok(html.includes('data-action-dropdown-menu-state="closed"'));
   assert.ok(html.includes("is-danger"));
 }));
 

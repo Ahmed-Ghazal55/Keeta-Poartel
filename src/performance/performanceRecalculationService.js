@@ -10,7 +10,8 @@
       require("./vdaAdapter.js"),
       require("./deliveryExperienceAdapter.js"),
       require("./monthlyValidityEngine.js"),
-      require("../operations/assignmentPeriodResolver.js")
+      require("../operations/assignmentPeriodResolver.js"),
+      require("./performanceAttribution.js")
     );
     return;
   }
@@ -25,7 +26,8 @@
     root.KeetaPortal.VdaAdapter,
     root.KeetaPortal.DeliveryExperienceAdapter,
     root.KeetaPortal.MonthlyValidityEngine,
-    root.KeetaPortal.AssignmentPeriodResolver
+    root.KeetaPortal.AssignmentPeriodResolver,
+    root.KeetaPortal.PerformanceAttribution
   );
 })(typeof globalThis !== "undefined" ? globalThis : this, function (
   RBAC,
@@ -37,7 +39,8 @@
   VdaAdapter,
   DeliveryExperienceAdapter,
   MonthlyValidityEngine,
-  AssignmentPeriodResolver
+  AssignmentPeriodResolver,
+  PerformanceAttribution
 ) {
   "use strict";
 
@@ -108,12 +111,6 @@
       var riders = dataStore.getAll("riders");
       var assignments = dataStore.getAll("assignments");
       return {
-        activeAssignmentsByDashboardUserId: assignments.reduce(function (memo, item) {
-          if (Common.normalizeText(item.status) === "active") {
-            memo[Common.normalizeText(item.dashboardUserId)] = item;
-          }
-          return memo;
-        }, {}),
         assignments: assignments.slice(),
         dashboardUsersById: dashboardUsers.reduce(function (memo, item) {
           memo[Common.normalizeText(item.dashboardUserId || item.userId)] = item;
@@ -137,20 +134,17 @@
     function enrichDailyRow(row, scope, linkedCollections) {
       var dashboardUserKey = Common.normalizeText(Common.firstNonEmpty(row.dashboardUserId, row.userId));
       var dashboardUser = linkedCollections.dashboardUsersById[dashboardUserKey] || null;
-      var assignment = AssignmentPeriodResolver && typeof AssignmentPeriodResolver.resolveAssignmentForRow === "function"
-        ? AssignmentPeriodResolver.resolveAssignmentForRow(linkedCollections.assignments, row, {
-            city: Common.firstNonEmpty(row.city, dashboardUser && dashboardUser.city, scope.city),
-            dashboardUserId: dashboardUserKey,
-            date: row.date || row.dateKey || "",
-            platform: Common.firstNonEmpty(row.platform, dashboardUser && dashboardUser.platform, scope.platform),
-            register: Common.firstNonEmpty(row.register, dashboardUser && dashboardUser.register, scope.register)
+      var attributed = PerformanceAttribution && typeof PerformanceAttribution.attributePerformanceRow === "function"
+        ? PerformanceAttribution.attributePerformanceRow(row, {
+            assignments: linkedCollections.assignments,
+            dashboardUsers: dashboardUser ? [dashboardUser] : []
           })
+        : row;
+      var assignment = attributed.assignmentId
+        ? linkedCollections.assignments.find(function (item) {
+            return Common.normalizeText(item.assignmentId || item.id) === Common.normalizeText(attributed.assignmentId);
+          }) || null
         : null;
-      var assignmentFallbackUsed = false;
-      if (!assignment) {
-        assignment = linkedCollections.activeAssignmentsByDashboardUserId[dashboardUserKey] || null;
-        assignmentFallbackUsed = !!assignment;
-      }
       var rider = row.riderId
         ? linkedCollections.ridersById[Common.normalizeText(row.riderId)] || null
         : null;
@@ -167,25 +161,16 @@
         rider = linkedCollections.ridersById[Common.normalizeText(dashboardUser.currentRiderId)] || null;
       }
       var resolvedIqama = Common.normalizeText(Common.firstNonEmpty(
-        assignment && assignment.actualRiderIqama,
-        assignment && assignment.riderIqama,
-        row.iqama,
-        rider && rider.primaryIqama,
-        dashboardUser && dashboardUser.currentRiderIqama,
-        dashboardUser && dashboardUser.ownerIqama
+        attributed.actualRiderIqama
       ));
       var resolvedRiderId = Common.normalizeText(Common.firstNonEmpty(
-        row.riderId,
-        rider && rider.id,
         assignment && assignment.riderId,
-        dashboardUser && dashboardUser.currentRiderId,
+        rider && resolvedIqama && Common.normalizeText(rider.primaryIqama) === resolvedIqama ? rider.id : "",
         resolvedIqama ? "rider::" + resolvedIqama : ""
       ));
-      return Common.mergeObjects({}, row, {
-        assignmentFallbackUsed: assignmentFallbackUsed,
-        assignmentLinkStatus: assignment
-          ? (assignmentFallbackUsed ? "fallback_active_assignment" : "assignment_period_match")
-          : "unresolved",
+      return Common.mergeObjects({}, row, attributed, {
+        assignmentFallbackUsed: false,
+        assignmentLinkStatus: assignment ? "assignment_period_match" : "unresolved",
         actualRiderIqama: resolvedIqama,
         city: Common.normalizeText(Common.firstNonEmpty(row.city, dashboardUser && dashboardUser.city, rider && rider.city, scope.city)),
         dashboardUserId: Common.normalizeText(Common.firstNonEmpty(row.dashboardUserId, dashboardUser && dashboardUser.dashboardUserId, row.userId)),
@@ -193,12 +178,7 @@
         platform: Common.normalizePlatform(Common.firstNonEmpty(row.platform, dashboardUser && dashboardUser.platform, scope.platform, "keeta")),
         register: Common.normalizeRegisterCode(Common.firstNonEmpty(row.register, dashboardUser && dashboardUser.register, rider && rider.register, scope.register)),
         riderId: resolvedRiderId,
-        riderSource: Common.normalizeText(Common.firstNonEmpty(
-          row.riderSource,
-          assignment && assignment.riderSource,
-          rider && rider.employmentType === "external" ? "External" : "",
-          resolvedIqama ? "Unknown" : ""
-        )),
+        riderSource: attributed.actualRiderSource,
         userId: Common.normalizeText(Common.firstNonEmpty(row.userId, dashboardUser && dashboardUser.userId, row.dashboardUserId, row.riderId)),
         vehicleType: Common.normalizeVehicleType(Common.firstNonEmpty(row.vehicleType, dashboardUser && dashboardUser.vehicleType)),
         workMode: Common.normalizeWorkMode(Common.firstNonEmpty(row.workMode, dashboardUser && dashboardUser.workMode), Common.firstNonEmpty(row.register, dashboardUser && dashboardUser.register, scope.register))

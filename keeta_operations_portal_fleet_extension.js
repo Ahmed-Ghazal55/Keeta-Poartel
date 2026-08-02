@@ -11,6 +11,7 @@
   var UIShell = Portal.UIShell || {};
   var ActionDropdown = Portal.ActionDropdown || null;
   var DetailsDrawer = Portal.DetailsDrawer || null;
+  var FleetViewModel = Portal.FleetViewModel || null;
   var PageRenderController = Portal.PageRenderController || null;
   var FleetRebuildPolicy = Portal.FleetRebuildPolicy || null;
   var bootModeState = Portal.BootMode && typeof Portal.BootMode.getState === "function"
@@ -20,7 +21,9 @@
     ? ActionDropdown.createGlobalController(document)
     : null;
   var state = {
-    activeTab: "operating",
+    activeTab: "operating_vehicles",
+    capacityStatus: "all",
+    ownershipType: "all",
     search: "",
     status: "all",
     vehicleType: "all"
@@ -215,6 +218,18 @@
         return false;
       }
     }
+    if (state.ownershipType !== "all") {
+      var ownershipType = normalizeText(record.ownershipType || record.vehicleCompanyStatus || record.companyStatus).toLowerCase();
+      if (ownershipType !== state.ownershipType) {
+        return false;
+      }
+    }
+    if (state.capacityStatus !== "all") {
+      var capacityStatus = normalizeText(record.capacityStatus || record.reviewStatus).toLowerCase();
+      if (capacityStatus.indexOf(state.capacityStatus) < 0) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -319,14 +334,44 @@
     var vehicleAssignments = getCollection("vehicleAssignments").filter(function (item) {
       return matchesContext(item, context) && matchesUserScope(item, user);
     });
+    var riderVehicleUsageHistory = getCollection("riderVehicleUsageHistory").filter(function (item) {
+      return matchesContext({
+        city: item.city || item.currentCity || "",
+        register: item.vehicleRegister || item.register || ""
+      }, context) && matchesUserScope({
+        city: item.city || item.currentCity || "",
+        register: item.vehicleRegister || item.register || ""
+      }, user) && matchesStateFilters(item);
+    });
     var dashboardUsers = getCollection("dashboardUsers").filter(function (item) {
       return matchesContext(item, context) && matchesUserScope(item, user);
+    });
+    var assignments = getCollection("assignments").filter(function (item) {
+      return matchesContext({
+        city: item.city || "",
+        register: item.register || ""
+      }, context) && matchesUserScope({
+        city: item.city || "",
+        register: item.register || ""
+      }, user);
     });
     var auditLogs = getCollection("auditLogs").filter(function (item) {
       return /vehicle/i.test(item.entity || "") || /vehicle_/i.test(item.action || "");
     }).filter(function (item) {
       return matchesContext(item, context) && matchesUserScope(item, user);
     });
+    var fleetRows = FleetViewModel && typeof FleetViewModel.buildFleetRows === "function"
+      ? FleetViewModel.buildFleetRows({
+          assignments: assignments,
+          dashboardUsers: dashboardUsers,
+          riderVehicleUsageHistory: riderVehicleUsageHistory,
+          vehicleAssignments: vehicleAssignments,
+          vehicleCapacityReviews: capacityReviews,
+          vehicleComplianceIssues: complianceIssues,
+          vehicleMovementEvents: movementEvents,
+          vehicles: allVehicles
+        })
+      : [];
 
     var capacityBySerial = indexBy(capacityReviews, "vehicleSerial");
     var issuesBySerial = groupBy(complianceIssues, "vehicleSerial");
@@ -344,9 +389,11 @@
       issuesBySerial: issuesBySerial,
       movementBySerial: movementBySerial,
       movementEvents: movementEvents,
+      riderVehicleUsageHistory: riderVehicleUsageHistory,
       user: user,
       vehicleAssignments: vehicleAssignments,
       assignmentsBySerial: assignmentsBySerial,
+      fleetRows: fleetRows,
       usersBySerial: usersBySerial,
       vehicles: vehicles,
       allVehicles: allVehicles
@@ -1042,6 +1089,17 @@
       return;
     }
     state.activeTab = normalizeFleetRoute(route.subPage);
+    if (route.code === "FL2") {
+      state.status = "available";
+      state.activeTab = "operating_vehicles";
+    } else if (route.code === "FL3") {
+      state.capacityStatus = "full";
+      state.activeTab = "capacity_review";
+    } else if (route.code === "FL5") {
+      state.activeTab = "exceptions";
+    } else if (route.code === "FL6") {
+      state.activeTab = "vehicle_assignments";
+    }
     scheduleRender("route", 40);
   }
 
@@ -1054,12 +1112,322 @@
     handleFleetAction(detail.actionId, dataset.vehicleId);
   }
 
+  function normalizeFleetRoute(subPage) {
+    if (FleetViewModel && typeof FleetViewModel.normalizeFleetRoute === "function") {
+      return FleetViewModel.normalizeFleetRoute(subPage);
+    }
+    return normalizeText(subPage) || "operating_vehicles";
+  }
+
+  function getFleetFilters() {
+    return {
+      capacityStatus: state.capacityStatus,
+      ownershipType: state.ownershipType,
+      query: state.search,
+      vehicleStatus: state.status,
+      vehicleType: state.vehicleType
+    };
+  }
+
+  function filteredFleetRowsForTab(model, tabKey) {
+    if (!FleetViewModel || typeof FleetViewModel.filterFleetRows !== "function") {
+      return [];
+    }
+    return FleetViewModel.filterFleetRows(model.fleetRows || [], getFleetFilters(), normalizeFleetRoute(tabKey));
+  }
+
+  function filterRecordsByFleetRows(records, fleetRows, fieldName) {
+    var serialSet = {};
+    (fleetRows || []).forEach(function (row) {
+      var key = normalizeText(row && row.vehicleSerial);
+      if (key) {
+        serialSet[key] = true;
+      }
+    });
+    return (records || []).filter(function (record) {
+      return !!serialSet[normalizeText(record && record[fieldName || "vehicleSerial"])];
+    });
+  }
+
+  function tabCounts(model) {
+    var counts = {};
+    var tabs = FleetViewModel && typeof FleetViewModel.listFleetTabs === "function"
+      ? FleetViewModel.listFleetTabs()
+      : [];
+    tabs.forEach(function (tab) {
+      counts[tab.key] = FleetViewModel && typeof FleetViewModel.filterFleetRows === "function"
+        ? FleetViewModel.filterFleetRows(model.fleetRows || [], {}, tab.key).length
+        : 0;
+    });
+    return counts;
+  }
+
+  function renderEmptyState(title, body) {
+    return '<div class="card"><span class="eyebrow">Prompt 8.11</span><h2 class="section-title">' + escapeHtml(title) + '</h2><div class="empty">' + escapeHtml(body) + "</div></div>";
+  }
+
+  function renderKpis(items) {
+    return '<div class="kpi-grid">' + items.map(function (item) {
+      return '<div class="kpi' + (item.className ? " " + item.className : "") + '"><b>' + escapeHtml(item.label) + '</b><strong>' + escapeHtml(String(item.value)) + "</strong></div>";
+    }).join("") + "</div>";
+  }
+
+  function renderTabs(counts) {
+    var tabs = FleetViewModel && typeof FleetViewModel.listFleetTabs === "function"
+      ? FleetViewModel.listFleetTabs()
+      : [];
+    return '<div class="ops-tabs" style="margin-top:16px">' + tabs.map(function (item) {
+      return '<button type="button" class="ops-tab' + (state.activeTab === item.key ? " is-active" : "") + '" data-fleet-tab="' + escapeHtml(item.key) + '">' +
+        escapeHtml(item.label) + ' <span>' + escapeHtml(String(counts[item.key] || 0)) + "</span></button>";
+    }).join("") + "</div>";
+  }
+
+  function renderFilters() {
+    return [
+      '<div class="filter-row" style="margin-top:16px">',
+      '  <div class="search-box"><input id="fleetSearchInput" type="search" placeholder="Search serial / plate / city / user" value="' + escapeHtml(state.search) + '"></div>',
+      '  <select id="fleetVehicleTypeFilter">',
+      renderOption("all", "All Vehicle Types", state.vehicleType),
+      renderOption("car", "Car", state.vehicleType),
+      renderOption("bike", "Bike", state.vehicleType),
+      renderOption("unknown", "Unknown", state.vehicleType),
+      "  </select>",
+      '  <select id="fleetStatusFilter">',
+      renderOption("all", "All Statuses", state.status),
+      renderOption("available", "Available", state.status),
+      renderOption("under_review", "Under Review", state.status),
+      renderOption("blocked", "Blocked", state.status),
+      renderOption("full", "Full", state.status),
+      renderOption("maintenance", "Maintenance", state.status),
+      "  </select>",
+      '  <select id="fleetOwnershipFilter">',
+      renderOption("all", "All Ownership", state.ownershipType),
+      renderOption("company", "Company", state.ownershipType),
+      renderOption("private", "Private", state.ownershipType),
+      renderOption("unknown", "Unknown", state.ownershipType),
+      "  </select>",
+      '  <select id="fleetCapacityFilter">',
+      renderOption("all", "All Capacity Status", state.capacityStatus),
+      renderOption("available", "Available", state.capacityStatus),
+      renderOption("in_use", "In Use", state.capacityStatus),
+      renderOption("full", "Full", state.capacityStatus),
+      renderOption("over_capacity", "Over Capacity", state.capacityStatus),
+      "  </select>",
+      "</div>"
+    ].join("");
+  }
+
+  function renderOption(value, label, selected) {
+    return '<option value="' + escapeHtml(value) + '"' + (value === selected ? " selected" : "") + ">" + escapeHtml(label) + "</option>";
+  }
+
+  function renderCapacityReviewTable(rows) {
+    if (!rows.length) {
+      return '<div class="empty" style="margin-top:16px">No capacity review rows match the current scope.</div>';
+    }
+    return [
+      '<div class="table-wrap" style="margin-top:16px"><table><thead><tr>',
+      "<th>Vehicle Serial</th><th>Plate</th><th>Register</th><th>City</th><th>Ownership</th><th>Capacity Status</th><th>Review</th><th>Registered Users</th><th>Actual Riders</th><th>Warnings</th><th>Actions</th>",
+      "</tr></thead><tbody>",
+      rows.map(function (row) {
+        return "<tr>" +
+          '<td class="mono">' + escapeHtml(row.vehicleSerial || "-") + "</td>" +
+          "<td>" + escapeHtml(row.plateNumber || "-") + "</td>" +
+          "<td>" + escapeHtml(ImportTypes.registerLabel(row.register) || row.register || "-") + "</td>" +
+          "<td>" + escapeHtml(row.city || "-") + "</td>" +
+          "<td>" + renderPill(row.ownershipType || "-", row.ownershipType === "private" ? "gold" : "blue") + "</td>" +
+          "<td>" + renderPill(row.capacityStatus || "-", row.capacityStatus === "over_capacity" ? "red" : (row.capacityStatus === "full" ? "gold" : "")) + "</td>" +
+          "<td>" + renderPill(row.capacityReview && row.capacityReview.reviewStatus || "-", "blue") + "</td>" +
+          "<td>" + escapeHtml(String(row.registeredDashboardUserCount || 0)) + "</td>" +
+          "<td>" + escapeHtml(String(row.currentActualAssignmentCount || row.currentUsageCount || 0)) + "</td>" +
+          "<td>" + escapeHtml((row.warnings || []).join(", ") || "-") + "</td>" +
+          "<td>" + renderVehicleActions(row.rawVehicle || { id: row.vehicleId, vehicleSerial: row.vehicleSerial }) + "</td>" +
+          "</tr>";
+      }).join(""),
+      "</tbody></table></div>"
+    ].join("");
+  }
+
+  function renderVehicleUsageHistoryTable(rows, fleetRows) {
+    var filteredRows = filterRecordsByFleetRows(rows || [], fleetRows || [], "vehicleSerial");
+    if (!filteredRows.length) {
+      return '<div class="empty" style="margin-top:16px">No rider vehicle usage history rows match the current scope.</div>';
+    }
+    return [
+      '<div class="table-wrap" style="margin-top:16px"><table><thead><tr>',
+      "<th>Vehicle Serial</th><th>Rider Iqama</th><th>Dashboard User</th><th>City</th><th>Register</th><th>Start</th><th>End</th><th>Status</th><th>Notes</th>",
+      "</tr></thead><tbody>",
+      filteredRows.map(function (item) {
+        return "<tr>" +
+          '<td class="mono">' + escapeHtml(item.vehicleSerial || "-") + "</td>" +
+          '<td class="mono">' + escapeHtml(item.riderIqama || item.actualRiderIqama || "-") + "</td>" +
+          '<td class="mono">' + escapeHtml(item.dashboardUserId || "-") + "</td>" +
+          "<td>" + escapeHtml(item.city || "-") + "</td>" +
+          "<td>" + escapeHtml(ImportTypes.registerLabel(item.vehicleRegister || item.register) || item.vehicleRegister || item.register || "-") + "</td>" +
+          "<td>" + escapeHtml(item.usageStartDate || item.startDate || "-") + "</td>" +
+          "<td>" + escapeHtml(item.usageEndDate || item.endDate || "-") + "</td>" +
+          "<td>" + renderPill(item.status || (item.usageEndDate ? "ended" : "active"), item.usageEndDate ? "gold" : "blue") + "</td>" +
+          "<td>" + escapeHtml(item.notes || "-") + "</td>" +
+          "</tr>";
+      }).join(""),
+      "</tbody></table></div>"
+    ].join("");
+  }
+
+  function renderActiveTab(model) {
+    var activeTab = normalizeFleetRoute(state.activeTab);
+    var fleetRows = filteredFleetRowsForTab(model, activeTab);
+    if (activeTab === "vehicle_usage_history") {
+      return renderVehicleUsageHistoryTable(model.riderVehicleUsageHistory, fleetRows);
+    }
+    if (activeTab === "exceptions") {
+      return renderIssuesTable(filterRecordsByFleetRows(model.complianceIssues, fleetRows, "vehicleSerial"));
+    }
+    if (activeTab === "vehicle_assignments") {
+      return renderMatchingTable(filterRecordsByFleetRows(model.vehicleAssignments, fleetRows, "vehicleSerial"));
+    }
+    if (activeTab === "capacity_review") {
+      return renderCapacityReviewTable(fleetRows);
+    }
+    if (activeTab === "maintenance_or_excluded") {
+      return renderOperatingTable(filterRecordsByFleetRows(model.allVehicles, fleetRows, "vehicleSerial"), model);
+    }
+    return renderOperatingTable(filterRecordsByFleetRows(model.allVehicles, fleetRows, "vehicleSerial"), model);
+  }
+
+  function renderPage() {
+    var page = byId("page-fleet-shell");
+    var model = buildModel();
+    if (!page) {
+      return;
+    }
+    if (model.user && !RBAC.canPerform(model.user, "fleet.view")) {
+      page.innerHTML = renderEmptyState("Fleet Module", "You do not have permission to view fleet data in the current session.");
+      return;
+    }
+
+    var filteredScopeRows = filteredFleetRowsForTab(model, "operating_vehicles");
+    var counts = tabCounts(model);
+    var kpis = FleetViewModel && typeof FleetViewModel.buildFleetKpis === "function"
+      ? FleetViewModel.buildFleetKpis(filteredScopeRows)
+      : {
+          active: 0,
+          bikes: 0,
+          cars: 0,
+          companyVehicles: 0,
+          excluded: 0,
+          maintenance: 0,
+          needsReview: 0,
+          overCapacity: 0,
+          privateVehicles: 0,
+          totalVehicles: 0
+        };
+    page.innerHTML = [
+      '<div class="card">',
+      '  <span class="eyebrow">Prompt 8.11</span>',
+      '  <h2 class="section-title">Fleet Support Module</h2>',
+      '  <div class="note">Vehicle serial stays the primary identity. Registered dashboard vehicle and actual used vehicle remain separate, and read-only review links never create mutations or audit rows.</div>',
+      renderKpis([
+        { label: "إجمالي المركبات", value: kpis.totalVehicles },
+        { label: "سيارات", value: kpis.cars },
+        { label: "دبابات", value: kpis.bikes },
+        { label: "نشط", value: kpis.active, className: "good" },
+        { label: "مستبعد", value: kpis.excluded, className: kpis.excluded ? "warn" : "" },
+        { label: "صيانة", value: kpis.maintenance, className: kpis.maintenance ? "warn" : "" },
+        { label: "مركبة شركة", value: kpis.companyVehicles },
+        { label: "مركبة خاصة", value: kpis.privateVehicles },
+        { label: "تجاوز السعة", value: kpis.overCapacity, className: kpis.overCapacity ? "bad" : "" },
+        { label: "يحتاج مراجعة", value: kpis.needsReview, className: kpis.needsReview ? "warn" : "" }
+      ]),
+      renderTabs(counts),
+      renderFilters(),
+      renderActiveTab(model),
+      "</div>"
+    ].join("");
+    if (UIShell && typeof UIShell.enhanceTables === "function") {
+      UIShell.enhanceTables(page);
+    }
+    bindControls();
+  }
+
+  function focusFleetVehicle(focus, options) {
+    focus = focus || {};
+    options = options || {};
+    var model = buildModel();
+    var row = FleetViewModel && typeof FleetViewModel.findFleetRow === "function"
+      ? FleetViewModel.findFleetRow(model.fleetRows || [], focus)
+      : null;
+    if (!row) {
+      if (focus.vehicleType && !focus.vehicleSerial && !focus.plateNumber) {
+        openDrawer("Actual Vehicle Summary", '<div class="empty">The current assignment references a ' + escapeHtml(focus.vehicleType) + ' vehicle but no fleet serial or plate is stored for direct focus.</div>');
+        return {
+          found: false,
+          mode: "private_vehicle_summary"
+        };
+      }
+      openDrawer("Fleet Warning", '<div class="empty">No fleet vehicle was found for serial ' + escapeHtml(focus.vehicleSerial || "-") + ' or plate ' + escapeHtml(focus.plateNumber || "-") + " in the current scope.</div>");
+      return {
+        found: false,
+        mode: "missing_vehicle"
+      };
+    }
+    state.activeTab = normalizeFleetRoute(options.subPage || "operating_vehicles");
+    state.search = row.vehicleSerial || row.plateNumber || "";
+    var page = byId("page-fleet-shell");
+    if (page) {
+      page.setAttribute("data-fleet-focused-serial", row.vehicleSerial || "");
+      page.setAttribute("data-fleet-focused-plate", row.plateNumber || "");
+      page.setAttribute("data-fleet-focused-rider-iqama", focus.actualRiderIqama || focus.riderIqama || "");
+      page.setAttribute("data-fleet-focus-mode", state.activeTab === "vehicle_usage_history" ? "usage_history" : "vehicle");
+    }
+    if (options.resetFilters !== false) {
+      state.status = "all";
+      state.ownershipType = "all";
+      state.capacityStatus = "all";
+      state.vehicleType = "all";
+    }
+    if (Portal.UIShell && typeof Portal.UIShell.openPage === "function") {
+      Portal.UIShell.openPage("fleet-shell", {
+        code: options.code || "FL1",
+        page: "fleet-shell",
+        subPage: state.activeTab
+      });
+    }
+    scheduleRender("fleet-focus", 0);
+    if (options.openDrawer !== false) {
+      window.setTimeout(function () {
+        handleFleetAction(options.drawerAction || "details", row.vehicleId || row.id);
+      }, 80);
+    }
+    return {
+      found: true,
+      mode: "vehicle",
+      row: row
+    };
+  }
+
+  function focusFleetUsageHistory(focus) {
+    return focusFleetVehicle(focus, {
+      code: "FL4",
+      drawerAction: "movement",
+      openDrawer: false,
+      resetFilters: true,
+      subPage: "vehicle_usage_history"
+    });
+  }
+
+  Portal.FleetEntryPoint = Portal.FleetEntryPoint || {};
+  Portal.FleetEntryPoint.focusVehicle = focusFleetVehicle;
+  Portal.FleetEntryPoint.focusVehicleUsageHistory = focusFleetUsageHistory;
+
   function bindControls() {
     var page = byId("page-fleet-shell");
     if (!page) {
       return;
     }
     var searchInput = byId("fleetSearchInput");
+    var capacityFilter = byId("fleetCapacityFilter");
+    var ownershipFilter = byId("fleetOwnershipFilter");
     var vehicleTypeFilter = byId("fleetVehicleTypeFilter");
     var statusFilter = byId("fleetStatusFilter");
     if (searchInput) {
@@ -1080,9 +1448,21 @@
         scheduleRender("filter", 80);
       });
     }
+    if (ownershipFilter) {
+      ownershipFilter.addEventListener("change", function () {
+        state.ownershipType = ownershipFilter.value || "all";
+        scheduleRender("filter", 80);
+      });
+    }
+    if (capacityFilter) {
+      capacityFilter.addEventListener("change", function () {
+        state.capacityStatus = capacityFilter.value || "all";
+        scheduleRender("filter", 80);
+      });
+    }
     page.querySelectorAll("[data-fleet-tab]").forEach(function (button) {
       button.addEventListener("click", function () {
-        state.activeTab = button.getAttribute("data-fleet-tab") || "operating";
+        state.activeTab = normalizeFleetRoute(button.getAttribute("data-fleet-tab") || "operating_vehicles");
         scheduleRender("tab", 0);
       });
     });

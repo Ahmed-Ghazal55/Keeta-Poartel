@@ -95,9 +95,9 @@ results.push(test("performance recalculation attributes rows to the rider active
   const dailyRows = runtime.dataStore.getAll("performanceDaily").sort((left, right) => String(left.date).localeCompare(String(right.date)));
   assert.strictEqual(summary.dailyRowsProcessed, 2);
   assert.strictEqual(dailyRows[0].actualRiderIqama, "2444000101");
-  assert.strictEqual(dailyRows[0].riderSource, "External");
+  assert.strictEqual(dailyRows[0].riderSource, "external");
   assert.strictEqual(dailyRows[1].actualRiderIqama, "2444000202");
-  assert.strictEqual(dailyRows[1].riderSource, "HR");
+  assert.strictEqual(dailyRows[1].riderSource, "hr");
   assert.strictEqual(runtime.dataStore.getAll("performanceIssues").filter((item) => item.issueType === "missing_rider_link").length, 0);
 }));
 

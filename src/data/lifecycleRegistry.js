@@ -212,7 +212,15 @@
       templateIds: ["daily_performance", "overall_performance", "vda", "face_verification", "delivery_experience"],
       defaultImportType: "performance_daily_csv",
       defaultTargetEntity: "performanceDaily"
-    })
+    }),
+    route({ id: "fleet_operating_vehicles_import", pageKey: "fleet-shell", label: "Fleet Operating Vehicles Import", ownerModule: "Fleet", description: "Preview and validate operating vehicles before explicit save.", templateIds: ["vehicles"], defaultImportType: "vehicle_workbook", defaultTargetEntity: "vehicles" }),
+    route({ id: "vehicle_assignments_import", pageKey: "fleet-shell", label: "Vehicle Assignments Import", ownerModule: "Fleet", description: "Preview registered and actual vehicle assignment context separately.", templateIds: ["vehicles_movement"], defaultImportType: "vehicle_workbook", defaultTargetEntity: "vehicleAssignments" }),
+    route({ id: "overall_performance_import", pageKey: "performance-shell", label: "Overall Performance Import", ownerModule: "Performance", description: "Stage overall performance before daily extraction.", templateIds: ["overall_performance"], defaultImportType: "overall_performance_workbook", defaultTargetEntity: "performanceMonthly" }),
+    route({ id: "daily_performance_import", pageKey: "performance-shell", label: "Daily Performance Import", ownerModule: "Performance", description: "Stage date-scoped daily performance before validity.", templateIds: ["daily_performance"], defaultImportType: "performance_daily_csv", defaultTargetEntity: "performanceDaily" }),
+    route({ id: "vda_import", pageKey: "performance-shell", label: "VDA Import", ownerModule: "Performance", description: "Stage VDA evidence before validity.", templateIds: ["vda"], defaultImportType: "company_vda", defaultTargetEntity: "vdaResults" }),
+    route({ id: "face_verification_import", pageKey: "performance-shell", label: "Face Verification Import", ownerModule: "Performance", description: "Stage face verification evidence before validity.", templateIds: ["face_verification"], defaultImportType: "face_recognition", defaultTargetEntity: "faceVerification" }),
+    route({ id: "delivery_experience_import", pageKey: "performance-shell", label: "Delivery Experience Import", ownerModule: "Performance", description: "Stage delivery experience evidence before validity.", templateIds: ["delivery_experience"], defaultImportType: "delivery_experience_workbook", defaultTargetEntity: "deliveryExperience" }),
+    route({ id: "validity_results_import", pageKey: "performance-shell", label: "Validity Results Import", ownerModule: "Performance", description: "Read-only validity result context; no monthly close is performed.", templateIds: [], defaultImportType: "", defaultTargetEntity: "validityResults" })
   ];
 
   function entity(options) {

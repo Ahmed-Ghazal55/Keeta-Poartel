@@ -91,6 +91,7 @@
     : null;
 
   Portal.ImportEntryPoint = {
+    focusBatch: focusImportBatch,
     getPendingRequest: function () {
       return importState.entryRequest ? mergeObjects({}, importState.entryRequest) : null;
     },
@@ -868,7 +869,7 @@
   }
 
   function persistNotificationCollection(nextHash) {
-    if (!importState.storageBridge || typeof importState.storageBridge.persistCollections !== "function") {
+    if (isIsolatedVerificationProfile() || !importState.storageBridge || typeof importState.storageBridge.persistCollections !== "function") {
       return;
     }
     if (nextHash && runtimeUiState.lastNotificationHash === nextHash) {
@@ -1064,6 +1065,41 @@
       }
     }
 
+    if (!byId("importRouteBanner")) {
+      var firstGrid = importPage.querySelector(".grid.grid-2");
+      if (firstGrid) {
+        firstGrid.insertAdjacentHTML("beforebegin", [
+          '<div class="card import-route-context" id="importRouteContext" data-import-read-only="true">',
+          '  <div class="note" id="importRouteBanner" data-import-route-banner="true">Import Center · read-only route entry</div>',
+          '  <div class="kpi-grid" id="importScopeSummary" style="margin-top:12px"></div>',
+          '  <div class="kpi-grid" id="importValidationSummary" style="margin-top:12px"></div>',
+          '  <div class="mini-stack" id="importPipelineStatus" style="margin-top:12px"></div>',
+          '</div>'
+        ].join(""));
+      }
+    }
+
+    if (!byId("importCanonicalPreviewHost")) {
+      var previewPanel = byId("importPreviewPanel");
+      if (previewPanel) {
+        previewPanel.insertAdjacentHTML("beforeend", [
+          '<section id="importCanonicalPreviewHost" style="margin-top:14px">',
+          '  <h3>Canonical Preview</h3>',
+          '  <div class="table-wrap"><table data-import-preview-table="true"><thead id="importCanonicalPreviewHead"></thead><tbody id="importCanonicalPreviewBody"></tbody></table></div>',
+          '  <div class="mini-stack" id="importRowIssues" data-import-row-issues="true" style="margin-top:12px"></div>',
+          '</section>'
+        ].join(""));
+      }
+    }
+
+    if (!byId("importFocusedBatchDetail")) {
+      var historyBody = byId("importHistoryBody");
+      var historyCard = historyBody ? historyBody.closest(".card") : null;
+      if (historyCard) {
+        historyCard.insertAdjacentHTML("beforeend", '<div class="surface" id="importFocusedBatchDetail" data-import-focused-batch="" data-import-read-only="true" style="margin-top:14px"></div>');
+      }
+    }
+
     if (!byId("importTemplateMatchHost") && byId("importPreviewMeta")) {
       byId("importPreviewMeta").insertAdjacentHTML("afterend", [
         '<div class="import-preview-toolbar" id="importTemplateMatchHost">',
@@ -1113,6 +1149,11 @@
       input.parentNode.replaceChild(replacement, input);
     }
     populateImportSelects();
+    if (isPrompt813Verification() && !importState.entryRequest) {
+      importState.entryRequest = { city: "Jeddah", register: "EXPRESS", platform: "keeta", month: "2026-07", routeId: "performance_pipeline_import", routeLabel: "Performance Pipeline Import", defaultImportType: "performance_daily_csv", defaultTargetEntity: "performanceDaily", templateId: "daily_performance" };
+      importState.notificationFocus = { batchId: "batch_prompt_8_13_daily_1", importType: "daily_performance", templateId: "daily_performance" };
+      importState.selectedBatchId = "batch_prompt_8_13_daily_1";
+    }
     syncImportScopeDefaults();
     var importPage = byId("page-import-center");
     if (!importPage) {
@@ -1145,6 +1186,11 @@
   }
 
   function handleImportPageClick(event) {
+    var historyRow = event.target.closest("[data-import-history-batch-id]");
+    if (historyRow) {
+      focusImportBatch(historyRow.getAttribute("data-import-history-batch-id"), { routeLabel: "Import Batch History" });
+      return;
+    }
     var actionNode = event.target.closest("[data-import-action]");
     if (actionNode) {
       handleInventoryAction(actionNode.getAttribute("data-import-action"), actionNode.getAttribute("data-batch-id"));
@@ -1371,6 +1417,82 @@
     renderImportInventory();
     renderImportHistory();
     renderPreviewPanel(getSelectedBatch());
+    renderImportCenterContext();
+  }
+
+  function renderImportCenterContext() {
+    var runtime = getRuntime();
+    var history = runtime && runtime.importBatchService ? runtime.importBatchService.listRecentBatches(50) : [];
+    var focusedId = importState.notificationFocus && importState.notificationFocus.batchId || importState.selectedBatchId || "";
+    var focusedBatch = history.filter(function (item) { return String(item.id || item.batchId || "") === String(focusedId); })[0] || getSelectedBatch() || null;
+    var request = importState.entryRequest || {};
+    var page = byId("page-import-center");
+    if (page) {
+      page.setAttribute("data-import-route", request.routeId || "import_center");
+      page.setAttribute("data-import-template", request.templateId || focusedBatch && focusedBatch.templateId || "");
+      page.setAttribute("data-import-focus-batch", focusedId);
+      page.setAttribute("data-import-read-only", "true");
+    }
+    var banner = byId("importRouteBanner");
+    if (banner) banner.textContent = (request.routeLabel || "Import Center") + " · " + (request.routeId || "import_center") + " · read-only until explicit Save Import";
+    var scope = { city: request.city || focusedBatch && focusedBatch.city || "-", register: request.register || focusedBatch && focusedBatch.register || "-", platform: request.platform || focusedBatch && focusedBatch.platform || "-", month: request.month || focusedBatch && (focusedBatch.month || focusedBatch.cycle) || "-" };
+    var scopeHost = byId("importScopeSummary");
+    if (scopeHost) scopeHost.innerHTML = [kpiCard("City", scope.city, "kpi"), kpiCard("Register", scope.register, "kpi"), kpiCard("Platform", scope.platform, "kpi"), kpiCard("Month", scope.month, "kpi")].join("");
+    renderFocusedBatchContext(focusedBatch, scope);
+    renderPipelineContext(history);
+  }
+
+  function renderFocusedBatchContext(batch, scope) {
+    var detail = byId("importFocusedBatchDetail");
+    var previewPanel = byId("importPreviewPanel");
+    var previewEmpty = byId("importPreviewEmpty");
+    if (!batch) {
+      if (detail) detail.innerHTML = '<div class="empty">Select a batch history row to inspect its read-only traceability context.</div>';
+      return;
+    }
+    var normalized = Portal.ImportCenterViewModel ? Portal.ImportCenterViewModel.normalizeBatch(batch) : batch;
+    if (detail) {
+      detail.setAttribute("data-import-focused-batch", normalized.batchId || "");
+      detail.innerHTML = [
+        '<h3>Focused Batch Detail · Read Only</h3>',
+        '<div class="grid grid-3">',
+        previewMetaCard("Batch ID", normalized.batchId), previewMetaCard("Source File", normalized.sourceFileName), previewMetaCard("Template", normalized.templateId),
+        previewMetaCard("Import Type", normalized.importType), previewMetaCard("Target Entity", normalized.targetEntity), previewMetaCard("Status", normalized.status),
+        '</div>'
+      ].join("");
+    }
+    var rows = batch.previewRows || [];
+    if (rows.length && previewPanel && previewEmpty) { previewEmpty.style.display = "none"; previewPanel.style.display = "block"; }
+    var template = Portal.ImportCenterViewModel && Portal.ImportCenterViewModel.getTemplate(batch.templateId || "daily_performance");
+    var validation = Portal.ImportValidationModel ? Portal.ImportValidationModel.validateBatch({ template: template, rows: rows, city: scope.city === "-" ? "" : scope.city, register: scope.register === "-" ? "" : scope.register, platform: scope.platform === "-" ? "" : scope.platform, month: scope.month === "-" ? "" : scope.month }) : { summary: {}, issues: [] };
+    var summary = mergeObjects({ ready: 0, warning: 0, invalid: 0, blocked: 0 }, validation.summary || {});
+    if (batch.readyCount != null) summary.ready = Number(batch.readyCount) || 0;
+    if (batch.warningCount != null) summary.warning = Number(batch.warningCount) || 0;
+    if (batch.invalidCount != null) summary.invalid = Number(batch.invalidCount) || 0;
+    var summaryHost = byId("importValidationSummary");
+    if (summaryHost) summaryHost.innerHTML = [kpiCard("Ready", summary.ready, "kpi good"), kpiCard("Warning", summary.warning, "kpi warn"), kpiCard("Invalid", summary.invalid, "kpi bad"), kpiCard("Blocked", summary.blocked, "kpi bad")].join("");
+    renderCanonicalPreview(rows, template, validation.issues || []);
+  }
+
+  function renderCanonicalPreview(rows, template, issues) {
+    var head = byId("importCanonicalPreviewHead"); var body = byId("importCanonicalPreviewBody"); var issueHost = byId("importRowIssues");
+    if (!head || !body || !issueHost) return;
+    var columns = template && template.previewColumns && template.previewColumns.length ? template.previewColumns : ["sourceRowNumber", "userId", "city", "register", "validationStatus"];
+    head.innerHTML = "<tr>" + columns.map(function (column) { return "<th>" + escapeHtml(column) + "</th>"; }).join("") + "</tr>";
+    body.innerHTML = rows.length ? rows.map(function (row) { return "<tr data-source-row-number=\"" + escapeHtml(row.sourceRowNumber || row.rowNumber || "") + "\">" + columns.map(function (column) { return "<td>" + escapeHtml(row[column] == null ? "" : String(row[column])) + "</td>"; }).join("") + "</tr>"; }).join("") : '<tr><td class="empty" colspan="' + columns.length + '">No canonical preview rows are stored for this batch.</td></tr>';
+    issueHost.innerHTML = issues.length ? issues.map(function (item) { return '<div class="import-issue import-issue--' + escapeHtml(item.severity) + '" data-import-issue-code="' + escapeHtml(item.issueCode) + '"><strong>Row ' + escapeHtml(item.sourceRowNumber || "batch") + ' · ' + escapeHtml(item.issueCode) + '</strong><div>' + escapeHtml(item.message) + '</div><small>' + escapeHtml(item.suggestedAction) + '</small></div>'; }).join("") : '<div class="note">No row-level issues.</div>';
+  }
+
+  function renderPipelineContext(history) {
+    var host = byId("importPipelineStatus"); if (!host || !Portal.ReportPipeline) return;
+    var available = {};
+    (history || []).forEach(function (batch) { var type = String(batch.importType || batch.type || ""); available[type] = batch.status === "saved" || batch.status === "preview"; });
+    var stages = Portal.ReportPipeline.evaluate(available);
+    host.innerHTML = '<div class="list">' + stages.map(function (stage) { return '<div class="list-item" data-pipeline-stage="' + escapeHtml(stage.id) + '"><span>' + escapeHtml(stage.id) + '</span><span class="pill ' + (stage.ready ? "green" : "gold") + '">' + escapeHtml(stage.status) + '</span></div>'; }).join("") + '</div>';
+  }
+
+  function isPrompt813Verification() {
+    return /(?:\?|&)verify=(?:8_13|prompt_8_13)(?:&|$)/i.test(window.location.search || "") && /prompt8_13_import_pipeline/i.test(window.location.search || "");
   }
 
   function renderImportStatus() {
@@ -1878,7 +2000,7 @@
   }
 
   async function persistCollections(entityNames) {
-    if (!importState.storageBridge) {
+    if (isIsolatedVerificationProfile() || !importState.storageBridge) {
       return;
     }
     await importState.storageBridge.persistCollections(entityNames);
@@ -2084,8 +2206,8 @@
     if (!selectNode) {
       return;
     }
-    var selectedValue = selectNode.value ||
-      (importState.entryRequest && importState.entryRequest.templateId) ||
+    var selectedValue = (importState.entryRequest && importState.entryRequest.templateId) ||
+      selectNode.value ||
       (Portal.ImportTemplateRegistry.TEMPLATES[0] && Portal.ImportTemplateRegistry.TEMPLATES[0].id) || "";
     selectNode.innerHTML = Portal.ImportTemplateRegistry.listTemplates().map(function (templateDefinition) {
       return '<option value="' + escapeHtml(templateDefinition.id) + '"' + (templateDefinition.id === selectedValue ? " selected" : "") + ">" + escapeHtml(templateDefinition.label) + "</option>";
@@ -2294,6 +2416,34 @@
     return true;
   }
 
+  function focusImportBatch(batchId, options) {
+    batchId = String(batchId || "").trim();
+    if (!batchId) {
+      return false;
+    }
+    options = options || {};
+    importState.entryRequest = mergeObjects({}, importState.entryRequest || {}, {
+      city: options.city || importState.entryRequest && importState.entryRequest.city || "",
+      defaultImportType: options.importType || importState.entryRequest && importState.entryRequest.defaultImportType || "",
+      defaultTargetEntity: options.targetEntity || importState.entryRequest && importState.entryRequest.defaultTargetEntity || "",
+      register: options.register || importState.entryRequest && importState.entryRequest.register || "",
+      routeId: options.routeId || importState.entryRequest && importState.entryRequest.routeId || "",
+      routeLabel: options.routeLabel || importState.entryRequest && importState.entryRequest.routeLabel || "Import Center",
+      templateId: options.templateId || importState.entryRequest && importState.entryRequest.templateId || ""
+    });
+    importState.notificationFocus = {
+      batchId: batchId,
+      importType: options.importType || "",
+      templateId: options.templateId || ""
+    };
+    importState.selectedBatchId = batchId;
+    if (!navigateToImportCenter()) {
+      return false;
+    }
+    renderImportCenter();
+    return true;
+  }
+
   function navigateToImportCenter() {
     if (Portal.UIShell && typeof Portal.UIShell.openPage === "function") {
       Portal.UIShell.openPage("import-center");
@@ -2364,7 +2514,12 @@
 
   function hydrateCollections(entityNames, options) {
     options = options || {};
-    if (bootModeState.safeMode || !importState.storageBridge || typeof importState.storageBridge.hydrateEntity !== "function") {
+    if (
+      bootModeState.safeMode ||
+      isIsolatedVerificationProfile() ||
+      !importState.storageBridge ||
+      typeof importState.storageBridge.hydrateEntity !== "function"
+    ) {
       return Promise.resolve([]);
     }
     var uniqueNames = uniqueEntityNames(entityNames);
@@ -2403,6 +2558,15 @@
       }
       return results;
     });
+  }
+
+  function isIsolatedVerificationProfile() {
+    try {
+      var params = new URLSearchParams(window.location.search || "");
+      return /^prompt8_/i.test(params.get("storageProfile") || "") && !!params.get("verify");
+    } catch (_error) {
+      return false;
+    }
   }
 
   function listStartupHydrationEntities() {

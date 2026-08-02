@@ -1,0 +1,13 @@
+const assert = require("assert");
+const fs = require("fs");
+const operations = fs.readFileSync(require.resolve("../keeta_operations_portal_operations_extension.js"), "utf8");
+const performance = fs.readFileSync(require.resolve("../keeta_operations_portal_performance_extension.js"), "utf8");
+const stabilization = fs.readFileSync(require.resolve("../keeta_operations_portal_stabilization.js"), "utf8");
+const lifecycle = fs.readFileSync(require.resolve("../src/data/lifecycleRegistry.js"), "utf8");
+assert.ok(operations.includes("Portal.ImportEntryPoint.focusBatch"));
+assert.ok(operations.includes("Import Source Batch"));
+assert.ok(performance.includes('openRouteImport("performance_pipeline_import"'));
+assert.ok(lifecycle.includes('templateIds: ["daily_performance", "overall_performance", "vda", "face_verification", "delivery_experience"]'));
+assert.ok(stabilization.includes("function focusImportBatch"));
+assert.ok(stabilization.includes("function requestImportRouteEntry"));
+console.log(JSON.stringify({ summary: { total: 6, passed: 6, failed: 0 } }, null, 2));

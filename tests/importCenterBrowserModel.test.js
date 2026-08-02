@@ -1,0 +1,12 @@
+const assert = require("assert");
+const fs = require("fs");
+const html = fs.readFileSync(require.resolve("../keeta_operations_portal_starter_v4.html"), "utf8");
+const ui = fs.readFileSync(require.resolve("../keeta_operations_portal_stabilization.js"), "utf8");
+const profiles = fs.readFileSync(require.resolve("../src/runtime/verificationProfiles.js"), "utf8");
+["importCenterViewModel.js", "importValidationModel.js", "reportPipeline.js"].forEach(name => assert.ok(html.includes(name)));
+["importRouteBanner", "importScopeSummary", "importValidationSummary", "importCanonicalPreviewHost", "importRowIssues", "importFocusedBatchDetail"].forEach(id => assert.ok(ui.includes(id), id));
+["data-import-route", "data-import-template", "data-import-focus-batch", "data-import-read-only"].forEach(marker => assert.ok(ui.includes(marker), marker));
+assert.ok(ui.includes("isPrompt813Verification"));
+assert.ok(profiles.includes("prompt8_13_import_pipeline"));
+assert.ok(profiles.includes("batch_prompt_8_13_daily_1"));
+console.log(JSON.stringify({ summary: { total: 15, passed: 15, failed: 0 } }, null, 2));

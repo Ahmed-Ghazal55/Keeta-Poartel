@@ -1,32 +1,29 @@
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
-    module.exports = factory(require("../operations/operationsViewModel.js"));
+    module.exports = factory(
+      require("../operations/operationsViewModel.js"),
+      require("../hr/hrViewModel.js"),
+      require("../fleet/fleetViewModel.js"),
+      require("../performance/performanceViewModel.js")
+    );
     return;
   }
   root.KeetaPortal = root.KeetaPortal || {};
-  root.KeetaPortal.SidebarRouting = factory(root.KeetaPortal.OperationsViewModel || null);
-})(typeof globalThis !== "undefined" ? globalThis : this, function (OperationsViewModel) {
+  root.KeetaPortal.SidebarRouting = factory(
+    root.KeetaPortal.OperationsViewModel || null,
+    root.KeetaPortal.HrViewModel || null,
+    root.KeetaPortal.FleetViewModel || null,
+    root.KeetaPortal.PerformanceViewModel || null
+  );
+})(typeof globalThis !== "undefined" ? globalThis : this, function (OperationsViewModel, HrViewModel, FleetViewModel, PerformanceViewModel) {
   "use strict";
 
-  var ROUTES = mergeObjects({}, getOperationsRoutes(), {
-    PF1: { code: "PF1", group: "performance", page: "performance-shell", subPage: "results" },
-    PF2: { code: "PF2", group: "performance", page: "performance-shell", subPage: "overall" },
-    PF3: { code: "PF3", group: "performance", page: "performance-shell", subPage: "vda" },
-    PF4: { code: "PF4", group: "performance", page: "performance-shell", subPage: "vda_keeta" },
-    PF5: { code: "PF5", group: "performance", page: "performance-shell", subPage: "face_verification" },
-    PF6: { code: "PF6", group: "performance", page: "performance-shell", subPage: "delivery_experience" },
-    PF7: { code: "PF7", group: "performance", page: "performance-shell", subPage: "issues" },
+  var ROUTES = mergeObjects({}, getOperationsRoutes(), getHrRoutes(), getFleetRoutes(), getPerformanceRoutes(), getArchiveRoutes(), {
     RL1: { code: "RL1", group: "rules", page: "monthly-rules-shell", subPage: "settings" },
     RL2: { code: "RL2", group: "rules", page: "monthly-rules-shell", subPage: "mandatory" },
     RL3: { code: "RL3", group: "rules", page: "monthly-rules-shell", subPage: "incentives_cars" },
     RL4: { code: "RL4", group: "rules", page: "monthly-rules-shell", subPage: "incentives_bikes" },
-    RL5: { code: "RL5", group: "rules", page: "monthly-rules-shell", subPage: "quality" },
-    FL1: { code: "FL1", group: "fleet", page: "fleet-shell", subPage: "operating" },
-    FL2: { code: "FL2", group: "fleet", page: "fleet-shell", subPage: "available" },
-    FL3: { code: "FL3", group: "fleet", page: "fleet-shell", subPage: "full" },
-    FL4: { code: "FL4", group: "fleet", page: "fleet-shell", subPage: "handover" },
-    FL5: { code: "FL5", group: "fleet", page: "fleet-shell", subPage: "issues" },
-    FL6: { code: "FL6", group: "fleet", page: "fleet-shell", subPage: "matching" }
+    RL5: { code: "RL5", group: "rules", page: "monthly-rules-shell", subPage: "quality" }
   });
 
   function resolveRoute(code, fallback) {
@@ -80,6 +77,75 @@
       OP6: { code: "OP6", group: "ops", page: "operations-shell", subPage: "needs_review" },
       OP7: { code: "OP7", group: "ops", page: "operations-shell", subPage: "terminations" },
       OP8: { code: "OP8", group: "ops", page: "operations-shell", subPage: "audit_log" }
+    };
+  }
+
+  function getHrRoutes() {
+    if (HrViewModel && typeof HrViewModel.getSidebarRouteMap === "function") {
+      return HrViewModel.getSidebarRouteMap();
+    }
+    if (
+      typeof globalThis !== "undefined" &&
+      globalThis.KeetaPortal &&
+      globalThis.KeetaPortal.HrViewModel &&
+      typeof globalThis.KeetaPortal.HrViewModel.getSidebarRouteMap === "function"
+    ) {
+      return globalThis.KeetaPortal.HrViewModel.getSidebarRouteMap();
+    }
+    return {
+      HR1: { code: "HR1", group: "hr", page: "hr-shell", subPage: "hr_master" },
+      HR2: { code: "HR2", group: "hr", page: "hr-shell", subPage: "kafala_status" },
+      HR3: { code: "HR3", group: "hr", page: "rider-master", subPage: "external_riders" },
+      HR4: { code: "HR4", group: "hr", page: "archive-shell", subPage: "hr_archive" },
+      HR5: { code: "HR5", group: "hr", page: "hr-shell", subPage: "documents" }
+    };
+  }
+
+  function getFleetRoutes() {
+    if (FleetViewModel && typeof FleetViewModel.getSidebarRouteMap === "function") {
+      return FleetViewModel.getSidebarRouteMap();
+    }
+    if (
+      typeof globalThis !== "undefined" &&
+      globalThis.KeetaPortal &&
+      globalThis.KeetaPortal.FleetViewModel &&
+      typeof globalThis.KeetaPortal.FleetViewModel.getSidebarRouteMap === "function"
+    ) {
+      return globalThis.KeetaPortal.FleetViewModel.getSidebarRouteMap();
+    }
+    return {
+      FL1: { code: "FL1", group: "fleet", page: "fleet-shell", subPage: "operating_vehicles" },
+      FL2: { code: "FL2", group: "fleet", page: "fleet-shell", subPage: "operating_vehicles" },
+      FL3: { code: "FL3", group: "fleet", page: "fleet-shell", subPage: "capacity_review" },
+      FL4: { code: "FL4", group: "fleet", page: "fleet-shell", subPage: "vehicle_usage_history" },
+      FL5: { code: "FL5", group: "fleet", page: "fleet-shell", subPage: "exceptions" },
+      FL6: { code: "FL6", group: "fleet", page: "fleet-shell", subPage: "vehicle_assignments" }
+    };
+  }
+
+  function getPerformanceRoutes() {
+    if (PerformanceViewModel && typeof PerformanceViewModel.getSidebarRouteMap === "function") {
+      return PerformanceViewModel.getSidebarRouteMap();
+    }
+    return {
+      PF1: { code: "PF1", group: "performance", page: "performance-shell", subPage: "performance_overview" },
+      PF2: { code: "PF2", group: "performance", page: "performance-shell", subPage: "overall_performance" },
+      PF3: { code: "PF3", group: "performance", page: "performance-shell", subPage: "daily_performance" },
+      PF4: { code: "PF4", group: "performance", page: "performance-shell", subPage: "vda" },
+      PF5: { code: "PF5", group: "performance", page: "performance-shell", subPage: "face_verification" },
+      PF6: { code: "PF6", group: "performance", page: "performance-shell", subPage: "delivery_experience" },
+      PF7: { code: "PF7", group: "performance", page: "performance-shell", subPage: "validity_results" },
+      PF8: { code: "PF8", group: "performance", page: "performance-shell", subPage: "issues" }
+    };
+  }
+
+  function getArchiveRoutes() {
+    return {
+      AR1: { code: "AR1", group: "archive", page: "archive-shell", subPage: "archive_overview" },
+      AR2: { code: "AR2", group: "archive", page: "archive-shell", subPage: "monthly_archive_preview" },
+      AR3: { code: "AR3", group: "archive", page: "archive-shell", subPage: "archive_runs" },
+      AR4: { code: "AR4", group: "archive", page: "archive-shell", subPage: "archive_issues" },
+      AR5: { code: "AR5", group: "archive", page: "archive-shell", subPage: "archive_source_traceability" }
     };
   }
 

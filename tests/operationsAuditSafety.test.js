@@ -20,7 +20,7 @@ function test(name, handler) {
 
 const results = [];
 
-results.push(test("route linking, filters, notification navigation, and import drawer reads stay phantom", () => {
+results.push(test("route linking, filters, notification navigation, dropdowns, drawers, and import navigation stay phantom", () => {
   const records = [
     {
       action: "assignment_updated",
@@ -49,6 +49,20 @@ results.push(test("route linking, filters, notification navigation, and import d
       entityId: "batch-810-1",
       reason: "Opened import source batch drawer",
       source: "drawer_open"
+    },
+    {
+      action: "assignment_updated",
+      entity: "assignments",
+      entityId: "assignment-810-3",
+      reason: "Opened row action dropdown",
+      source: "dropdown_open"
+    },
+    {
+      action: "import_batch_saved",
+      entity: "importBatches",
+      entityId: "batch-810-2",
+      reason: "Focused import source batch from operations row",
+      source: "navigation_open"
     }
   ];
 
@@ -62,7 +76,9 @@ results.push(test("operations cleanup helpers remain UI-only with no direct audi
   [
     "function handleLinkedOperationsAction(action, user, assignmentRow)",
     "function renderActionButtonsSafe(row, user)",
-    "function buildDropdownActionsSafe(row, user)"
+    "function buildDropdownActionsSafe(row, user)",
+    "function focusImportSourceBatch(user, assignmentRow)",
+    "function resolveImportSourceBatchContext(user, assignmentRow)"
   ].forEach((needle) => assert.ok(operationsUi.includes(needle), needle));
 
   assert.ok(!operationsUi.includes("createAuditEvent("));

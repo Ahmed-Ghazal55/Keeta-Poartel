@@ -84,13 +84,14 @@
       label: "الأداء والصلاحية",
       icon: "PF",
       items: [
-        { label: "الأداء اليومي", page: "performance-shell", code: "PF1" },
+        { label: "نظرة عامة", page: "performance-shell", code: "PF1" },
         { label: "الأداء الكلي", page: "performance-shell", code: "PF2" },
-        { label: "VDA", page: "vda", code: "PF3" },
-        { label: "VDA_kEETA", page: "performance-shell", code: "PF4" },
-        { label: "التحقق من الوجه", page: "face", code: "PF5" },
-        { label: "تجربة التوصيل", page: "delivery", code: "PF6" },
-        { label: "يحتاج متابعة", page: "validation", code: "PF7" }
+        { label: "الأداء اليومي", page: "performance-shell", code: "PF3" },
+        { label: "VDA", page: "performance-shell", code: "PF4" },
+        { label: "التحقق من الوجه", page: "performance-shell", code: "PF5" },
+        { label: "تجربة التوصيل", page: "performance-shell", code: "PF6" },
+        { label: "نتائج الصلاحية", page: "performance-shell", code: "PF7" },
+        { label: "المشكلات", page: "performance-shell", code: "PF8" }
       ]
     },
     {
@@ -2356,10 +2357,18 @@
     if (byId("uiDrawerBody")) {
       byId("uiDrawerBody").innerHTML = bodyHtml;
     }
+    if (byId("uiDetailDrawer")) {
+      byId("uiDetailDrawer").setAttribute("aria-hidden", "false");
+      byId("uiDetailDrawer").setAttribute("data-drawer-state", "open");
+    }
     document.body.classList.add("ui-drawer-open");
   }
 
   function closeDrawer() {
+    if (byId("uiDetailDrawer")) {
+      byId("uiDetailDrawer").setAttribute("aria-hidden", "true");
+      byId("uiDetailDrawer").setAttribute("data-drawer-state", "closed");
+    }
     document.body.classList.remove("ui-drawer-open");
   }
 

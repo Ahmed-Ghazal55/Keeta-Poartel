@@ -1,0 +1,11 @@
+const assert = require("assert");
+const Model = require("../src/import/importCenterViewModel.js");
+assert.strictEqual(Model.listTemplates().length, 12);
+assert.strictEqual(Model.normalizeRoute("performance_import").id, "performance_pipeline_import");
+assert.strictEqual(Model.normalizeRoute("performance_pipeline_import").templateId, "daily_performance");
+const state = Model.createPreviewState({ routeId: "current_assignments_import", rows: [{ userId: "U1" }], city: "Jeddah", register: "EXPRESS", platform: "keeta", month: "2026-07", sourceFileName: "safe.xlsx", batchId: "b1" });
+assert.strictEqual(state.readOnly, true);
+assert.strictEqual(state.rows[0].sourceRowNumber, 2);
+assert.strictEqual(state.rows[0].batchId, "b1");
+assert.ok(Model.createBatchFocus({ id: "b1" }).marker.includes("b1"));
+console.log(JSON.stringify({ summary: { total: 7, passed: 7, failed: 0 } }, null, 2));

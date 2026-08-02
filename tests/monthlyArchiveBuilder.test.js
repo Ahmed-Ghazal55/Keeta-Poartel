@@ -1,0 +1,6 @@
+const assert = require("assert"), Builder = require("../src/archive/monthlyArchiveBuilder");
+const scope={register:"EXPRESS",city:"Jeddah",platform:"keeta",month:"2026-07"};
+const collections={dashboardUsers:[{id:"u",userId:"u",...scope}],assignments:[{id:"a",assignmentId:"a",userId:"u",ownerIqama:"11",actualRiderIqama:"22",registeredVehicleSerial:"car",actualVehicleSerial:"bike",...scope}],hrProfiles:[{id:"h",iqama:"11",...scope}],externalRiders:[{id:"e",iqama:"22",...scope}],performanceDaily:[{id:"p",assignmentId:"a",actualRiderIqama:"22",date:"2026-07-10",...scope}],validityResults:[{id:"v",assignmentId:"a",actualRiderIqama:"22",...scope}],importBatches:[{id:"b",batchId:"b",sourceFileName:"demo.xlsx",...scope}]};
+const before=JSON.stringify(collections), run=Builder.buildPreview(collections,scope,{sourceProfile:"test"});
+assert.equal(run.status,"previewed"); assert.equal(run.items.assignments[0].actualRiderSource,"external"); assert.equal(run.items.assignments[0].ownerIqama,"11"); assert.equal(run.items.assignments[0].actualVehicleSerial,"bike"); assert.equal(JSON.stringify(collections),before); assert.deepEqual(run.sourceBatchIds,["b"]);
+console.log("monthlyArchiveBuilder: 6/6 passed");

@@ -20,11 +20,11 @@
     var actions = normalizeActions(options.actions || []);
     return [
       '<div class="ui-action-dropdown" data-action-dropdown="' + escapeHtml(dropdownId) + '">',
-      '  <button type="button" class="ui-action-dropdown__trigger" data-action-dropdown-trigger="' + escapeHtml(dropdownId) + '" aria-haspopup="menu" aria-expanded="false">',
+      '  <button type="button" class="ui-action-dropdown__trigger" data-action-dropdown-trigger="' + escapeHtml(dropdownId) + '" data-action-dropdown-open="false" aria-haspopup="menu" aria-expanded="false">',
       "    <span>" + escapeHtml(label) + " ▾</span>",
       "  </button>",
       '  <template data-action-dropdown-template="' + escapeHtml(dropdownId) + '">',
-      '    <div class="ui-action-dropdown__menu" role="menu" data-action-dropdown-menu="' + escapeHtml(dropdownId) + '">',
+      '    <div class="ui-action-dropdown__menu" role="menu" data-action-dropdown-menu="' + escapeHtml(dropdownId) + '" data-action-dropdown-menu-state="closed">',
       actions.map(function (action) {
         return renderActionItem(action, dropdownId, options.contextData || {});
       }).join(""),
@@ -85,7 +85,10 @@
           window.addEventListener("resize", function () {
             closeMenu(doc);
           });
-          window.addEventListener("scroll", function () {
+          window.addEventListener("scroll", function (event) {
+            if (ACTIVE_MENU && event && event.target && ACTIVE_MENU.contains && ACTIVE_MENU.contains(event.target)) {
+              return;
+            }
             closeMenu(doc);
           }, true);
         }
@@ -155,6 +158,12 @@
     ACTIVE_MENU = host.firstElementChild;
     ACTIVE_TRIGGER = trigger;
     trigger.setAttribute("aria-expanded", "true");
+    trigger.setAttribute("data-action-dropdown-open", "true");
+    host.setAttribute("data-action-dropdown-state", "open");
+    host.setAttribute("data-open-dropdown-id", dropdownId);
+    if (ACTIVE_MENU) {
+      ACTIVE_MENU.setAttribute("data-action-dropdown-menu-state", "open");
+    }
     positionMenu(ACTIVE_MENU, trigger);
   }
 
@@ -167,7 +176,10 @@
     host.innerHTML = "";
     if (ACTIVE_TRIGGER) {
       ACTIVE_TRIGGER.setAttribute("aria-expanded", "false");
+      ACTIVE_TRIGGER.setAttribute("data-action-dropdown-open", "false");
     }
+    host.setAttribute("data-action-dropdown-state", "closed");
+    host.removeAttribute("data-open-dropdown-id");
     ACTIVE_MENU = null;
     ACTIVE_TRIGGER = null;
   }
@@ -180,6 +192,8 @@
     menu.style.position = "fixed";
     menu.style.visibility = "hidden";
     menu.style.inset = "0 auto auto 0";
+    menu.style.maxHeight = "";
+    menu.style.overflowY = "";
     var menuRect = menu.getBoundingClientRect();
     var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
     var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
@@ -194,6 +208,11 @@
     if (top + menuRect.height > viewportHeight - 12) {
       top = Math.max(12, rect.top - menuRect.height - 8);
     }
+    var availableHeightBelow = Math.max(120, Math.floor(viewportHeight - rect.bottom - 20));
+    var availableHeightAbove = Math.max(120, Math.floor(rect.top - 20));
+    var availableHeight = top >= rect.bottom ? availableHeightBelow : availableHeightAbove;
+    menu.style.maxHeight = String(Math.max(180, Math.min(availableHeight, viewportHeight - 24))) + "px";
+    menu.style.overflowY = "auto";
     menu.style.left = String(Math.round(left)) + "px";
     menu.style.top = String(Math.round(top)) + "px";
     menu.style.visibility = "visible";
@@ -217,6 +236,7 @@
     node = doc.createElement("div");
     node.id = ROOT_ID;
     node.className = "ui-action-dropdown-root";
+    node.setAttribute("data-action-dropdown-state", "closed");
     doc.body.appendChild(node);
     return node;
   }

@@ -180,7 +180,38 @@
     if (dataset.module !== "operations") {
       return;
     }
-    handleAction(detail.actionId, dataset.dashboardUserId, dataset.riderId);
+    handleAction(
+      detail.actionId,
+      dataset.dashboardUserId,
+      dataset.riderId,
+      buildActionContextFromDataset(dataset)
+    );
+  }
+
+  function buildActionContextFromDataset(dataset) {
+    dataset = dataset || {};
+    return {
+      actualRiderId: normalizeText(dataset.actualRiderId || dataset.currentRiderId || dataset.riderId),
+      actualRiderIqama: normalizeText(dataset.actualRiderIqama || dataset.currentRiderIqama),
+      actualRiderName: normalizeText(dataset.actualRiderName || dataset.currentRiderName),
+      actualVehicle: normalizeText(dataset.actualVehicle),
+      actualVehicleSummary: normalizeText(dataset.actualVehicleSummary),
+      assignmentId: normalizeText(dataset.assignmentId || dataset.currentAssignmentId),
+      city: normalizeText(dataset.city),
+      currentAssignmentId: normalizeText(dataset.currentAssignmentId || dataset.assignmentId),
+      currentRiderId: normalizeText(dataset.currentRiderId || dataset.riderId),
+      dashboardUserId: normalizeText(dataset.dashboardUserId || dataset.userId),
+      dashboardVehicleSummary: normalizeText(dataset.dashboardVehicleSummary),
+      ownerIqama: normalizeText(dataset.ownerIqama),
+      ownerName: normalizeText(dataset.ownerName),
+      platform: normalizeText(dataset.platform),
+      plateNumber: normalizeText(dataset.plateNumber),
+      register: normalizeText(dataset.register),
+      riderSource: normalizeText(dataset.riderSource),
+      userId: normalizeText(dataset.userId || dataset.dashboardUserId),
+      vehicleSerial: normalizeText(dataset.vehicleSerial),
+      vehicleUsageSummary: normalizeText(dataset.vehicleUsageSummary)
+    };
   }
 
   function handleShellRouteChange(event) {
@@ -1775,7 +1806,10 @@
       return renderCurrentAssignmentsTable(model.filteredCurrentAssignmentRows || [], model.user);
     }
     if (isDashboardUsersTab(state.activeTab)) {
-      return renderDashboardUsersTable(model.dashboardUsers || [], model.user);
+      return renderDashboardUsersTable(
+        attachCurrentAssignmentActionContext(model.dashboardUsers || [], model.currentAssignmentRows || []),
+        model.user
+      );
     }
     return renderEmptyState("لا توجد صفحة تشغيل مطابقة لهذا التبويب حاليا.");
   }
@@ -2008,12 +2042,31 @@
     return renderActionButtonsSafe(row, user);
     if (ActionDropdown && typeof ActionDropdown.renderActionDropdown === "function") {
       return ActionDropdown.renderActionDropdown({
-        dropdownId: "ops_" + escapeHtml(row.dashboardUserId || row.userId || row.id || "row"),
+        dropdownId: escapeHtml(buildActionDropdownId(row)),
         label: "العمليات",
         contextData: {
+          "actual-rider-id": row.actualRiderId || row.currentRiderId || "",
+          "actual-rider-iqama": row.actualRiderIqama || row.currentRiderIqama || "",
+          "actual-rider-name": row.actualRiderName || row.currentRiderName || "",
+          "actual-vehicle": row.actualVehicle || "",
+          "actual-vehicle-summary": row.actualVehicleSummary || "",
+          "assignment-id": row.assignmentId || row.currentAssignmentId || "",
+          city: row.city || "",
+          "current-assignment-id": row.currentAssignmentId || row.assignmentId || "",
+          "current-rider-id": row.currentRiderId || row.actualRiderId || "",
           module: "operations",
           "dashboard-user-id": row.dashboardUserId || row.userId || "",
-          "rider-id": row.actualRiderId || row.currentRiderId || ""
+          "dashboard-vehicle-summary": row.dashboardVehicleSummary || "",
+          "owner-iqama": row.ownerIqama || "",
+          "owner-name": row.ownerName || row.fullName || "",
+          platform: row.platform || "",
+          "plate-number": row.plateNumber || "",
+          register: row.register || "",
+          "rider-id": row.actualRiderId || row.currentRiderId || "",
+          "rider-source": row.riderSource || "",
+          "user-id": row.userId || row.dashboardUserId || "",
+          "vehicle-serial": row.vehicleSerial || "",
+          "vehicle-usage-summary": row.vehicleUsageSummary || ""
         },
         actions: buildDropdownActions(row, user)
       });
@@ -2066,6 +2119,15 @@
     };
   }
 
+  function buildActionDropdownId(row) {
+    row = row || {};
+    return [
+      "ops",
+      normalizeText(state.activeTab || "dashboard_users"),
+      normalizeText(row.assignmentId || row.currentAssignmentId || row.dashboardUserId || row.userId || row.id || "row")
+    ].filter(Boolean).join("_");
+  }
+
   function renderActionButton(action, label, row, allowed, deniedReason) {
     return '<button type="button" class="ops-action-btn' + (allowed ? "" : " is-disabled") + '"' +
       ' data-ops-action="' + escapeHtml(action) + '"' +
@@ -2078,12 +2140,31 @@
   function renderActionButtonsSafe(row, user) {
     if (ActionDropdown && typeof ActionDropdown.renderActionDropdown === "function") {
       return ActionDropdown.renderActionDropdown({
-        dropdownId: "ops_" + escapeHtml(row.dashboardUserId || row.userId || row.id || "row"),
+        dropdownId: escapeHtml(buildActionDropdownId(row)),
         label: "العمليات",
         contextData: {
+          "actual-rider-id": row.actualRiderId || row.currentRiderId || "",
+          "actual-rider-iqama": row.actualRiderIqama || row.currentRiderIqama || "",
+          "actual-rider-name": row.actualRiderName || row.currentRiderName || "",
+          "actual-vehicle": row.actualVehicle || "",
+          "actual-vehicle-summary": row.actualVehicleSummary || "",
+          "assignment-id": row.assignmentId || row.currentAssignmentId || "",
+          city: row.city || "",
+          "current-assignment-id": row.currentAssignmentId || row.assignmentId || "",
+          "current-rider-id": row.currentRiderId || row.actualRiderId || "",
           module: "operations",
           "dashboard-user-id": row.dashboardUserId || row.userId || "",
-          "rider-id": row.actualRiderId || row.currentRiderId || ""
+          "dashboard-vehicle-summary": row.dashboardVehicleSummary || "",
+          "owner-iqama": row.ownerIqama || "",
+          "owner-name": row.ownerName || row.fullName || "",
+          platform: row.platform || "",
+          "plate-number": row.plateNumber || "",
+          register: row.register || "",
+          "rider-id": row.actualRiderId || row.currentRiderId || "",
+          "rider-source": row.riderSource || "",
+          "user-id": row.userId || row.dashboardUserId || "",
+          "vehicle-serial": row.vehicleSerial || "",
+          "vehicle-usage-summary": row.vehicleUsageSummary || ""
         },
         actions: buildDropdownActionsSafe(row, user)
       });
@@ -2132,6 +2213,70 @@
       ((row.actualRiderId || row.currentRiderId) ? ' data-rider-id="' + escapeHtml(row.actualRiderId || row.currentRiderId) + '"' : "") +
       (allowed ? "" : ' disabled title="' + escapeHtml(deniedReason) + '"') +
       ">" + escapeHtml(label) + "</button>";
+  }
+
+  function attachCurrentAssignmentActionContext(rows, currentAssignmentRows) {
+    var assignmentByUserId = {};
+    (currentAssignmentRows || []).forEach(function (item) {
+      var key = normalizeText(item && (item.dashboardUserId || item.courierId));
+      if (!key) {
+        return;
+      }
+      assignmentByUserId[key] = item;
+    });
+    return (rows || []).map(function (row) {
+      var key = normalizeText(row && (row.dashboardUserId || row.userId || row.courierId));
+      var assignmentRow = key ? assignmentByUserId[key] : null;
+      if (!assignmentRow) {
+        return row;
+      }
+      return mergeObjects({}, row, {
+        actualRiderId: assignmentRow.actualRiderId || row.actualRiderId || row.currentRiderId || "",
+        actualRiderIqama: assignmentRow.actualRiderIqama || row.actualRiderIqama || row.currentRiderIqama || "",
+        actualRiderName: assignmentRow.actualRiderName || row.actualRiderName || row.currentRiderName || "",
+        actualVehicle: assignmentRow.actualVehicle || row.actualVehicle || "",
+        actualVehicleSummary: assignmentRow.actualVehicleSummary || row.actualVehicleSummary || "",
+        assignmentId: assignmentRow.assignmentId || row.assignmentId || row.currentAssignmentId || "",
+        currentAssignmentId: assignmentRow.currentAssignmentId || row.currentAssignmentId || row.assignmentId || "",
+        currentRiderId: assignmentRow.currentRiderId || row.currentRiderId || assignmentRow.actualRiderId || "",
+        currentRiderIqama: assignmentRow.currentRiderIqama || row.currentRiderIqama || assignmentRow.actualRiderIqama || "",
+        currentRiderName: assignmentRow.currentRiderName || row.currentRiderName || assignmentRow.actualRiderName || "",
+        dashboardVehicleSummary: assignmentRow.dashboardVehicleSummary || row.dashboardVehicleSummary || "",
+        riderSource: assignmentRow.riderSource || row.riderSource || row.actualRiderSource || "",
+        sourceBatchId: assignmentRow.sourceBatchId || row.sourceBatchId || row.lastSeenImportBatchId || "",
+        sourceImportBatchId: assignmentRow.sourceImportBatchId || row.sourceImportBatchId || row.sourceBatchId || row.lastSeenImportBatchId || "",
+        vehicleCompanyStatus: assignmentRow.vehicleCompanyStatus || row.vehicleCompanyStatus || "",
+        vehicleUsageSummary: assignmentRow.vehicleUsageSummary || row.vehicleUsageSummary || ""
+      });
+    });
+  }
+
+  function buildDropdownActionsSafe(row, user) {
+    var linkedRiderId = row.actualRiderId || row.currentRiderId || "";
+    var riderArchiveAllowed = !!linkedRiderId && (!user || RBAC.canPerform(user, "archive.view"));
+    var assignAllowed = (!user || RBAC.canPerform(user, "operations.assign")) && row.canAssign !== false;
+    var swapAllowed = (!user || RBAC.canPerform(user, "operations.swap")) && row.canSwap !== false;
+    var stopAllowed = (!user || RBAC.canPerform(user, "operations.terminate")) && row.canStop !== false;
+    var dismissAllowed = (!user || RBAC.canPerform(user, "operations.terminate")) && row.canDismiss !== false;
+    return [
+      dropdownAction("linked-dashboard-user", "فتح يوزر الداشبورد", !!(row.dashboardUserId || row.userId), (row.dashboardUserId || row.userId) ? "" : "لا يوجد يوزر داشبورد مرتبط", false),
+      dropdownAction("linked-current-assignment", "فتح التسكين الحالي", !!(row.dashboardUserId || row.userId), (row.dashboardUserId || row.userId) ? "" : "لا يوجد تسكين مرتبط", false),
+      dropdownAction("details", "عرض التفاصيل", !user || RBAC.canPerform(user, "operations.view"), "", false),
+      dropdownAction("assign", "تسكين لأول مرة", assignAllowed, assignAllowed ? "" : "الحالة الحالية لا تسمح بالتسكين", false),
+      dropdownAction("swap", "تبديل مندوب", swapAllowed, swapAllowed ? "" : "الحالة الحالية لا تسمح بالتبديل", false),
+      dropdownAction("stop", "إيقاف بدون بديل", stopAllowed, stopAllowed ? "" : "الحالة الحالية لا تسمح بالإيقاف", false),
+      dropdownAction("terminate", "إقالة اليوزر", dismissAllowed, dismissAllowed ? "" : "الحالة الحالية لا تسمح بالإقالة", true),
+      dropdownAction("history", "عرض سجل الحركة", true, "", false),
+      dropdownAction("actual-rider-details", "عرض المندوب الفعلي", !!(row.actualRiderIqama || linkedRiderId), linkedRiderId || row.actualRiderIqama ? "" : "لا يوجد مندوب فعلي حاليا", false),
+      dropdownAction("owner-details", "عرض صاحب اليوزر", !!row.ownerIqama, row.ownerIqama ? "" : "لا توجد إقامة مالك", false),
+      dropdownAction("registered-vehicle-details", "عرض المركبة المسجلة", !!(row.dashboardVehicleSummary || row.vehicleSerial || row.plateNumber), "لا توجد مركبة مسجلة مرتبطة", false),
+      dropdownAction("actual-vehicle-details", "عرض المركبة الفعلية", !!(row.actualVehicleSummary || row.actualVehicle || row.vehicleUsageSummary), "لا توجد مركبة فعلية مرتبطة", false),
+      dropdownAction("vehicle-usage-history", "عرض سجل استخدام المركبة", !!(row.actualVehicleSummary || row.vehicleUsageSummary || row.vehicleSerial), "لا توجد بيانات استخدام مركبة", false),
+      dropdownAction("resolver", "فتح Resolver", true, "", false),
+      dropdownAction("source-batch", "فتح Import Source Batch", !!(row.sourceBatchId || row.lastSeenImportBatchId), "لا يوجد Batch مرتبط", false),
+      dropdownAction("copy", "نسخ User ID", true, "", false),
+      dropdownAction("rider-archive", "أرشيف المندوب", riderArchiveAllowed, linkedRiderId ? "يحتاج صلاحية archive.view" : "لا يوجد مندوب مرتبط", false)
+    ];
   }
 
   function renderSwapsTable(rows) {
@@ -2301,10 +2446,115 @@
     return true;
   }
 
-  function handleAction(action, dashboardUserId, riderId) {
+  function parseVehicleSummaryFocus(summary) {
+    var parts = String(summary || "").split(" / ").map(function (value) {
+      return normalizeText(value);
+    }).filter(Boolean);
+    return {
+      plateNumber: parts.length >= 3 ? parts[2] : "",
+      vehicleLabel: parts[0] || "",
+      vehicleSerial: parts.length >= 2 ? parts[1] : ""
+    };
+  }
+
+  function openOwnerProfileFromOperations(user, assignmentRow) {
+    var sourceRow = assignmentRow || user || {};
+    if (Portal.HrEntryPoint && typeof Portal.HrEntryPoint.focusProfile === "function") {
+      return Portal.HrEntryPoint.focusProfile({
+        dashboardUserId: sourceRow.dashboardUserId || sourceRow.userId || "",
+        ownerIqama: sourceRow.ownerIqama || "",
+        platform: sourceRow.platform || ""
+      }, {
+        code: "HR1",
+        subPage: "hr_master"
+      });
+    }
+    openDrawer("بيانات صاحب اليوزر", renderOwnerDetailsDrawer(user));
+    return { found: false, mode: "fallback_drawer" };
+  }
+
+  function openActualRiderProfileFromOperations(user, assignmentRow) {
+    var sourceRow = assignmentRow || user || {};
+    var riderSource = normalizeText(sourceRow.riderSource).toLowerCase();
+    if (riderSource === "external" && Portal.HrEntryPoint && typeof Portal.HrEntryPoint.focusExternalRider === "function") {
+      return Portal.HrEntryPoint.focusExternalRider({
+        actualRiderIqama: sourceRow.actualRiderIqama || "",
+        query: sourceRow.actualRiderName || ""
+      });
+    }
+    if (Portal.HrEntryPoint && typeof Portal.HrEntryPoint.focusProfile === "function") {
+      return Portal.HrEntryPoint.focusProfile({
+        actualRiderIqama: sourceRow.actualRiderIqama || "",
+        dashboardUserId: sourceRow.dashboardUserId || sourceRow.userId || "",
+        platform: sourceRow.platform || ""
+      }, {
+        code: "HR1",
+        subPage: "active_hr_riders"
+      });
+    }
+    openDrawer("بيانات المندوب الفعلي", renderActualRiderDetailsDrawer(user));
+    return { found: false, mode: "fallback_drawer" };
+  }
+
+  function openRegisteredVehicleFromOperations(user, assignmentRow) {
+    var sourceRow = assignmentRow || user || {};
+    var summaryFocus = parseVehicleSummaryFocus(sourceRow.dashboardVehicleSummary);
+    if (Portal.FleetEntryPoint && typeof Portal.FleetEntryPoint.focusVehicle === "function") {
+      return Portal.FleetEntryPoint.focusVehicle({
+        assignmentId: sourceRow.assignmentId || "",
+        dashboardUserId: sourceRow.dashboardUserId || sourceRow.userId || "",
+        plateNumber: summaryFocus.plateNumber || sourceRow.plateNumber || "",
+        vehicleSerial: summaryFocus.vehicleSerial || sourceRow.vehicleSerial || ""
+      }, {
+        code: "FL1",
+        drawerAction: "details",
+        subPage: "operating_vehicles"
+      });
+    }
+    return { found: false, mode: "missing_entry_point" };
+  }
+
+  function openActualVehicleFromOperations(user, assignmentRow) {
+    var sourceRow = assignmentRow || user || {};
+    var summaryFocus = parseVehicleSummaryFocus(sourceRow.actualVehicleSummary || sourceRow.vehicleUsageSummary);
+    if (Portal.FleetEntryPoint && typeof Portal.FleetEntryPoint.focusVehicle === "function") {
+      return Portal.FleetEntryPoint.focusVehicle({
+        actualRiderIqama: sourceRow.actualRiderIqama || "",
+        assignmentId: sourceRow.assignmentId || "",
+        dashboardUserId: sourceRow.dashboardUserId || sourceRow.userId || "",
+        plateNumber: summaryFocus.plateNumber || sourceRow.plateNumber || "",
+        vehicleSerial: summaryFocus.vehicleSerial || sourceRow.vehicleSerial || "",
+        vehicleType: sourceRow.actualVehicle || summaryFocus.vehicleLabel || ""
+      }, {
+        code: "FL1",
+        drawerAction: "details",
+        subPage: "operating_vehicles"
+      });
+    }
+    return { found: false, mode: "missing_entry_point" };
+  }
+
+  function openVehicleUsageHistoryFromOperations(user, assignmentRow) {
+    var sourceRow = assignmentRow || user || {};
+    var summaryFocus = parseVehicleSummaryFocus(sourceRow.actualVehicleSummary || sourceRow.vehicleUsageSummary || sourceRow.dashboardVehicleSummary);
+    if (Portal.FleetEntryPoint && typeof Portal.FleetEntryPoint.focusVehicleUsageHistory === "function") {
+      return Portal.FleetEntryPoint.focusVehicleUsageHistory({
+        actualRiderIqama: sourceRow.actualRiderIqama || "",
+        assignmentId: sourceRow.assignmentId || "",
+        dashboardUserId: sourceRow.dashboardUserId || sourceRow.userId || "",
+        plateNumber: summaryFocus.plateNumber || sourceRow.plateNumber || "",
+        vehicleSerial: summaryFocus.vehicleSerial || sourceRow.vehicleSerial || "",
+        vehicleType: sourceRow.actualVehicle || summaryFocus.vehicleLabel || ""
+      });
+    }
+    return { found: false, mode: "missing_entry_point" };
+  }
+
+  function handleAction(action, dashboardUserId, riderId, actionContext) {
     var user = findDashboardUser(dashboardUserId);
     var assignmentRow = findCurrentAssignmentRow(dashboardUserId);
-    if (handleLinkedOperationsAction(action, user, assignmentRow)) {
+    var linkedRow = mergeObjects({}, user || {}, assignmentRow || {}, actionContext || {});
+    if (handleLinkedOperationsAction(action, user, linkedRow)) {
       return;
     }
     if (action === "copy") {
@@ -2312,7 +2562,7 @@
       toast("تم نسخ User ID");
       return;
     }
-    if (!user && !assignmentRow) {
+    if (!user && !assignmentRow && !normalizeText(linkedRow.dashboardUserId || linkedRow.assignmentId || linkedRow.ownerIqama || linkedRow.actualRiderIqama)) {
       toast("تعذر العثور على اليوزر المطلوب.", "error");
       return;
     }
@@ -2383,7 +2633,11 @@
     }
     if (action === "source-batch") {
       state.drawerMode = "details";
-      openDrawer("Import Source Batch", renderImportSourceBatchDrawer(user));
+      if (focusImportSourceBatch(user, assignmentRow)) {
+        toast("ØªÙ… ÙØªØ­ Ù…Ø±ÙƒØ² Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø¹Ù„Ù‰ Ø§Ù„Ø¯ÙØ¹Ø© Ø§Ù„Ù…Ø±ØªØ¨Ø·Ø©.", "info");
+        return;
+      }
+      openDrawer("Import Source Batch", renderImportSourceBatchDrawer(user, assignmentRow));
       return;
     }
     if (action === "rider-archive" && riderId) {
@@ -2419,6 +2673,112 @@
       return;
     }
     openDrawer("تفاصيل اليوزر", renderDetailsDrawer(user));
+  }
+
+  function handleAction(action, dashboardUserId, riderId, actionContext) {
+    var user = findDashboardUser(dashboardUserId);
+    var assignmentRow = findCurrentAssignmentRow(dashboardUserId);
+    var linkedRow = mergeObjects({}, user || {}, assignmentRow || {}, actionContext || {});
+    if (handleLinkedOperationsAction(action, user, linkedRow)) {
+      return;
+    }
+    if (action === "copy") {
+      copyText(dashboardUserId || "");
+      toast("تم نسخ User ID");
+      return;
+    }
+    if (!user && !assignmentRow && !normalizeText(linkedRow.dashboardUserId || linkedRow.assignmentId || linkedRow.ownerIqama || linkedRow.actualRiderIqama)) {
+      toast("تعذر العثور على اليوزر المطلوب.", "error");
+      return;
+    }
+    if (action === "details") {
+      state.drawerMode = "details";
+      openDrawer(
+        isCurrentAssignmentsTab(state.activeTab) ? "تفاصيل التسكين الحالي" : "تفاصيل اليوزر",
+        isCurrentAssignmentsTab(state.activeTab) && assignmentRow
+          ? renderCurrentAssignmentDetailsDrawer(assignmentRow)
+          : renderDetailsDrawer(user)
+      );
+      return;
+    }
+    if (action === "assign") {
+      state.drawerMode = "assign";
+      state.drawerSearch = "";
+      primeDrawerDraft("assign", user, {
+        date: today(),
+        reason: ""
+      });
+      openDrawer("تسكين مندوب", renderAssignDrawer(user));
+      return;
+    }
+    if (action === "swap") {
+      state.drawerMode = "swap";
+      state.drawerSearch = "";
+      primeDrawerDraft("swap", user, {
+        date: today(),
+        reason: ""
+      });
+      openDrawer("تبديل مندوب", renderSwapDrawer(user));
+      return;
+    }
+    if (action === "stop") {
+      state.drawerMode = "termination";
+      openDrawer("إيقاف بدون بديل", renderTerminationDrawer(user, "stop_without_replacement"));
+      return;
+    }
+    if (action === "terminate") {
+      state.drawerMode = "termination";
+      openDrawer("نقل إلى الإقالات", renderTerminationDrawer(user, "terminate"));
+      return;
+    }
+    if (action === "history") {
+      state.drawerMode = "details";
+      openDrawer(
+        isCurrentAssignmentsTab(state.activeTab) && assignmentRow ? "السجل التشغيلي للتسكين" : "سجل حركة اليوزر",
+        isCurrentAssignmentsTab(state.activeTab) && assignmentRow
+          ? renderCurrentAssignmentHistoryDrawer(assignmentRow)
+          : renderDashboardHistoryDrawer(user)
+      );
+      return;
+    }
+    if (action === "actual-rider-details") {
+      openActualRiderProfileFromOperations(user, linkedRow);
+      return;
+    }
+    if (action === "owner-details") {
+      openOwnerProfileFromOperations(user, linkedRow);
+      return;
+    }
+    if (action === "registered-vehicle-details") {
+      openRegisteredVehicleFromOperations(user, linkedRow);
+      return;
+    }
+    if (action === "actual-vehicle-details") {
+      openActualVehicleFromOperations(user, linkedRow);
+      return;
+    }
+    if (action === "vehicle-usage-history") {
+      openVehicleUsageHistoryFromOperations(user, linkedRow);
+      return;
+    }
+    if (action === "resolver") {
+      state.drawerMode = "details";
+      openDrawer("Resolver", renderResolverInspectorDrawer(user));
+      return;
+    }
+    if (action === "source-batch") {
+      state.drawerMode = "details";
+      if (focusImportSourceBatch(user, assignmentRow)) {
+        toast("تم فتح مركز الاستيراد على الدفعة المرتبطة.", "info");
+        return;
+      }
+      openDrawer("Import Source Batch", renderImportSourceBatchDrawer(user, assignmentRow));
+      return;
+    }
+    if (action === "rider-archive" && riderId) {
+      state.drawerMode = "details";
+      openDrawer("أرشيف المندوب", renderRiderArchiveDrawer(riderId));
+    }
   }
 
   function renderDetailsDrawer(user) {
@@ -3022,8 +3382,9 @@
     ]);
   }
 
-  function renderImportSourceBatchDrawer(user) {
-    var batchId = user.sourceBatchId || user.lastSeenImportBatchId || "";
+  function renderImportSourceBatchDrawer(user, assignmentRow) {
+    var sourceContext = resolveImportSourceBatchContext(user, assignmentRow);
+    var batchId = sourceContext.batchId;
     var batch = getCollection("importBatches").filter(function (item) {
       return String(item.id || "") === String(batchId);
     })[0] || null;
@@ -3033,13 +3394,47 @@
     return renderMiniCard("Import Source Batch", [
       miniRow("Batch ID", batch.id || "-"),
       miniRow("الملف", batch.sourceFileName || batch.fileName || "-"),
-      miniRow("Template", batch.templateId || "-"),
-      miniRow("Import Type", batch.type || batch.importType || "-"),
+      miniRow("Template", batch.templateId || sourceContext.templateId || "-"),
+      miniRow("Import Type", batch.type || batch.importType || sourceContext.importType || "-"),
       miniRow("المدينة", batch.city || "-"),
       miniRow("السجل", ImportTypes.registerLabel(batch.register) || batch.register || "-"),
       miniRow("الحالة", batch.status || "-"),
       miniRow("السجلات المحفوظة", String(batch.savedRecordCount || 0))
     ]);
+  }
+
+  function focusImportSourceBatch(user, assignmentRow) {
+    var sourceContext = resolveImportSourceBatchContext(user, assignmentRow);
+    if (!sourceContext.batchId || !Portal.ImportEntryPoint || typeof Portal.ImportEntryPoint.focusBatch !== "function") {
+      return false;
+    }
+    return Portal.ImportEntryPoint.focusBatch(sourceContext.batchId, {
+      city: sourceContext.city,
+      importType: sourceContext.importType,
+      register: sourceContext.register,
+      routeId: "operations_source_batch",
+      routeLabel: "Import Source Batch",
+      targetEntity: sourceContext.targetEntity,
+      templateId: sourceContext.templateId
+    });
+  }
+
+  function resolveImportSourceBatchContext(user, assignmentRow) {
+    var source = assignmentRow || user || {};
+    return {
+      batchId: normalizeText(
+        source.sourceBatchId ||
+        source.sourceImportBatchId ||
+        user && (user.sourceBatchId || user.lastSeenImportBatchId) ||
+        assignmentRow && assignmentRow.lastSeenImportBatchId ||
+        ""
+      ),
+      city: normalizeText(source.city || user && user.city || ""),
+      importType: normalizeText(source.importType || source.sourceImportType || ""),
+      register: normalizeText(source.register || user && user.register || ""),
+      targetEntity: normalizeText(source.targetEntity || ""),
+      templateId: normalizeText(source.templateId || source.sourceTemplateId || "")
+    };
   }
 
   function renderDashboardHistoryDrawer(user) {

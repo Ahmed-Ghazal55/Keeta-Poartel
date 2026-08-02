@@ -5,7 +5,7 @@ const NotificationRules = require("../src/notifications/notificationRules.js");
 const OperationsViewModel = require("../src/operations/operationsViewModel.js");
 const VerificationProfiles = require("../src/runtime/verificationProfiles.js");
 
-const scenarioId = VerificationProfiles.SCENARIOS.PROMPT_8_10_OPS_CLEANUP;
+const scenarioId = VerificationProfiles.SCENARIOS.PROMPT_8_10_B_ROW_ACTIONS;
 
 function test(name, handler) {
   try {
@@ -28,11 +28,11 @@ function findNotification(sourceModule, predicate) {
 
 const results = [];
 
-results.push(test("prompt 8.10 verification scenario resolves from the new browser profile", () => {
+results.push(test("prompt 8.10-B verification scenario resolves from the new browser profile", () => {
   assert.strictEqual(
     VerificationProfiles.resolveScenario({
-      storageProfile: "prompt8_10_ops_cleanup",
-      verify: "8_10"
+      storageProfile: "prompt8_10_b_row_actions",
+      verify: "8_10_b"
     }),
     scenarioId
   );
