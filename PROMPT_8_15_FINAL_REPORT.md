@@ -8,7 +8,7 @@ Fresh-run/demo checks pass. Prompt 8.15 delivers the canonical Monthly Closing P
 
 Browser proof confirms HR/external period identity, owner-versus-actual-rider and registered-versus-actual-vehicle separation, archive/import regressions, 0 read-only audits, 0 overflow, and 0 normal/safe console/page errors. All eleven artifacts exist and `npm run test:all` passes. No finance/payroll/invoice/final-close calculation or data mutation was introduced.
 
-GitHub publication details are recorded in `PROMPT_8_15_GITHUB_PUBLISH_REPORT.md`.
+GitHub publication succeeded to `origin/main`; details are recorded in `PROMPT_8_15_GITHUB_PUBLISH_REPORT.md`.
 
 ## Decision
 
