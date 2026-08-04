@@ -1,11 +1,13 @@
 # Prompt 8.16 Precheck Report
 
-Date: 2026-08-04
+Date: 2026-08-05
 
-Prompt 8.15 ended **A) Ready for Prompt 8.16**. `main` and `origin/main` were aligned at `262bf70`; origin is `https://github.com/Ahmed-Ghazal55/Keeta-Poartel.git`. Dev, focused, monthly-closing, and full-test scripts were present, as were README/checklist URLs through 8.15.
+The ten standing context handoff documents were created and verified under `docs/project-handoff/`, and `PROMPT_PROJECT_CONTEXT_EXPORT_REPORT.md` records the export. Prompt 8.15 was the latest completed prerequisite and ended **A) Ready for Prompt 8.16**. Repository evidence also showed a previously committed Prompt 8.16 foundation, which this run audited and aligned to the exact canonical contract.
 
-Discovered closing modules: four files under `src/monthlyClosing`, including the explicitly non-calculating finance boundary. Archive, Import, Performance, Operations, Fleet, and HR dependencies were present.
+Implementation scope: `src/finance/`, the Finance extension/shell scripts, Import Center route metadata, sidebar routing, package scripts, focused tests, README/checklist, handoff docs, and Prompt 8.16 reports. Package scripts include all required focused suites, `test:finance`, and `test:all`.
 
-Exact implementation scope: `package.json`, `README.md`, `docs/demo/PRESENTATION_CHECKLIST.md`, `keeta_operations_portal_starter_v4.html`, `keeta_operations_portal_finance_extension.js`, `src/finance/*.js`, `src/import/importCenterViewModel.js`, `src/data/entitySchemas.js`, `src/monthlyClosing/monthlyClosingFinanceBoundary.js`, `src/runtime/pageScopedDataLoading.js`, `src/runtime/verificationProfiles.js`, `src/ui/sidebarRouting.js`, `tests/finance*.test.js`, `tests/importCenterViewModel.test.js`, and `PROMPT_8_16_*.md`. Existing dirty capacity-planner, Shift Scheduler, Welcome, Apps Script references, scheduling reference, and runtime-session files remain excluded.
+Baseline branch was `main`; origin existed. Existing unrelated modified Shift Scheduler, capacity-planner, Welcome, Apps Script reference, scheduling reference, and runtime-session files were preserved and excluded.
 
-Ignored/private workbooks, CSV, `.xlsm`, logs, artifacts, uploads, private-data, databases/backups, and environments remain protected. Prompt 8.17, Prompt 9, final payroll/settlement/reconciliation/VAT/close, production auth, PostgreSQL, backend migration, destructive cleanup, and broad shell redesign are out of scope.
+Prompt 8.17, Prompt 9, final payroll/settlement, final invoice reconciliation, VAT/ZATCA, final close, PostgreSQL, Express/Nest migration, production auth, deployment, destructive cleanup, and broad shell redesign remain out of scope.
+
+Source: `PROMPT_8_15_FINAL_REPORT.md`, sections “Outcome” and “Decision”; repository inspection via Git, `package.json`, `src/`, and `tests/`.

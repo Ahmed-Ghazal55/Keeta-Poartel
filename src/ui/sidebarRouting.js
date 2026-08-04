@@ -152,7 +152,7 @@
     CL1:{code:"CL1",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_overview"},CL2:{code:"CL2",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_readiness"},CL3:{code:"CL3",group:"monthly_closing",page:"monthly-closing-shell",subPage:"rider_periods"},CL4:{code:"CL4",group:"monthly_closing",page:"monthly-closing-shell",subPage:"evidence_matrix"},CL5:{code:"CL5",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_issues"},CL6:{code:"CL6",group:"monthly_closing",page:"monthly-closing-shell",subPage:"future_finance_boundary"}
   }; }
   function getFinanceRoutes() { return {
-    FN1:{code:"FN1",group:"finance",page:"finance-shell",subPage:"finance_overview"},FN2:{code:"FN2",group:"finance",page:"finance-shell",subPage:"expected_inputs"},FN3:{code:"FN3",group:"finance",page:"finance-shell",subPage:"staged_inputs"},FN4:{code:"FN4",group:"finance",page:"finance-shell",subPage:"unresolved_inputs"},FN5:{code:"FN5",group:"finance",page:"finance-shell",subPage:"rider_finance_context"},FN6:{code:"FN6",group:"finance",page:"finance-shell",subPage:"finance_issues"},FN7:{code:"FN7",group:"finance",page:"finance-shell",subPage:"future_payroll_boundary"}
+    FN1:{code:"FN1",group:"finance",page:"finance-shell",subPage:"finance_overview"},FN2:{code:"FN2",group:"finance",page:"finance-shell",subPage:"finance_input_staging"},FN3:{code:"FN3",group:"finance",page:"finance-shell",subPage:"required_inputs"},FN4:{code:"FN4",group:"finance",page:"finance-shell",subPage:"finance_issues"},FN5:{code:"FN5",group:"finance",page:"finance-shell",subPage:"source_traceability"},FN6:{code:"FN6",group:"finance",page:"finance-shell",subPage:"future_finance_boundary"}
   }; }
 
   function mergeObjects(target) {

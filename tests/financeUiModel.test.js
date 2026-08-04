@@ -1,0 +1,1 @@
+const a=require("assert"),U=require("../src/finance/financeUiModel");const view=U.createView({},"required_inputs");a.equal(view.tabs.length,6);a.equal(view.activeTab,"required_inputs");a.equal(view.readOnly,true);a.equal(view.audit,false);console.log("financeUiModel: 4/4 passed");

@@ -1,0 +1,2 @@
+/* Canonical Prompt 8.16 filename; retained financeStagingUiModel powers the UI. */
+(function(root,factory){if(typeof module==="object"&&module.exports){module.exports=factory(require("./financeStagingUiModel.js"));return;}root.KeetaPortal=root.KeetaPortal||{};root.KeetaPortal.FinanceUiModel=factory(root.KeetaPortal.FinanceStagingUiModel);})(typeof globalThis!=="undefined"?globalThis:this,function(Model){"use strict";return Model;});

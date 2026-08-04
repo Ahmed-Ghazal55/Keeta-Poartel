@@ -1,5 +1,7 @@
-# Prompt 8.16 Finance Input Validation Report
+# Prompt 8.16 Finance Validation Report
 
-Date: 2026-08-04
+Date: 2026-08-05
 
-Validation covers missing scope/source/company invoice, unsupported family/currency, invalid raw format, duplicates, unlinked periods, owner without actual rider, cross-scope data, missing vehicle/gas-card/IBAN context, adjustment reason, and deferred VAT/payroll. Every issue carries canonical code/severity/status/message, source/entity, linked page/subpage/filters/drawer, and read-only/non-auditing flags.
+Validation covers missing company/platform invoices, rider payout, salary rule, conditional vehicle deduction/gas-card evidence, assignment period, actual rider, source batch, scope mismatch, unsupported input type, attempted final close without inputs, and future VAT/ZATCA configuration. Findings carry code, severity, message, source/entity, linked page/subpage/filters/drawer, `readOnly=true`, and `audit=false`.
+
+Source: repository inspection of `src/finance/financeInputValidation.js`; `tests/financeInputValidation.test.js`.

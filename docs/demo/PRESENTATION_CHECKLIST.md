@@ -20,7 +20,7 @@
 - Open Monthly Closing Preparation with `?storageProfile=prompt8_15_monthly_closing_prep&verify=8_15`; show Overview, Readiness, Rider Periods, Evidence Matrix, Issues, and Future Finance Boundary.
 - Confirm the archive reference, HR/external rider split, registered/actual vehicle split, import evidence, and disabled final-close boundary are visible.
 - Check safe mode with `?safe=1&storageProfile=prompt8_15_monthly_closing_prep&verify=8_15`.
-- Open Finance Staging with `?storageProfile=prompt8_16_finance_staging&verify=8_16`; show expected/staged/unresolved inputs, rider context, issues, read-only Import routes, and Future Payroll Boundary.
+- Open Finance Staging with `?storageProfile=prompt8_16_finance_staging&verify=8_16`; show Finance Overview, Finance Input Staging, Required Inputs, Finance Issues, Source Traceability, and Future Finance Boundary.
 - Confirm Finance Staging is input-readiness only: raw placeholders may be visible, but no totals, payable amount, reconciliation, payroll, settlement, VAT, or final close exists.
 - Check Finance Staging safe mode with `?safe=1&storageProfile=prompt8_16_finance_staging&verify=8_16`.
 

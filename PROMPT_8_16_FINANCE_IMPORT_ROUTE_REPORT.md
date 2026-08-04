@@ -1,5 +1,7 @@
 # Prompt 8.16 Finance Import Route Report
 
-Date: 2026-08-04
+Date: 2026-08-05
 
-Import Center now resolves company invoice, rider settlement input, salary base, bonus/deduction, vehicle deduction, gas card, advance, and bank-transfer placeholder routes, including backward-compatible aliases. Route opening, template selection, preview, and validation remain read-only/non-auditing. No finance save implementation was added; the existing explicit Import Center save boundary is unchanged.
+Read-only route placeholders exist for `company_invoice_import`, `platform_invoice_import`, `internal_settlement_import`, `rider_payout_input_import`, `deduction_input_import`, and `adjustment_input_import`. Import Center metadata exposes bounded placeholder requirements while route opening remains non-auditing and does not auto-save, reconcile invoices, calculate amounts, or display private workbook contents by default. Earlier route aliases remain available for compatibility.
+
+Source: repository inspection of `src/finance/financeInputRegistry.js` and `src/import/importCenterViewModel.js`; `tests/financeImportRoutes.test.js`.
