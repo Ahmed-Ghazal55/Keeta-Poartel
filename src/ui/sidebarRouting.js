@@ -18,7 +18,7 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (OperationsViewModel, HrViewModel, FleetViewModel, PerformanceViewModel) {
   "use strict";
 
-  var ROUTES = mergeObjects({}, getOperationsRoutes(), getHrRoutes(), getFleetRoutes(), getPerformanceRoutes(), getArchiveRoutes(), {
+  var ROUTES = mergeObjects({}, getOperationsRoutes(), getHrRoutes(), getFleetRoutes(), getPerformanceRoutes(), getArchiveRoutes(), getMonthlyClosingRoutes(), {
     RL1: { code: "RL1", group: "rules", page: "monthly-rules-shell", subPage: "settings" },
     RL2: { code: "RL2", group: "rules", page: "monthly-rules-shell", subPage: "mandatory" },
     RL3: { code: "RL3", group: "rules", page: "monthly-rules-shell", subPage: "incentives_cars" },
@@ -148,6 +148,9 @@
       AR5: { code: "AR5", group: "archive", page: "archive-shell", subPage: "archive_source_traceability" }
     };
   }
+  function getMonthlyClosingRoutes() { return {
+    CL1:{code:"CL1",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_overview"},CL2:{code:"CL2",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_readiness"},CL3:{code:"CL3",group:"monthly_closing",page:"monthly-closing-shell",subPage:"rider_periods"},CL4:{code:"CL4",group:"monthly_closing",page:"monthly-closing-shell",subPage:"evidence_matrix"},CL5:{code:"CL5",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_issues"},CL6:{code:"CL6",group:"monthly_closing",page:"monthly-closing-shell",subPage:"future_finance_boundary"}
+  }; }
 
   function mergeObjects(target) {
     Array.prototype.slice.call(arguments, 1).forEach(function (source) {

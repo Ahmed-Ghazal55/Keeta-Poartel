@@ -1,0 +1,1 @@
+const a=require("assert"),F=require("../src/monthlyClosing/monthlyClosingFinanceBoundary");const b=F.createBoundary();a.equal(b.items.length,11);a.equal(b.archivePreviewBlocked,false);a.equal(b.finalCloseBlocked,true);a.equal(b.calculationEnabled,false);a.equal(F.issue().status,"future_finance_required");console.log("monthlyClosingFinanceBoundary: 5/5 passed");

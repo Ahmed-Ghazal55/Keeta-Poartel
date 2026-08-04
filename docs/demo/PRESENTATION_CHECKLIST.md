@@ -7,6 +7,7 @@
 - Start the UI in Terminal 2 with `npm run dev:ui`.
 - Keep both terminals open during the presentation.
 - Open the intended verification/demo URL rather than a private-data profile.
+- Base URL: <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html>.
 - Confirm the browser shows no `ERR_CONNECTION_REFUSED` message.
 
 ## Demo walkthrough
@@ -16,11 +17,14 @@
 - Check HR and Fleet read-only cross-links.
 - Check Performance and Validity routes.
 - Check Monthly Archive preview and source traceability.
-- Check safe mode with `?safe=1` added to the chosen URL.
+- Open Monthly Closing Preparation with `?storageProfile=prompt8_15_monthly_closing_prep&verify=8_15`; show Overview, Readiness, Rider Periods, Evidence Matrix, Issues, and Future Finance Boundary.
+- Confirm the archive reference, HR/external rider split, registered/actual vehicle split, import evidence, and disabled final-close boundary are visible.
+- Check safe mode with `?safe=1&storageProfile=prompt8_15_monthly_closing_prep&verify=8_15`.
 
 ## Final safety checks
 
 - Run `npm run test:all` before presenting.
 - Never show private workbook files unless the user explicitly approved them for that audience.
+- Do not show real HR, rider, workbook, invoice, private, upload, environment, or local database files.
 - Never add HR, rider, invoice, workbook, `.env`, local DB, backup, or raw export data to Git.
 - Present payroll, finance, production auth, relational database migration, and final monthly closing as planned future architecture—not completed features.

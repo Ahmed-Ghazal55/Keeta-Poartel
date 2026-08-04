@@ -16,7 +16,8 @@
     PROMPT_8_11_B_HR_FLEET_CLICKTHROUGH: "prompt8_11_b_hr_fleet_clickthrough",
     PROMPT_8_12_PERFORMANCE_VALIDITY: "prompt8_12_performance_validity",
     PROMPT_8_13_IMPORT_PIPELINE: "prompt8_13_import_pipeline",
-    PROMPT_8_14_MONTHLY_ARCHIVE: "prompt8_14_monthly_archive"
+    PROMPT_8_14_MONTHLY_ARCHIVE: "prompt8_14_monthly_archive",
+    PROMPT_8_15_MONTHLY_CLOSING_PREP: "prompt8_15_monthly_closing_prep"
   };
 
   var SCENARIO_SIGNATURES = {};
@@ -28,6 +29,7 @@
   SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_12_PERFORMANCE_VALIDITY] = "2026.07.prompt8_12_performance_validity.v1";
   SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE] = "2026.08.prompt8_13_import_pipeline.v1";
   SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE] = "2026.08.prompt8_14_monthly_archive.v1";
+  SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP] = "2026.08.prompt8_15_monthly_closing_prep.v1";
 
   function resolveScenario(options) {
     options = options || {};
@@ -69,6 +71,7 @@
     if ((verify === "8_14" || verify === "prompt_8_14") && profile.indexOf("prompt8_14") === 0) {
       return SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE;
     }
+    if ((verify === "8_15" || verify === "prompt_8_15") && profile.indexOf("prompt8_15") === 0) return SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP;
     return "";
   }
 
@@ -103,13 +106,13 @@
       key !== SCENARIOS.PROMPT_8_11_B_HR_FLEET_CLICKTHROUGH &&
       key !== SCENARIOS.PROMPT_8_12_PERFORMANCE_VALIDITY &&
       key !== SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE &&
-      key !== SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
+      key !== SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE && key !== SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP
     ) {
       return null;
     }
     return {
       id: key,
-      label: key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
+      label: key === SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP ? "Prompt 8.15 Monthly Closing Preparation" : key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
         ? "Prompt 8.14 Monthly Archive"
         : key === SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE
         ? "Prompt 8.13 Import Pipeline"
@@ -143,7 +146,7 @@
         "vehicles"
       ],
       signature: getScenarioSignature(key),
-      collections: key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
+      collections: key === SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP ? buildPrompt814Collections() : key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
         ? buildPrompt814Collections()
         : key === SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE
         ? buildPrompt813Collections()

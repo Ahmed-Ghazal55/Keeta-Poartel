@@ -67,7 +67,7 @@
     var hr = collections.hrProfiles || [], external = collections.externalRiders || [];
     items.assignments.forEach(function (row) {
       var iqama = text(row.actualRiderIqama), source = hr.some(function (x) { return text(x.iqama) === iqama; }) ? "hr" : external.some(function (x) { return text(x.iqama) === iqama; }) ? "external" : "unknown";
-      row.actualRiderSource = source;
+      row.actualRiderSource = source === "unknown" && (row.actualRiderSource === "hr" || row.actualRiderSource === "external") ? row.actualRiderSource : source;
     });
   }
   function traceabilityFor(family, row) {

@@ -56,6 +56,10 @@ Open:
   <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?storageProfile=prompt8_13_import_pipeline&verify=8_13>
 - Monthly Archive verification:
   <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?storageProfile=prompt8_14_monthly_archive&verify=8_14>
+- Monthly Closing Preparation verification:
+  <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?storageProfile=prompt8_15_monthly_closing_prep&verify=8_15>
+- Monthly Closing Preparation safe mode:
+  <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?safe=1&storageProfile=prompt8_15_monthly_closing_prep&verify=8_15>
 
 ### Troubleshooting
 
