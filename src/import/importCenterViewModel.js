@@ -16,7 +16,14 @@
     hr_import: "hr_master_import",
     vehicles_import: "fleet_operating_vehicles_import",
     fleet_import: "fleet_operating_vehicles_import",
-    performance_import: "performance_pipeline_import"
+    performance_import: "performance_pipeline_import",
+    company_invoice: "company_invoice_import",
+    settlement_input: "rider_settlement_input_import",
+    salary_input: "salary_base_input_import",
+    bonus_import: "bonus_adjustment_import",
+    deduction_import: "deduction_adjustment_import",
+    gas_card_import: "gas_card_usage_import",
+    bank_input: "bank_transfer_input_import"
   };
 
   var TEMPLATE_DEFINITIONS = [
@@ -31,7 +38,16 @@
     definition("vda", "vda_import", "vdaResults", "performance", ["userId"], ["month", "city", "register", "platform"], "vda", ["userId", "month", "city", "register", "vda"]),
     definition("face_verification", "face_verification_import", "faceVerification", "performance", ["userId"], ["date", "month", "city", "register", "platform"], "face_verification", ["userId", "date", "month", "status"]),
     definition("delivery_experience", "delivery_experience_import", "deliveryExperience", "performance", ["userId"], ["month", "city", "register", "platform"], "delivery_experience", ["userId", "month", "city", "register", "status"]),
-    definition("validity_results", "validity_results_import", "validityResults", "performance", ["userId", "month"], ["actualRiderIqama", "city", "register", "platform"], "validity_results", ["userId", "actualRiderIqama", "month", "status"])
+    definition("validity_results", "validity_results_import", "validityResults", "performance", ["userId", "month"], ["actualRiderIqama", "city", "register", "platform"], "validity_results", ["userId", "actualRiderIqama", "month", "status"]),
+    definition("company_invoice", "company_invoice_import", "financeInputs", "finance", ["sourceRowNumber"], ["dashboardUserId", "amountRaw", "currency", "month"], "finance_placeholder", ["sourceRowNumber", "dashboardUserId", "amountRaw", "currency"]),
+    definition("rider_settlement_input", "rider_settlement_input_import", "financeInputs", "finance", ["dashboardUserId", "periodStart", "periodEnd"], ["actualRiderIqama", "amountRaw"], "finance_placeholder", ["dashboardUserId", "actualRiderIqama", "periodStart", "periodEnd"]),
+    definition("salary_base_input", "salary_base_input_import", "financeInputs", "finance", ["ownerIqama", "month"], ["dashboardUserId", "amountRaw"], "finance_placeholder", ["ownerIqama", "dashboardUserId", "month"]),
+    definition("bonus_adjustment", "bonus_adjustment_import", "financeInputs", "finance", ["dashboardUserId", "reasonCode"], ["amountRaw", "currency"], "finance_placeholder", ["dashboardUserId", "reasonCode", "amountRaw"]),
+    definition("deduction_adjustment", "deduction_adjustment_import", "financeInputs", "finance", ["dashboardUserId", "reasonCode"], ["amountRaw", "currency"], "finance_placeholder", ["dashboardUserId", "reasonCode", "amountRaw"]),
+    definition("vehicle_deduction", "vehicle_deduction_import", "financeInputs", "finance", ["vehicleSerial", "reasonCode"], ["dashboardUserId", "amountRaw"], "finance_placeholder", ["vehicleSerial", "reasonCode", "amountRaw"]),
+    definition("gas_card_usage", "gas_card_usage_import", "financeInputs", "finance", ["dashboardUserId", "month"], ["actualRiderIqama", "amountRaw"], "finance_placeholder", ["dashboardUserId", "actualRiderIqama", "month"]),
+    definition("advance_adjustment", "advance_adjustment_import", "financeInputs", "finance", ["dashboardUserId", "reasonCode"], ["amountRaw", "currency"], "finance_placeholder", ["dashboardUserId", "reasonCode", "amountRaw"]),
+    definition("bank_transfer_input", "bank_transfer_input_import", "financeInputs", "finance", ["ownerIqama"], ["dashboardUserId", "notes"], "finance_placeholder", ["ownerIqama", "dashboardUserId", "notes"])
   ];
 
   var ROUTES = buildRoutes();

@@ -18,7 +18,7 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (OperationsViewModel, HrViewModel, FleetViewModel, PerformanceViewModel) {
   "use strict";
 
-  var ROUTES = mergeObjects({}, getOperationsRoutes(), getHrRoutes(), getFleetRoutes(), getPerformanceRoutes(), getArchiveRoutes(), getMonthlyClosingRoutes(), {
+  var ROUTES = mergeObjects({}, getOperationsRoutes(), getHrRoutes(), getFleetRoutes(), getPerformanceRoutes(), getArchiveRoutes(), getMonthlyClosingRoutes(), getFinanceRoutes(), {
     RL1: { code: "RL1", group: "rules", page: "monthly-rules-shell", subPage: "settings" },
     RL2: { code: "RL2", group: "rules", page: "monthly-rules-shell", subPage: "mandatory" },
     RL3: { code: "RL3", group: "rules", page: "monthly-rules-shell", subPage: "incentives_cars" },
@@ -150,6 +150,9 @@
   }
   function getMonthlyClosingRoutes() { return {
     CL1:{code:"CL1",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_overview"},CL2:{code:"CL2",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_readiness"},CL3:{code:"CL3",group:"monthly_closing",page:"monthly-closing-shell",subPage:"rider_periods"},CL4:{code:"CL4",group:"monthly_closing",page:"monthly-closing-shell",subPage:"evidence_matrix"},CL5:{code:"CL5",group:"monthly_closing",page:"monthly-closing-shell",subPage:"closing_issues"},CL6:{code:"CL6",group:"monthly_closing",page:"monthly-closing-shell",subPage:"future_finance_boundary"}
+  }; }
+  function getFinanceRoutes() { return {
+    FN1:{code:"FN1",group:"finance",page:"finance-shell",subPage:"finance_overview"},FN2:{code:"FN2",group:"finance",page:"finance-shell",subPage:"expected_inputs"},FN3:{code:"FN3",group:"finance",page:"finance-shell",subPage:"staged_inputs"},FN4:{code:"FN4",group:"finance",page:"finance-shell",subPage:"unresolved_inputs"},FN5:{code:"FN5",group:"finance",page:"finance-shell",subPage:"rider_finance_context"},FN6:{code:"FN6",group:"finance",page:"finance-shell",subPage:"finance_issues"},FN7:{code:"FN7",group:"finance",page:"finance-shell",subPage:"future_payroll_boundary"}
   }; }
 
   function mergeObjects(target) {

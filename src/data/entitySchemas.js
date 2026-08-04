@@ -258,6 +258,7 @@
     finalMonthlySettlement: schema("finalMonthlySettlement", ["month", "city", "register", "status", "riderId"]),
     shiftSchedules: schema("shiftSchedules", ["city", "register", "status", "shiftDate"]),
     importBatches: schema("importBatches", ["city", "register", "status", "importType", "fileType", "templateId", "month", "targetEntity", "confidence", "sourceFileName", "savedRecordCount", "auditEventId"], { status: "pending" }),
+    financeInputs: schema("financeInputs", ["financeInputId", "inputFamily", "inputType", "month", "platform", "sourceBatchId", "sourceFileName", "sourceRowNumber", "courierId", "dashboardUserId", "ownerIqama", "actualRiderIqama", "actualRiderSource", "assignmentId", "periodStart", "periodEnd", "vehicleSerial", "vehiclePlate", "amountRaw", "currency", "reasonCode", "notes", "createdBy", "linkedEntityType", "linkedEntityId"], { status: "draft" }),
     auditLogs: schema("auditLogs", ["timestamp", "userId", "userName", "userRole", "userEmail", "actor", "actorUserId", "actorName", "actorRole", "action", "eventType", "entity", "entityType", "entityId", "city", "register", "platform", "context", "source", "note", "reason", "metadata", "idempotencyKey", "operationId", "importBatchId"]),
     auditLogsQuarantine: schema("auditLogsQuarantine", ["originalId", "cleanupRunId", "cleanupReasonCodes", "quarantinedAt", "source", "originalRecord"], { status: "quarantined" }),
     notifications: schema("notifications", [

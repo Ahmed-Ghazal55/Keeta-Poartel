@@ -1,6 +1,6 @@
 const assert = require("assert");
 const Model = require("../src/import/importCenterViewModel.js");
-assert.strictEqual(Model.listTemplates().length, 12);
+assert.strictEqual(Model.listTemplates().length, 21);
 assert.strictEqual(Model.normalizeRoute("performance_import").id, "performance_pipeline_import");
 assert.strictEqual(Model.normalizeRoute("performance_pipeline_import").templateId, "daily_performance");
 const state = Model.createPreviewState({ routeId: "current_assignments_import", rows: [{ userId: "U1" }], city: "Jeddah", register: "EXPRESS", platform: "keeta", month: "2026-07", sourceFileName: "safe.xlsx", batchId: "b1" });

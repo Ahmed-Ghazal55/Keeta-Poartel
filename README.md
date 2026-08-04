@@ -60,6 +60,10 @@ Open:
   <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?storageProfile=prompt8_15_monthly_closing_prep&verify=8_15>
 - Monthly Closing Preparation safe mode:
   <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?safe=1&storageProfile=prompt8_15_monthly_closing_prep&verify=8_15>
+- Finance Staging verification:
+  <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?storageProfile=prompt8_16_finance_staging&verify=8_16>
+- Finance Staging safe mode:
+  <http://127.0.0.1:4173/keeta_operations_portal_starter_v4.html?safe=1&storageProfile=prompt8_16_finance_staging&verify=8_16>
 
 ### Troubleshooting
 
@@ -74,6 +78,7 @@ Open:
 - Auth/RBAC exists as a tested foundation; final production authentication and authorization are later work.
 - Relational database and backend-framework migration are intentionally deferred.
 - Payroll, finance, invoice reconciliation, salary deductions, and final monthly closing are intentionally not implemented.
+- Finance Staging shows input readiness and raw source placeholders only; it does not calculate settlement, payroll, invoice reconciliation, totals, VAT, or payable amounts.
 - Use isolated `storageProfile` verification/demo URLs for presentations.
 - Real HR, rider, workbook, invoice, and operational exports must stay out of GitHub. Never move ignored private data into tracked paths for a demo.
 

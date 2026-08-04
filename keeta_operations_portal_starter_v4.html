@@ -276,6 +276,7 @@
         <button class="nav-btn" data-page="fleet-shell"><span>المركبات</span><span>09</span></button>
         <button class="nav-btn" data-page="shifts-shell"><span>الشفتات</span><span>10</span></button>
         <button class="nav-btn" data-page="monthly-closing-shell"><span>الإقفال الشهري</span><span>11</span></button>
+        <button class="nav-btn" data-page="finance-shell"><span>Finance Staging</span><span>FIN</span></button>
         <button class="nav-btn" data-page="archive-shell"><span>الأرشيف</span><span>12</span></button>
         <button class="nav-btn" data-page="reports-shell"><span>التقارير والتصدير</span><span>13</span></button>
         <button class="nav-btn" data-page="settings-shell"><span>الإعدادات</span><span>14</span></button>
@@ -750,6 +751,10 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="page" id="page-finance-shell">
+        <div class="card"><span class="eyebrow">Finance Staging</span><h2 class="section-title">Input-readiness preview</h2><div class="note">Read-only foundation loading.</div></div>
       </section>
 
       <section class="page" id="page-reports-shell">
@@ -2161,6 +2166,11 @@
   <script src="./src/monthlyClosing/monthlyClosingFinanceBoundary.js"></script>
   <script src="./src/monthlyClosing/monthlyClosingReadinessBuilder.js"></script>
   <script src="./src/monthlyClosing/monthlyClosingUiModel.js"></script>
+  <script src="./src/finance/financeInputModel.js"></script>
+  <script src="./src/finance/financeInputRegistry.js"></script>
+  <script src="./src/finance/financeInputValidation.js"></script>
+  <script src="./src/finance/financeStagingBuilder.js"></script>
+  <script src="./src/finance/financeStagingUiModel.js"></script>
   <script src="./src/fleet/vehicleCapacityEngine.js"></script>
   <script src="./src/fleet/vehicleMatchingEngine.js"></script>
   <script src="./src/fleet/fleetOperationsIntegration.js"></script>
@@ -2203,6 +2213,7 @@
   <script src="./keeta_operations_portal_performance_extension.js"></script>
   <script src="./keeta_operations_portal_archive_extension.js"></script>
   <script src="./keeta_operations_portal_monthly_closing_extension.js"></script>
+  <script src="./keeta_operations_portal_finance_extension.js"></script>
   <script src="./keeta_operations_portal_stabilization.js"></script>
 </body>
 </html>

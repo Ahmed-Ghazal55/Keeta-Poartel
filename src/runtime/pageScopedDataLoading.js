@@ -18,6 +18,8 @@
     "fleet-shell": ["vehicles", "vehicleAssignments", "vehicleCapacityReviews", "vehicleComplianceIssues", "vehicleMovementEvents", "dashboardUsers"],
     "performance-shell": ["performanceDaily", "performanceMonthly", "validityResults", "performanceIssues", "monthlyRules"],
     "monthly-rules-shell": ["monthlyRules", "auditLogs"],
+    "monthly-closing-shell": ["dashboardUsers", "assignments", "assignmentHistory", "hrProfiles", "externalRiders", "vehicles", "riderVehicleUsageHistory", "performanceDaily", "performanceMonthly", "validityResults", "performanceIssues", "importBatches", "auditLogs"],
+    "finance-shell": ["dashboardUsers", "assignments", "assignmentHistory", "hrProfiles", "externalRiders", "vehicles", "riderVehicleUsageHistory", "performanceDaily", "performanceMonthly", "validityResults", "performanceIssues", "importBatches", "auditLogs"],
     "settings": ["users", "roles", "auditLogs", "notifications"],
     "settings-shell": ["users", "roles", "auditLogs", "notifications"]
   };

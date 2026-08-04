@@ -17,7 +17,8 @@
     PROMPT_8_12_PERFORMANCE_VALIDITY: "prompt8_12_performance_validity",
     PROMPT_8_13_IMPORT_PIPELINE: "prompt8_13_import_pipeline",
     PROMPT_8_14_MONTHLY_ARCHIVE: "prompt8_14_monthly_archive",
-    PROMPT_8_15_MONTHLY_CLOSING_PREP: "prompt8_15_monthly_closing_prep"
+    PROMPT_8_15_MONTHLY_CLOSING_PREP: "prompt8_15_monthly_closing_prep",
+    PROMPT_8_16_FINANCE_STAGING: "prompt8_16_finance_staging"
   };
 
   var SCENARIO_SIGNATURES = {};
@@ -30,6 +31,7 @@
   SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE] = "2026.08.prompt8_13_import_pipeline.v1";
   SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE] = "2026.08.prompt8_14_monthly_archive.v1";
   SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP] = "2026.08.prompt8_15_monthly_closing_prep.v1";
+  SCENARIO_SIGNATURES[SCENARIOS.PROMPT_8_16_FINANCE_STAGING] = "2026.08.prompt8_16_finance_staging.v1";
 
   function resolveScenario(options) {
     options = options || {};
@@ -72,6 +74,7 @@
       return SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE;
     }
     if ((verify === "8_15" || verify === "prompt_8_15") && profile.indexOf("prompt8_15") === 0) return SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP;
+    if ((verify === "8_16" || verify === "prompt_8_16") && profile.indexOf("prompt8_16") === 0) return SCENARIOS.PROMPT_8_16_FINANCE_STAGING;
     return "";
   }
 
@@ -106,13 +109,13 @@
       key !== SCENARIOS.PROMPT_8_11_B_HR_FLEET_CLICKTHROUGH &&
       key !== SCENARIOS.PROMPT_8_12_PERFORMANCE_VALIDITY &&
       key !== SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE &&
-      key !== SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE && key !== SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP
+      key !== SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE && key !== SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP && key !== SCENARIOS.PROMPT_8_16_FINANCE_STAGING
     ) {
       return null;
     }
     return {
       id: key,
-      label: key === SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP ? "Prompt 8.15 Monthly Closing Preparation" : key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
+      label: key === SCENARIOS.PROMPT_8_16_FINANCE_STAGING ? "Prompt 8.16 Finance Staging" : key === SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP ? "Prompt 8.15 Monthly Closing Preparation" : key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
         ? "Prompt 8.14 Monthly Archive"
         : key === SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE
         ? "Prompt 8.13 Import Pipeline"
@@ -130,6 +133,7 @@
       replaceEntities: [
         "deliveryExperience",
         "faceVerification",
+        "financeInputs",
         "importBatches",
         "notifications",
         "operationalStatusReviews",
@@ -146,7 +150,7 @@
         "vehicles"
       ],
       signature: getScenarioSignature(key),
-      collections: key === SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP ? buildPrompt814Collections() : key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
+      collections: key === SCENARIOS.PROMPT_8_16_FINANCE_STAGING ? buildPrompt816Collections() : key === SCENARIOS.PROMPT_8_15_MONTHLY_CLOSING_PREP ? buildPrompt814Collections() : key === SCENARIOS.PROMPT_8_14_MONTHLY_ARCHIVE
         ? buildPrompt814Collections()
         : key === SCENARIOS.PROMPT_8_13_IMPORT_PIPELINE
         ? buildPrompt813Collections()
@@ -171,6 +175,23 @@
     collections.importBatches = (collections.importBatches || []).map(function (item) {
       return Object.assign({}, item, { sourceFileName: item.sourceFileName || item.fileName || "verification-source.xlsx", month: item.month || "2026-07" });
     });
+    return collections;
+  }
+
+  function buildPrompt816Collections() {
+    var collections = buildPrompt814Collections();
+    collections.financeInputs = [
+      { id:"fin-company-ready", financeInputId:"fin-company-ready", inputFamily:"company_invoice", inputType:"company_invoice_import", status:"ready", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-company-816", sourceFileName:"demo-company-invoice-placeholder.xlsx", sourceRowNumber:2, amountRaw:"1250.00", currency:"SAR", notes:"Verification placeholder only" },
+      { id:"fin-company-missing", financeInputId:"fin-company-missing", inputFamily:"company_invoice", inputType:"company_invoice_import", status:"missing", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-company-missing-816", sourceFileName:"demo-missing-case-placeholder.xlsx", sourceRowNumber:3, amountRaw:"", currency:"SAR", notes:"Missing company invoice demo case" },
+      { id:"fin-external", financeInputId:"fin-external", inputFamily:"rider_settlement_input", inputType:"rider_settlement_input_import", status:"under_review", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-rider-816", sourceFileName:"demo-rider-input.csv", sourceRowNumber:2, dashboardUserId:"8121001", ownerIqama:"2444812001", actualRiderIqama:"2999812001", actualRiderSource:"external", assignmentId:"assignment_812_external", periodStart:"2026-07-01", periodEnd:"2026-07-15", vehicleSerial:"ACT-BIKE-812", vehiclePlate:"ACT-812", amountRaw:"100", currency:"SAR" },
+      { id:"fin-hr", financeInputId:"fin-hr", inputFamily:"rider_settlement_input", inputType:"rider_settlement_input_import", status:"under_review", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-rider-816", sourceFileName:"demo-rider-input.csv", sourceRowNumber:3, dashboardUserId:"8121001", ownerIqama:"2444812001", actualRiderIqama:"2444812016", actualRiderSource:"hr", assignmentId:"assignment_812_hr", periodStart:"2026-07-16", periodEnd:"2026-07-31", vehicleSerial:"ACT-CAR-816", vehiclePlate:"ACT-816", amountRaw:"200", currency:"SAR" },
+      { id:"fin-duplicate", financeInputId:"fin-duplicate", inputFamily:"rider_settlement_input", inputType:"rider_settlement_input_import", status:"warning", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-rider-816", sourceFileName:"demo-rider-input.csv", sourceRowNumber:3, dashboardUserId:"8121001", assignmentId:"assignment_812_hr", amountRaw:"200", currency:"SAR", notes:"Intentional duplicate verification row" },
+      { id:"fin-unlinked", financeInputId:"fin-unlinked", inputFamily:"adjustment_input", inputType:"bonus_adjustment_import", status:"under_review", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-adjust-816", sourceFileName:"demo-unlinked-adjustment.csv", sourceRowNumber:9, dashboardUserId:"UNKNOWN-816", amountRaw:"25", currency:"SAR", reasonCode:"DEMO_REVIEW" },
+      { id:"fin-gas", financeInputId:"fin-gas", inputFamily:"gas_card_input", inputType:"gas_card_usage_import", status:"draft", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-gas-816", sourceFileName:"demo-gas-card.csv", sourceRowNumber:2, dashboardUserId:"8121001", actualRiderIqama:"2999812001", assignmentId:"assignment_812_external", amountRaw:"50", currency:"SAR", notes:"Demo card GAS-816" },
+      { id:"fin-bank", financeInputId:"fin-bank", inputFamily:"bank_transfer_input", inputType:"bank_transfer_input_import", status:"under_review", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", sourceBatchId:"batch-fin-bank-816", sourceFileName:"demo-bank-readiness.csv", sourceRowNumber:2, dashboardUserId:"8121001", ownerIqama:"2444812001", assignmentId:"assignment_812_external", amountRaw:"", currency:"SAR", notes:"IBAN readiness placeholder; no transfer" },
+      { id:"fin-vat", financeInputId:"fin-vat", inputFamily:"vat_zatca_placeholder", status:"future_required", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", notes:"Intentionally deferred" },
+      { id:"fin-payroll", financeInputId:"fin-payroll", inputFamily:"payroll_export_placeholder", status:"future_required", register:"EXPRESS", city:"Jeddah", platform:"keeta", month:"2026-07", notes:"Intentionally deferred" }
+    ];
     return collections;
   }
 
