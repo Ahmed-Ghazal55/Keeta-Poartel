@@ -6,7 +6,7 @@ Date: 2026-08-04
 
 Prompt 8.16 delivers the canonical Finance Input model/registry, read-only Import route metadata, archive/closing-led staging builder, validation, unresolved bucket, rider context, traceability, continued finance/payroll boundary, seven-tab UI, isolated verification profile, tests, and presentation handoff. No final settlement, payroll, invoice reconciliation, VAT, payable calculation, close, or automatic save was added.
 
-Fresh run and browser gates pass: cross-module regressions are clean, all 14 artifacts exist, read-only audits/overflow/errors are zero in normal and safe modes, and `npm run test:all` passes. Git publication details are in the publish report.
+Fresh run and browser gates pass: cross-module regressions are clean, all 14 artifacts exist, read-only audits/overflow/errors are zero in normal and safe modes, and `npm run test:all` passes. Git publication to `origin/main` succeeded; details are in the publish report.
 
 ## Decision
 
